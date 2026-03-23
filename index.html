@@ -138,7 +138,7 @@
   .badge-new { background: #dbeafe; color: #1e40af; }
   .badge-injury { background: #fee2e2; color: #991b1b; }
 
-  .table-section { margin-top: 32px; }
+  .table-section { margin-top: 32px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .table-section h2 { font-size: 1.05em; font-weight: 700; margin-bottom: 14px; }
   table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); }
   th, td { padding: 9px 14px; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.82em; }
@@ -539,11 +539,27 @@
   @media (max-width: 900px) {
     .inbody-charts-grid { grid-template-columns: 1fr; }
     .inbody-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .readiness-panel { grid-template-columns: 1fr !important; text-align: center; }
+    .readiness-gauge { margin-bottom: 8px; }
+    .readiness-components { grid-template-columns: 1fr 1fr; }
   }
 
   @media (max-width: 700px) {
     .chart-grid { grid-template-columns: 1fr; }
     body { padding: 14px; }
+    .tab-button { padding: 10px 14px; font-size: 0.78em; letter-spacing: 0.3px; }
+    .countdown-hero { padding: 20px; }
+    .countdown-hero .weeks { font-size: 2em; }
+    .countdown-hero .race-info { font-size: 0.78em; }
+    .readiness-panel { padding: 16px; }
+    .readiness-gauge .score { font-size: 2.4em; }
+    .readiness-components { grid-template-columns: 1fr; }
+    .weekly-targets { grid-template-columns: 1fr; }
+    .alert-card { padding: 12px 14px; font-size: 0.82em; }
+    .summary-row { grid-template-columns: repeat(2, 1fr); }
+    .goals-grid { grid-template-columns: 1fr; }
+    .table-section table { font-size: 0.75em; }
+    .table-section th, .table-section td { padding: 6px 8px; white-space: nowrap; }
   }
 
   @media print {
