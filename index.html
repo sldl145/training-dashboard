@@ -234,6 +234,81 @@
   .graveyard-chip .name { font-weight: 600; }
   .graveyard-chip .detail { color: var(--muted); font-size: 0.9em; }
 
+  /* ========== INJURY LOG STYLES ========== */
+  .injury-toggle {
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .injury-toggle .arrow {
+    transition: transform 0.2s;
+    font-size: 0.7em;
+  }
+  .injury-toggle.open .arrow { transform: rotate(90deg); }
+  .injury-body { display: none; }
+  .injury-body.open { display: block; }
+  .injury-group-label {
+    font-size: 0.85em;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 18px 0 8px;
+  }
+  .injury-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: box-shadow 0.15s;
+  }
+  .injury-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .injury-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .injury-card-header .name { font-weight: 600; font-size: 0.95em; }
+  .injury-card-header .dates { color: var(--muted); font-size: 0.8em; }
+  .injury-status {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 0.75em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .injury-status.recovered { background: #d1fae5; color: #065f46; }
+  .injury-status.rehab { background: #fef3c7; color: #92400e; }
+  .injury-status.active { background: #fee2e2; color: #991b1b; }
+  .injury-detail { display: none; margin-top: 12px; font-size: 0.85em; }
+  .injury-detail.open { display: block; }
+  .injury-detail dt { font-weight: 600; color: var(--muted); margin-top: 10px; }
+  .injury-detail dd { margin: 2px 0 0 0; line-height: 1.5; }
+  .injury-timeline-item {
+    display: flex;
+    gap: 8px;
+    padding: 3px 0;
+    font-size: 0.9em;
+  }
+  .injury-timeline-item .tl-date { font-weight: 600; min-width: 42px; }
+  .injury-lesson {
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: #f8fafc;
+    border-left: 3px solid var(--primary);
+    border-radius: 0 6px 6px 0;
+    font-style: italic;
+    font-size: 0.9em;
+  }
+
   /* ========== RUNNING TAB STYLES ========== */
   .countdown-hero {
     background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
@@ -630,6 +705,7 @@
   <div id="sections"></div>
   <div class="table-section" id="tables"></div>
   <div class="table-section" id="graveyard-section"></div>
+  <div class="table-section" id="injury-log-section"></div>
 </div>
 
 <!-- Running Tab -->
@@ -1564,12 +1640,136 @@ function renderGraveyard() {
   container.innerHTML = html;
 }
 
+// ========== INJURY LOG ==========
+const injuryLog = [
+  {
+    name: "Left Hamstring Strain (Grade 1)",
+    muscleGroup: "Posterior Chain",
+    onset: "2026-02-07",
+    resolved: "2026-02-21",
+    status: "recovered",
+    cause: "SLDL 125 kg, Set 2 Rep 4 - inconsistent knee position during solo session (PT absent)",
+    affected: ["SLDL (paused 12 days)", "Barbell Squat (substituted with Hack Squat)"],
+    timeline: [
+      { date: "07/02", note: "Injury during SLDL. Felt something shift. Pain radiated to ankle then localised." },
+      { date: "08/02", note: "Pain 2-3/10, walking awkward" },
+      { date: "14/02", note: "Cable test 3-4/10 pain with load" },
+      { date: "18/02", note: "Return to SLDL - 105 kg then 120 kg x 6 pain-free" },
+      { date: "21/02", note: "Full recovery - 130 kg x 6 (pre-injury PR matched)" },
+      { date: "25/02", note: "135 kg x 5 x 2 - exceeds pre-injury best" }
+    ],
+    recoveryDays: 14,
+    lesson: "Maintain consistent knee position. Don't train heavy SLDL unsupervised."
+  },
+  {
+    name: "Left Shoulder (Bursa + Biceps Tendon Inflammation)",
+    muscleGroup: "Shoulder",
+    onset: "2026-03-07",
+    resolved: null,
+    status: "rehab",
+    cause: "Physio ultrasound: fluid-filled bursa, inflamed proximal long head biceps tendon, positive Hawkins impingement test",
+    affected: ["OHP (medical hold 09/03 - 16/03, cautiously reintroduced)", "Chest Fly (paused - technique issues compounding shoulder load)"],
+    timeline: [
+      { date: "07/03", note: "Physio ultrasound + assessment. Daily rehab prescribed." },
+      { date: "09/03", note: "OHP farewell session at 45 kg. Medical hold begins." },
+      { date: "11/03", note: "Last OHP session. Two pressing movements confirmed as too much shoulder load." },
+      { date: "16/03", note: "OHP cautiously reintroduced at 45 kg - pain-free after physio exercises" },
+      { date: "25/03", note: "OHP 50 kg x 4 clean. Shockwave therapy + daily rehab confirmed working." }
+    ],
+    recoveryDays: null,
+    lesson: "Daily rehab exercises (ext. rotation, Y-raises, face pulls 3x12-15) + shockwave therapy. Two pressing movements = too much shoulder load."
+  },
+  {
+    name: "Right Serratus Anterior Strain",
+    muscleGroup: "Torso / Ribcage",
+    onset: "2026-03-16",
+    resolved: null,
+    status: "active",
+    cause: "First noticed after session #69 (SLDL 145 kg + Seated Row 100 kg x 7). Stabiliser muscle overloaded.",
+    affected: ["Seated Row (paused)", "SLDL (paused)"],
+    timeline: [
+      { date: "16/03", note: "First noticed - dismissed as minor" },
+      { date: "20/03", note: "Re-triggered by testing seated row and SLDL in subsequent sessions" },
+      { date: "25/03", note: "Formal rest protocol. Complete stop on triggering movements until pain-free." }
+    ],
+    recoveryDays: null,
+    lesson: "Same pattern as hamstring: 'I thought it was nothing' → kept testing → prolonged recovery. Stop poking injuries."
+  }
+];
+
+function renderInjuryLog() {
+  const container = document.getElementById('injury-log-section');
+  if (injuryLog.length === 0) return;
+
+  // Group by muscle group
+  const groups = {};
+  injuryLog.forEach(inj => {
+    if (!groups[inj.muscleGroup]) groups[inj.muscleGroup] = [];
+    groups[inj.muscleGroup].push(inj);
+  });
+
+  const activeCount = injuryLog.filter(i => i.status === 'active').length;
+  const rehabCount = injuryLog.filter(i => i.status === 'rehab').length;
+  const countLabel = activeCount > 0 ? `${injuryLog.length} (${activeCount} active)` :
+                     rehabCount > 0 ? `${injuryLog.length} (${rehabCount} rehab)` :
+                     `${injuryLog.length}`;
+
+  let html = `
+    <div class="section-label injury-toggle" onclick="this.classList.toggle('open'); document.getElementById('injury-body').classList.toggle('open');">
+      <span class="arrow">&#9654;</span> Injury Log <span class="count">${countLabel}</span>
+    </div>
+    <div id="injury-body" class="injury-body">
+  `;
+
+  Object.keys(groups).forEach(group => {
+    html += `<div class="injury-group-label">${group}</div>`;
+    groups[group].forEach((inj, idx) => {
+      const cardId = 'injury-card-' + inj.onset.replace(/-/g, '');
+      const statusLabel = inj.status === 'recovered' ? 'Recovered' : inj.status === 'rehab' ? 'Under Rehab' : 'Active';
+      const onsetDisplay = formatDate(inj.onset);
+      const resolvedDisplay = inj.resolved ? formatDate(inj.resolved) : 'ongoing';
+      const durationText = inj.recoveryDays ? `${inj.recoveryDays} days` : 'ongoing';
+
+      html += `
+        <div class="injury-card" onclick="document.getElementById('${cardId}').classList.toggle('open');">
+          <div class="injury-card-header">
+            <span class="name">${inj.name}</span>
+            <span class="dates">${onsetDisplay} - ${resolvedDisplay} (${durationText})</span>
+            <span class="injury-status ${inj.status}">${statusLabel}</span>
+          </div>
+          <div class="injury-detail" id="${cardId}">
+            <dl>
+              <dt>Cause</dt>
+              <dd>${inj.cause}</dd>
+              <dt>Affected Exercises</dt>
+              <dd>${inj.affected.join(', ')}</dd>
+              <dt>Timeline</dt>
+              <dd>
+      `;
+      inj.timeline.forEach(t => {
+        html += `<div class="injury-timeline-item"><span class="tl-date">${t.date}</span><span>${t.note}</span></div>`;
+      });
+      html += `
+              </dd>
+            </dl>
+            <div class="injury-lesson">${inj.lesson}</div>
+          </div>
+        </div>
+      `;
+    });
+  });
+
+  html += '</div>';
+  container.innerHTML = html;
+}
+
 // ========== INIT ==========
 renderSummary();
 renderGoals();
 renderCharts();
 renderTables();
 renderGraveyard();
+renderInjuryLog();
 
 
 // ========== RUNNING TAB ==========
