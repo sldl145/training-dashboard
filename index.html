@@ -572,7 +572,7 @@
 <body>
 
 <h1>Training, Body Composition & Running Dashboard</h1>
-<p class="subtitle">November 2025 - March 2026 | Updated 23/03/2026</p>
+<p class="subtitle">November 2025 - March 2026 | Updated 25/03/2026</p>
 
 <!-- Tab Navigation -->
 <div class="tab-nav">
@@ -813,6 +813,7 @@ const exercises = {
       { date: "2026-03-11", weight: 45, bestReps: 5, note: "Rebuild, clean" },
       { date: "2026-03-16", weight: 45, bestReps: 5, note: "Consistent rebuild" },
       { date: "2026-03-18", weight: 47.5, bestReps: 5, note: "First clean step up!" },
+      { date: "2026-03-25", weight: 50, bestReps: 4, note: "Back to 50 kg" },
     ]
   },
   "Triceps Extension": {
@@ -829,6 +830,7 @@ const exercises = {
       { date: "2026-03-18", weight: 31.25, bestReps: 8, note: "Weight PR" },
       { date: "2026-03-20", weight: 32.5, bestReps: 4, note: "New weight PR!" },
       { date: "2026-03-23", weight: 32.5, bestReps: 6, note: "Rep PR at 32.5!" },
+      { date: "2026-03-25", weight: 32.5, bestReps: 5, note: "Maintained 32.5" },
     ]
   },
   "Weighted Pull-ups": {
@@ -869,6 +871,7 @@ const exercises = {
       { date: "2026-03-16", weight: 15, bestReps: 5, note: "March target HIT!" },
       { date: "2026-03-20", weight: 10, bestReps: 4, note: "After bench" },
       { date: "2026-03-23", weight: 10, bestReps: 5, note: "+1 rep at +10" },
+      { date: "2026-03-25", weight: 15, bestReps: 5, note: "Back to +15, matched PR" },
     ]
   },
   "Seated Row": {
@@ -1014,6 +1017,14 @@ const exercises = {
       { date: "2026-03-09", weight: 37.5, bestReps: 2, note: "" },
       { date: "2026-03-16", weight: 37.5, bestReps: 5, note: "Matched Feb best" },
       { date: "2026-03-18", weight: 40, bestReps: 3, note: "March target HIT!" },
+      { date: "2026-03-25", weight: 35, bestReps: 5, note: "Working at 35" },
+    ]
+  },
+  "Lying Leg Curl": {
+    muscle: "Hamstrings", unit: "kg", type: "isolation",
+    data: [
+      { date: "2026-03-20", weight: 68, bestReps: 8, note: "First session" },
+      { date: "2026-03-25", weight: 64, bestReps: 8, note: "Second session, lighter weight" },
     ]
   },
 };
@@ -1079,8 +1090,8 @@ const graveyard = {
 };
 
 // ========== HELPERS ==========
-const TODAY = "2026-03-23";
-const SEVEN_DAYS_AGO = "2026-03-16";
+const TODAY = "2026-03-25";
+const SEVEN_DAYS_AGO = "2026-03-18";
 
 function formatDate(d) {
   const dt = new Date(d);
@@ -1104,7 +1115,7 @@ function firstDate(ex) {
 function isNew(ex) {
   // "New" = first data point is within 4 weeks AND at least 2 points in last 7 days
   const first = new Date(firstDate(ex));
-  const fourWeeksAgo = new Date("2026-02-23");
+  const fourWeeksAgo = new Date("2026-02-25");
   const recentPoints = ex.data.filter(d => d.date >= SEVEN_DAYS_AGO).length;
   return first >= fourWeeksAgo && recentPoints >= 2;
 }
