@@ -396,6 +396,48 @@
   .weekly-target-item .target-label { color: var(--muted); font-weight: 600; }
   .weekly-target-item .target-value { font-weight: 700; }
 
+  /* ========== EXERCISE COLLAPSIBLE + SET DETAIL ROWS ========== */
+  .exercise-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 12px;
+    margin-top: 8px;
+    background: #f7f6f3;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.9em;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: background 0.15s;
+  }
+  .exercise-toggle:hover { background: #efeee9; }
+  .exercise-toggle:active { background: #e8e5df; }
+  .exercise-toggle .arrow { font-size: 10px; color: var(--muted); transition: transform 0.2s; display: inline-block; }
+  .exercise-toggle.open .arrow { transform: rotate(90deg); }
+  .exercise-toggle.open { background: #f0f4ff; border-color: var(--accent); }
+  .exercise-body { display: none; padding-top: 4px; }
+  .exercise-body.open { display: block; }
+
+  /* ========== SET DETAIL EXPAND ROWS ========== */
+  tr.data-row { cursor: pointer; transition: background 0.15s; user-select: none; -webkit-user-select: none; }
+  tr.data-row:hover { background: #f7f6f3; }
+  tr.data-row:active { background: #efeee9; }
+  tr.data-row.expanded { background: #f0f4ff; }
+  tr.data-row td:first-child { position: relative; padding-left: 22px; }
+  tr.data-row td:first-child::before { content: '\25B8'; position: absolute; left: 8px; top: 50%; transform: translateY(-50%); font-size: 10px; color: var(--muted); transition: transform 0.2s; }
+  tr.data-row.expanded td:first-child::before { content: '\25BE'; color: var(--accent); }
+  tr.sets-row { display: none; }
+  tr.sets-row.visible { display: table-row; }
+  tr.sets-row td { padding: 0 10px 10px 22px; border-bottom: 1px solid var(--border); background: #f8f9fc; }
+  .sets-detail { display: flex; flex-wrap: wrap; gap: 6px; }
+  .set-chip { display: inline-flex; align-items: center; gap: 4px; background: #ffffff; border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 500; color: var(--text); }
+  .set-chip .set-num { font-size: 10px; color: var(--muted); font-weight: 600; text-transform: uppercase; }
+  .set-chip.best { border-color: var(--accent); background: #eff3ff; }
+  .set-chip.best .set-num { color: var(--accent); }
+
   /* ========== INBODY STYLES (adapted to light theme) ========== */
   .inbody-header {
     display: flex; justify-content: space-between; align-items: flex-start;
@@ -778,181 +820,181 @@ const exercises = {
   "Overhead Press": {
     muscle: "Shoulders / Triceps", unit: "kg", type: "compound",
     data: [
-      { date: "2025-11-13", weight: 40, bestReps: 7, note: "Reintroduced" },
-      { date: "2025-11-17", weight: 42.5, bestReps: 6, note: "PR" },
-      { date: "2025-11-19", weight: 42.5, bestReps: 6, note: "Maintained" },
+      { date: "2025-11-13", weight: 40, bestReps: 7, note: "Reintroduced", sets: [{"w":50,"r":2},{"w":45,"r":5},{"w":40,"r":5}] },
+      { date: "2025-11-17", weight: 42.5, bestReps: 6, note: "PR", sets: [{"w":50,"r":3},{"w":42.5,"r":5},{"w":42.5,"r":5}] },
+      { date: "2025-11-19", weight: 42.5, bestReps: 6, note: "Maintained", sets: [{"w":40,"r":5},{"w":40,"r":5}] },
       { date: "2025-11-24", weight: 45, bestReps: 5, note: "+2.5kg" },
       { date: "2025-11-26", weight: 45, bestReps: 5, note: "Maintained" },
-      { date: "2025-11-29", weight: 45, bestReps: 7, note: "Volume PR" },
-      { date: "2025-12-03", weight: 50, bestReps: 2, note: "Weight PR" },
-      { date: "2025-12-05", weight: 47.5, bestReps: 4, note: "Working" },
-      { date: "2025-12-10", weight: 50, bestReps: 3, note: "" },
-      { date: "2025-12-13", weight: 47.5, bestReps: 5, note: "" },
-      { date: "2025-12-17", weight: 45, bestReps: 6, note: "Controlled" },
-      { date: "2025-12-20", weight: 47.5, bestReps: 5, note: "Matched" },
-      { date: "2025-12-24", weight: 45, bestReps: 6, note: "Tunisia" },
-      { date: "2025-12-28", weight: 50, bestReps: 5, note: "1RM PR" },
-      { date: "2025-12-31", weight: 47.5, bestReps: 5, note: "" },
-      { date: "2026-01-03", weight: 50, bestReps: 5, note: "Working" },
-      { date: "2026-01-07", weight: 47.5, bestReps: 5, note: "Volume" },
-      { date: "2026-01-10", weight: 50, bestReps: 6, note: "Jan target" },
-      { date: "2026-01-14", weight: 50, bestReps: 3, note: "Volume" },
-      { date: "2026-01-19", weight: 55, bestReps: 3, note: "Weight PR" },
-      { date: "2026-01-26", weight: 55, bestReps: 2, note: "CNS failure" },
-      { date: "2026-01-31", weight: 50, bestReps: 3, note: "Hungover" },
-      { date: "2026-02-02", weight: 55, bestReps: 2, note: "Regression" },
-      { date: "2026-02-07", weight: 50, bestReps: 4, note: "Deload" },
-      { date: "2026-02-09", weight: 52.5, bestReps: 4, note: "Rebuilding" },
-      { date: "2026-02-14", weight: 50, bestReps: 5, note: "Solid rebuild" },
-      { date: "2026-02-16", weight: 52.5, bestReps: 3, note: "Down from 52.5x4" },
-      { date: "2026-02-21", weight: 50, bestReps: 4, note: "Still grinding" },
-      { date: "2026-02-23", weight: 45, bestReps: 5, note: "Deload started, clean" },
-      { date: "2026-03-01", weight: 50, bestReps: 4, note: "" },
-      { date: "2026-03-03", weight: 50, bestReps: 3, note: "" },
-      { date: "2026-03-09", weight: 45, bestReps: 5, note: "Rebuild, clean" },
-      { date: "2026-03-11", weight: 45, bestReps: 5, note: "Rebuild, clean" },
-      { date: "2026-03-16", weight: 45, bestReps: 5, note: "Consistent rebuild" },
-      { date: "2026-03-18", weight: 47.5, bestReps: 5, note: "First clean step up!" },
-      { date: "2026-03-25", weight: 50, bestReps: 4, note: "Back to 50 kg" },
+      { date: "2025-11-29", weight: 45, bestReps: 7, note: "Volume PR", sets: [{"w":45,"r":7},{"w":45,"r":3}] },
+      { date: "2025-12-03", weight: 50, bestReps: 2, note: "Weight PR", sets: [{"w":50,"r":2},{"w":40,"r":7},{"w":40,"r":5}] },
+      { date: "2025-12-05", weight: 47.5, bestReps: 4, note: "Working", sets: [{"w":47.5,"r":4},{"w":42.5,"r":6}] },
+      { date: "2025-12-10", weight: 50, bestReps: 3, note: "", sets: [{"w":50,"r":3},{"w":42.5,"r":5},{"w":42.5,"r":5}] },
+      { date: "2025-12-13", weight: 47.5, bestReps: 5, note: "", sets: [{"w":47.5,"r":5},{"w":47.5,"r":3},{"w":40,"r":8}] },
+      { date: "2025-12-17", weight: 45, bestReps: 6, note: "Controlled", sets: [{"w":45,"r":6},{"w":45,"r":6},{"w":45,"r":3}] },
+      { date: "2025-12-20", weight: 47.5, bestReps: 5, note: "Matched", sets: [{"w":47.5,"r":5},{"w":47.5,"r":5}] },
+      { date: "2025-12-24", weight: 45, bestReps: 6, note: "Tunisia", sets: [{"w":45,"r":6},{"w":45,"r":6},{"w":45,"r":4}] },
+      { date: "2025-12-28", weight: 50, bestReps: 5, note: "1RM PR", sets: [{"w":50,"r":5},{"w":50,"r":4},{"w":45,"r":4}] },
+      { date: "2025-12-31", weight: 47.5, bestReps: 5, note: "", sets: [{"w":47.5,"r":5},{"w":47.5,"r":5}] },
+      { date: "2026-01-03", weight: 50, bestReps: 5, note: "Working", sets: [{"w":50,"r":5},{"w":50,"r":4}] },
+      { date: "2026-01-07", weight: 47.5, bestReps: 5, note: "Volume", sets: [{"w":47.5,"r":5},{"w":47.5,"r":5},{"w":45,"r":3}] },
+      { date: "2026-01-10", weight: 50, bestReps: 6, note: "Jan target", sets: [{"w":50,"r":6},{"w":50,"r":4}] },
+      { date: "2026-01-14", weight: 50, bestReps: 3, note: "Volume", sets: [{"w":50,"r":3},{"w":45,"r":6},{"w":45,"r":6}] },
+      { date: "2026-01-19", weight: 55, bestReps: 3, note: "Weight PR", sets: [{"w":55,"r":3},{"w":50,"r":5}] },
+      { date: "2026-01-26", weight: 55, bestReps: 2, note: "CNS failure", sets: [{"w":55,"r":2},{"w":50,"r":3}] },
+      { date: "2026-01-31", weight: 50, bestReps: 3, note: "Hungover", sets: [{"w":50,"r":3},{"w":45,"r":5}] },
+      { date: "2026-02-02", weight: 55, bestReps: 2, note: "Regression", sets: [{"w":55,"r":2},{"w":50,"r":4}] },
+      { date: "2026-02-07", weight: 50, bestReps: 4, note: "Deload", sets: [{"w":50,"r":4},{"w":47.5,"r":5},{"w":47.5,"r":4}] },
+      { date: "2026-02-09", weight: 52.5, bestReps: 4, note: "Rebuilding", sets: [{"w":52.5,"r":4},{"w":50,"r":4}] },
+      { date: "2026-02-14", weight: 50, bestReps: 5, note: "Solid rebuild", sets: [{"w":50,"r":5},{"w":50,"r":4},{"w":45,"r":6}] },
+      { date: "2026-02-16", weight: 52.5, bestReps: 3, note: "Down from 52.5x4", sets: [{"w":52.5,"r":3},{"w":50,"r":3},{"w":42.5,"r":5}] },
+      { date: "2026-02-21", weight: 50, bestReps: 4, note: "Still grinding", sets: [{"w":50,"r":4},{"w":50,"r":3},{"w":42.5,"r":6}] },
+      { date: "2026-02-23", weight: 45, bestReps: 5, note: "Deload started, clean", sets: [{"w":50,"r":2},{"w":45,"r":5},{"w":45,"r":5}] },
+      { date: "2026-03-01", weight: 50, bestReps: 4, note: "", sets: [{"w":50,"r":4},{"w":50,"r":3},{"w":45,"r":4}] },
+      { date: "2026-03-03", weight: 50, bestReps: 3, note: "", sets: [{"w":50,"r":3},{"w":42.5,"r":6}] },
+      { date: "2026-03-09", weight: 45, bestReps: 5, note: "Rebuild, clean", sets: [{"w":45,"r":5},{"w":45,"r":5},{"w":45,"r":4}] },
+      { date: "2026-03-11", weight: 45, bestReps: 5, note: "Rebuild, clean", sets: [{"w":50,"r":2},{"w":45,"r":5}] },
+      { date: "2026-03-16", weight: 45, bestReps: 5, note: "Consistent rebuild", sets: [{"w":45,"r":5},{"w":45,"r":5}] },
+      { date: "2026-03-18", weight: 47.5, bestReps: 5, note: "First clean step up!", sets: [{"w":47.5,"r":5},{"w":47.5,"r":5}] },
+      { date: "2026-03-25", weight: 50, bestReps: 4, note: "Back to 50 kg", sets: [{"w":50,"r":4},{"w":45,"r":5},{"w":45,"r":5}] },
     ]
   },
   "Triceps Extension": {
     muscle: "Triceps", unit: "kg", type: "isolation",
     data: [
-      { date: "2026-02-16", weight: 21.25, bestReps: 8, note: "New exercise" },
-      { date: "2026-02-18", weight: 21.25, bestReps: 8, note: "Matched" },
-      { date: "2026-02-23", weight: 25, bestReps: 5, note: "Weight PR" },
-      { date: "2026-02-25", weight: 25, bestReps: 3, note: "Building" },
+      { date: "2026-02-16", weight: 21.25, bestReps: 8, note: "New exercise", sets: [{"w":17.5,"r":8},{"w":21.25,"r":8}] },
+      { date: "2026-02-18", weight: 21.25, bestReps: 8, note: "Matched", sets: [{"w":21.25,"r":8},{"w":21.25,"r":7}] },
+      { date: "2026-02-23", weight: 25, bestReps: 5, note: "Weight PR", sets: [{"w":25,"r":5}] },
+      { date: "2026-02-25", weight: 25, bestReps: 3, note: "Building", sets: [{"w":25,"r":3},{"w":21.25,"r":8}] },
       { date: "2026-03-03", weight: 28.75, bestReps: 3, note: "New weight" },
       { date: "2026-03-07", weight: 28.75, bestReps: 8, note: "Target exceeded" },
       { date: "2026-03-11", weight: 28.75, bestReps: 8, note: "Consistent" },
       { date: "2026-03-13", weight: 30, bestReps: 7, note: "New weight PR" },
       { date: "2026-03-18", weight: 31.25, bestReps: 8, note: "Weight PR" },
-      { date: "2026-03-20", weight: 32.5, bestReps: 4, note: "New weight PR!" },
-      { date: "2026-03-23", weight: 32.5, bestReps: 6, note: "Rep PR at 32.5!" },
-      { date: "2026-03-25", weight: 32.5, bestReps: 5, note: "Maintained 32.5" },
+      { date: "2026-03-20", weight: 32.5, bestReps: 4, note: "New weight PR!", sets: [{"w":32.5,"r":4},{"w":28.75,"r":9}] },
+      { date: "2026-03-23", weight: 32.5, bestReps: 6, note: "Rep PR at 32.5!", sets: [{"w":31.25,"r":8},{"w":32.5,"r":6}] },
+      { date: "2026-03-25", weight: 32.5, bestReps: 5, note: "Maintained 32.5", sets: [{"w":32,"r":7},{"w":32.5,"r":5}] },
     ]
   },
   "Weighted Pull-ups": {
     muscle: "Back / Biceps", unit: "kg added", type: "compound",
     data: [
-      { date: "2025-11-05", weight: 0, bestReps: 3, note: "First unassisted" },
-      { date: "2025-11-13", weight: 0, bestReps: 2, note: "" },
-      { date: "2025-11-19", weight: 0, bestReps: 4, note: "PR" },
+      { date: "2025-11-05", weight: 0, bestReps: 3, note: "First unassisted", sets: [{"w":0,"r":3},{"w":11,"r":5},{"w":11,"r":4}] },
+      { date: "2025-11-13", weight: 0, bestReps: 2, note: "", sets: [{"w":0,"r":2},{"w":11,"r":5},{"w":11,"r":5}] },
+      { date: "2025-11-19", weight: 0, bestReps: 4, note: "PR", sets: [{"w":11,"r":7},{"w":0,"r":4}] },
       { date: "2025-11-24", weight: 0, bestReps: 4, note: "" },
       { date: "2025-11-26", weight: 0, bestReps: 6, note: "Best: 11 total" },
-      { date: "2025-12-01", weight: 5, bestReps: 3, note: "First weighted" },
-      { date: "2025-12-03", weight: 5, bestReps: 4, note: "Volume PR" },
+      { date: "2025-12-01", weight: 5, bestReps: 3, note: "First weighted", sets: [{"w":5,"r":3},{"w":0,"r":6},{"w":0,"r":4}] },
+      { date: "2025-12-03", weight: 5, bestReps: 4, note: "Volume PR", sets: [{"w":5,"r":4},{"w":0,"r":5}] },
       { date: "2025-12-08", weight: 0, bestReps: 4, note: "After dips" },
-      { date: "2025-12-10", weight: 5, bestReps: 5, note: "PR" },
-      { date: "2025-12-15", weight: 0, bestReps: 5, note: "BW only" },
-      { date: "2025-12-17", weight: 5, bestReps: 6, note: "Dec best" },
+      { date: "2025-12-10", weight: 5, bestReps: 5, note: "PR", sets: [{"w":5,"r":5},{"w":0,"r":6}] },
+      { date: "2025-12-15", weight: 0, bestReps: 5, note: "BW only", sets: [{"w":0,"r":5},{"w":0,"r":4},{"w":0,"r":4}] },
+      { date: "2025-12-17", weight: 5, bestReps: 6, note: "Dec best", sets: [{"w":5,"r":6},{"w":5,"r":4}] },
       { date: "2025-12-22", weight: 0, bestReps: 5, note: "Solo" },
-      { date: "2025-12-24", weight: 5, bestReps: 6, note: "Matched" },
-      { date: "2025-12-31", weight: 5, bestReps: 6, note: "" },
-      { date: "2026-01-05", weight: 0, bestReps: 6, note: "After dips" },
-      { date: "2026-01-07", weight: 5, bestReps: 6, note: "Maintained" },
-      { date: "2026-01-12", weight: 5, bestReps: 4, note: "After dips" },
-      { date: "2026-01-14", weight: 5, bestReps: 7, note: "Rep PR" },
-      { date: "2026-01-23", weight: 10, bestReps: 4, note: "+10 achieved" },
-      { date: "2026-01-28", weight: 5, bestReps: 5, note: "After dips" },
-      { date: "2026-01-31", weight: 10, bestReps: 5, note: "Rep PR" },
-      { date: "2026-02-04", weight: 5, bestReps: 4, note: "After failed dips" },
-      { date: "2026-02-07", weight: 10, bestReps: 5, note: "PR matched x2" },
-      { date: "2026-02-11", weight: 5, bestReps: 5, note: "After bench" },
-      { date: "2026-02-14", weight: 10, bestReps: 6, note: "Volume PR" },
-      { date: "2026-02-18", weight: 5, bestReps: 5, note: "After bench" },
-      { date: "2026-02-21", weight: 12.5, bestReps: 5, note: "Feb target hit!" },
-      { date: "2026-02-25", weight: 5, bestReps: 5, note: "Consistent 15 reps total" },
-      { date: "2026-03-01", weight: 12.5, bestReps: 5, note: "Matched Feb best" },
-      { date: "2026-03-07", weight: 7.5, bestReps: 5, note: "After bench" },
-      { date: "2026-03-09", weight: 15, bestReps: 3, note: "New weight!" },
-      { date: "2026-03-13", weight: 7.5, bestReps: 6, note: "After bench" },
-      { date: "2026-03-16", weight: 15, bestReps: 5, note: "March target HIT!" },
-      { date: "2026-03-20", weight: 10, bestReps: 4, note: "After bench" },
-      { date: "2026-03-23", weight: 10, bestReps: 5, note: "+1 rep at +10" },
-      { date: "2026-03-25", weight: 15, bestReps: 5, note: "Back to +15, matched PR" },
+      { date: "2025-12-24", weight: 5, bestReps: 6, note: "Matched", sets: [{"w":5,"r":6},{"w":5,"r":4}] },
+      { date: "2025-12-31", weight: 5, bestReps: 6, note: "", sets: [{"w":5,"r":6},{"w":5,"r":5}] },
+      { date: "2026-01-05", weight: 0, bestReps: 6, note: "After dips", sets: [{"w":0,"r":6},{"w":0,"r":5},{"w":0,"r":6}] },
+      { date: "2026-01-07", weight: 5, bestReps: 6, note: "Maintained", sets: [{"w":5,"r":6},{"w":5,"r":5}] },
+      { date: "2026-01-12", weight: 5, bestReps: 4, note: "After dips", sets: [{"w":5,"r":4},{"w":5,"r":4},{"w":5,"r":4}] },
+      { date: "2026-01-14", weight: 5, bestReps: 7, note: "Rep PR", sets: [{"w":5,"r":7},{"w":5,"r":6}] },
+      { date: "2026-01-23", weight: 10, bestReps: 4, note: "+10 achieved", sets: [{"w":10,"r":4},{"w":0,"r":9}] },
+      { date: "2026-01-28", weight: 5, bestReps: 5, note: "After dips", sets: [{"w":5,"r":5},{"w":5,"r":4},{"w":0,"r":5}] },
+      { date: "2026-01-31", weight: 10, bestReps: 5, note: "Rep PR", sets: [{"w":10,"r":5},{"w":10,"r":4}] },
+      { date: "2026-02-04", weight: 5, bestReps: 4, note: "After failed dips", sets: [{"w":5,"r":4},{"w":0,"r":4},{"w":0,"r":4}] },
+      { date: "2026-02-07", weight: 10, bestReps: 5, note: "PR matched x2", sets: [{"w":10,"r":5},{"w":10,"r":5}] },
+      { date: "2026-02-11", weight: 5, bestReps: 5, note: "After bench", sets: [{"w":5,"r":5},{"w":0,"r":7},{"w":0,"r":3}] },
+      { date: "2026-02-14", weight: 10, bestReps: 6, note: "Volume PR", sets: [{"w":10,"r":6},{"w":10,"r":5},{"w":10,"r":4}] },
+      { date: "2026-02-18", weight: 5, bestReps: 5, note: "After bench", sets: [{"w":5,"r":5},{"w":5,"r":5},{"w":5,"r":4}] },
+      { date: "2026-02-21", weight: 12.5, bestReps: 5, note: "Feb target hit!", sets: [{"w":12.5,"r":5},{"w":12.5,"r":5}] },
+      { date: "2026-02-25", weight: 5, bestReps: 5, note: "Consistent 15 reps total", sets: [{"w":5,"r":5},{"w":5,"r":5},{"w":5,"r":5}] },
+      { date: "2026-03-01", weight: 12.5, bestReps: 5, note: "Matched Feb best", sets: [{"w":12.5,"r":5},{"w":12.5,"r":5}] },
+      { date: "2026-03-07", weight: 7.5, bestReps: 5, note: "After bench", sets: [{"w":7.5,"r":5},{"w":7.5,"r":5},{"w":7.5,"r":4}] },
+      { date: "2026-03-09", weight: 15, bestReps: 3, note: "New weight!", sets: [{"w":15,"r":3},{"w":10,"r":5}] },
+      { date: "2026-03-13", weight: 7.5, bestReps: 6, note: "After bench", sets: [{"w":7.5,"r":6},{"w":7.5,"r":5},{"w":7.5,"r":2}] },
+      { date: "2026-03-16", weight: 15, bestReps: 5, note: "March target HIT!", sets: [{"w":15,"r":5},{"w":15,"r":4}] },
+      { date: "2026-03-20", weight: 10, bestReps: 4, note: "After bench", sets: [{"w":10,"r":4},{"w":10,"r":4},{"w":10,"r":3}] },
+      { date: "2026-03-23", weight: 10, bestReps: 5, note: "+1 rep at +10", sets: [{"w":10,"r":5},{"w":10,"r":5},{"w":10,"r":3}] },
+      { date: "2026-03-25", weight: 15, bestReps: 5, note: "Back to +15, matched PR", sets: [{"w":15,"r":5},{"w":15,"r":4}] },
     ]
   },
   "Seated Row": {
     muscle: "Mid-back / Biceps", unit: "kg", type: "compound",
     data: [
-      { date: "2025-11-13", weight: 78, bestReps: 8, note: "Working weight" },
+      { date: "2025-11-13", weight: 78, bestReps: 8, note: "Working weight", sets: [{"w":84,"r":7},{"w":84,"r":6},{"w":84,"r":6}] },
       { date: "2025-11-17", weight: 78, bestReps: 8, note: "" },
-      { date: "2025-11-19", weight: 77, bestReps: 8, note: "" },
+      { date: "2025-11-19", weight: 77, bestReps: 8, note: "", sets: [{"w":77,"r":8},{"w":79,"r":5}] },
       { date: "2025-11-24", weight: 73, bestReps: 7, note: "New grip" },
       { date: "2025-11-26", weight: 73, bestReps: 8, note: "" },
-      { date: "2025-11-29", weight: 77, bestReps: 8, note: "Back + better form" },
-      { date: "2025-12-03", weight: 82, bestReps: 7, note: "" },
-      { date: "2025-12-05", weight: 84, bestReps: 6, note: "" },
-      { date: "2025-12-10", weight: 84, bestReps: 7, note: "" },
+      { date: "2025-11-29", weight: 77, bestReps: 8, note: "Back + better form", sets: [{"w":77,"r":8},{"w":77,"r":8}] },
+      { date: "2025-12-03", weight: 82, bestReps: 7, note: "", sets: [{"w":79,"r":8},{"w":82,"r":7},{"w":82,"r":6}] },
+      { date: "2025-12-05", weight: 84, bestReps: 6, note: "", sets: [{"w":84,"r":6},{"w":84,"r":6},{"w":73,"r":8}] },
+      { date: "2025-12-10", weight: 84, bestReps: 7, note: "", sets: [{"w":84,"r":7},{"w":84,"r":6},{"w":84,"r":6}] },
       { date: "2025-12-13", weight: 84, bestReps: 8, note: "+1 rep" },
-      { date: "2025-12-17", weight: 84, bestReps: 8, note: "Two identical" },
+      { date: "2025-12-17", weight: 84, bestReps: 8, note: "Two identical", sets: [{"w":84,"r":8},{"w":84,"r":8}] },
       { date: "2025-12-22", weight: 84, bestReps: 8, note: "Solo" },
-      { date: "2025-12-31", weight: 86, bestReps: 7, note: "+2kg PR" },
-      { date: "2026-01-03", weight: 86, bestReps: 6, note: "Consistent" },
-      { date: "2026-01-07", weight: 88, bestReps: 6, note: "Weight PR" },
-      { date: "2026-01-10", weight: 88, bestReps: 7, note: "" },
-      { date: "2026-01-14", weight: 88, bestReps: 7, note: "" },
-      { date: "2026-01-19", weight: 91, bestReps: 5, note: "Weight PR" },
-      { date: "2026-01-26", weight: 91, bestReps: 7, note: "Rep PR" },
-      { date: "2026-01-31", weight: 93, bestReps: 4, note: "Weight PR" },
-      { date: "2026-02-02", weight: 93, bestReps: 6, note: "+14 reps at 93" },
-      { date: "2026-02-07", weight: 93, bestReps: 6, note: "" },
-      { date: "2026-02-09", weight: 93, bestReps: 7, note: "+1 rep" },
-      { date: "2026-02-14", weight: 95, bestReps: 6, note: "Feb target hit" },
-      { date: "2026-02-16", weight: 97, bestReps: 5, note: "New weight touched" },
-      { date: "2026-02-21", weight: 95, bestReps: 7, note: "Consistent" },
-      { date: "2026-02-23", weight: 95, bestReps: 7, note: "Drop set, fatigued" },
-      { date: "2026-03-01", weight: 95, bestReps: 6, note: "" },
-      { date: "2026-03-03", weight: 100, bestReps: 5, note: "100 kg touched!" },
-      { date: "2026-03-09", weight: 100, bestReps: 6, note: "Building at 100" },
-      { date: "2026-03-11", weight: 100, bestReps: 6, note: "3 sets at 100" },
-      { date: "2026-03-16", weight: 100, bestReps: 7, note: "Rep PR at 100!" },
+      { date: "2025-12-31", weight: 86, bestReps: 7, note: "+2kg PR", sets: [{"w":86,"r":7},{"w":86,"r":7}] },
+      { date: "2026-01-03", weight: 86, bestReps: 6, note: "Consistent", sets: [{"w":86,"r":6},{"w":82,"r":8},{"w":82,"r":6}] },
+      { date: "2026-01-07", weight: 88, bestReps: 6, note: "Weight PR", sets: [{"w":88,"r":6},{"w":88,"r":6}] },
+      { date: "2026-01-10", weight: 88, bestReps: 7, note: "", sets: [{"w":88,"r":7},{"w":88,"r":6},{"w":88,"r":6}] },
+      { date: "2026-01-14", weight: 88, bestReps: 7, note: "", sets: [{"w":88,"r":6},{"w":88,"r":7}] },
+      { date: "2026-01-19", weight: 91, bestReps: 5, note: "Weight PR", sets: [{"w":91,"r":5},{"w":88,"r":6},{"w":88,"r":6}] },
+      { date: "2026-01-26", weight: 91, bestReps: 7, note: "Rep PR", sets: [{"w":91,"r":7},{"w":91,"r":7},{"w":91,"r":5}] },
+      { date: "2026-01-31", weight: 93, bestReps: 4, note: "Weight PR", sets: [{"w":93,"r":4},{"w":86,"r":8}] },
+      { date: "2026-02-02", weight: 93, bestReps: 6, note: "+14 reps at 93", sets: [{"w":93,"r":6},{"w":93,"r":6},{"w":93,"r":6}] },
+      { date: "2026-02-07", weight: 93, bestReps: 6, note: "", sets: [{"w":93,"r":6},{"w":93,"r":6}] },
+      { date: "2026-02-09", weight: 93, bestReps: 7, note: "+1 rep", sets: [{"w":93,"r":7}] },
+      { date: "2026-02-14", weight: 95, bestReps: 6, note: "Feb target hit", sets: [{"w":95,"r":6}] },
+      { date: "2026-02-16", weight: 97, bestReps: 5, note: "New weight touched", sets: [{"w":95,"r":7},{"w":97,"r":5},{"w":95,"r":5}] },
+      { date: "2026-02-21", weight: 95, bestReps: 7, note: "Consistent", sets: [{"w":95,"r":7},{"w":95,"r":6}] },
+      { date: "2026-02-23", weight: 95, bestReps: 7, note: "Drop set, fatigued", sets: [{"w":95,"r":7},{"w":86,"r":6}] },
+      { date: "2026-03-01", weight: 95, bestReps: 6, note: "", sets: [{"w":95,"r":6},{"w":95,"r":6}] },
+      { date: "2026-03-03", weight: 100, bestReps: 5, note: "100 kg touched!", sets: [{"w":100,"r":5},{"w":93,"r":6},{"w":91,"r":7}] },
+      { date: "2026-03-09", weight: 100, bestReps: 6, note: "Building at 100", sets: [{"w":100,"r":6},{"w":95,"r":8}] },
+      { date: "2026-03-11", weight: 100, bestReps: 6, note: "3 sets at 100", sets: [{"w":100,"r":6},{"w":100,"r":6},{"w":100,"r":5}] },
+      { date: "2026-03-16", weight: 100, bestReps: 7, note: "Rep PR at 100!", sets: [{"w":100,"r":7},{"w":95,"r":6}] },
     ]
   },
   "SLDL": {
     muscle: "Hamstrings / Glutes", unit: "kg", type: "compound",
     data: [
-      { date: "2025-12-13", weight: 105, bestReps: 6, note: "New exercise" },
-      { date: "2025-12-15", weight: 125, bestReps: 5, note: "Weight PR" },
-      { date: "2025-12-20", weight: 115, bestReps: 5, note: "3 identical sets" },
-      { date: "2026-01-03", weight: 115, bestReps: 6, note: "Pain-free" },
-      { date: "2026-01-05", weight: 105, bestReps: 8, note: "Deloaded" },
-      { date: "2026-01-12", weight: 115, bestReps: 7, note: "Volume PR" },
-      { date: "2026-01-19", weight: 125, bestReps: 5, note: "Back to Dec PR" },
-      { date: "2026-01-21", weight: 130, bestReps: 5, note: "All-time PR" },
-      { date: "2026-01-26", weight: 130, bestReps: 2, note: "CNS failure" },
+      { date: "2025-12-13", weight: 105, bestReps: 6, note: "New exercise", sets: [{"w":120,"r":3},{"w":110,"r":3}] },
+      { date: "2025-12-15", weight: 125, bestReps: 5, note: "Weight PR", sets: [{"w":125,"r":5}] },
+      { date: "2025-12-20", weight: 115, bestReps: 5, note: "3 identical sets", sets: [{"w":115,"r":5},{"w":115,"r":5},{"w":115,"r":5}] },
+      { date: "2026-01-03", weight: 115, bestReps: 6, note: "Pain-free", sets: [{"w":115,"r":6},{"w":115,"r":2}] },
+      { date: "2026-01-05", weight: 105, bestReps: 8, note: "Deloaded", sets: [{"w":95,"r":8},{"w":105,"r":8}] },
+      { date: "2026-01-12", weight: 115, bestReps: 7, note: "Volume PR", sets: [{"w":115,"r":7},{"w":115,"r":7}] },
+      { date: "2026-01-19", weight: 125, bestReps: 5, note: "Back to Dec PR", sets: [{"w":120,"r":7},{"w":125,"r":5}] },
+      { date: "2026-01-21", weight: 130, bestReps: 5, note: "All-time PR", sets: [{"w":130,"r":5},{"w":125,"r":5}] },
+      { date: "2026-01-26", weight: 130, bestReps: 2, note: "CNS failure", sets: [{"w":110,"r":8}] },
       { date: "2026-01-28", weight: 125, bestReps: 2, note: "Smart deload" },
-      { date: "2026-02-02", weight: 130, bestReps: 6, note: "PR, new technique" },
-      { date: "2026-02-04", weight: 135, bestReps: 2, note: "New weight touched" },
-      { date: "2026-02-07", weight: 125, bestReps: 6, note: "INJURY set 2" },
-      { date: "2026-02-18", weight: 120, bestReps: 6, note: "Hamstring back!" },
-      { date: "2026-02-21", weight: 130, bestReps: 6, note: "Back to pre-injury PR" },
-      { date: "2026-02-25", weight: 135, bestReps: 5, note: "New PR, exceeds pre-injury" },
-      { date: "2026-03-01", weight: 135, bestReps: 4, note: "" },
-      { date: "2026-03-07", weight: 135, bestReps: 7, note: "March target hit (135x7)" },
-      { date: "2026-03-09", weight: 140, bestReps: 5, note: "March target hit (140x3+)" },
-      { date: "2026-03-13", weight: 140, bestReps: 5, note: "Consistent at 140" },
-      { date: "2026-03-16", weight: 145, bestReps: 5, note: "145 kg NEW WEIGHT!" },
+      { date: "2026-02-02", weight: 130, bestReps: 6, note: "PR, new technique", sets: [{"w":125,"r":6},{"w":125,"r":6},{"w":130,"r":6}] },
+      { date: "2026-02-04", weight: 135, bestReps: 2, note: "New weight touched", sets: [{"w":135,"r":2},{"w":125,"r":6}] },
+      { date: "2026-02-07", weight: 125, bestReps: 6, note: "INJURY set 2", sets: [{"w":125,"r":6},{"w":125,"r":4}] },
+      { date: "2026-02-18", weight: 120, bestReps: 6, note: "Hamstring back!", sets: [{"w":105,"r":6},{"w":120,"r":6}] },
+      { date: "2026-02-21", weight: 130, bestReps: 6, note: "Back to pre-injury PR", sets: [{"w":125,"r":6},{"w":130,"r":6}] },
+      { date: "2026-02-25", weight: 135, bestReps: 5, note: "New PR, exceeds pre-injury", sets: [{"w":135,"r":5},{"w":135,"r":5}] },
+      { date: "2026-03-01", weight: 135, bestReps: 4, note: "", sets: [{"w":135,"r":4},{"w":115,"r":10}] },
+      { date: "2026-03-07", weight: 135, bestReps: 7, note: "March target hit (135x7)", sets: [{"w":135,"r":7}] },
+      { date: "2026-03-09", weight: 140, bestReps: 5, note: "March target hit (140x3+)", sets: [{"w":135,"r":6},{"w":135,"r":6},{"w":140,"r":5}] },
+      { date: "2026-03-13", weight: 140, bestReps: 5, note: "Consistent at 140", sets: [{"w":140,"r":5},{"w":140,"r":5}] },
+      { date: "2026-03-16", weight: 145, bestReps: 5, note: "145 kg NEW WEIGHT!", sets: [{"w":140,"r":6},{"w":145,"r":5}] },
     ]
   },
   "Bench Press": {
     muscle: "Chest / Triceps", unit: "kg", type: "compound",
     data: [
-      { date: "2026-02-11", weight: 75, bestReps: 1, note: "First session, prev injury weight" },
+      { date: "2026-02-11", weight: 75, bestReps: 1, note: "First session, prev injury weight", sets: [{"w":60,"r":5},{"w":75,"r":1}] },
       { date: "2026-02-11", weight: 60, bestReps: 5, note: "Deload decision for safety" },
-      { date: "2026-02-16", weight: 70, bestReps: 3, note: "Volume building" },
-      { date: "2026-02-18", weight: 72.5, bestReps: 3, note: "Feb target hit" },
-      { date: "2026-02-23", weight: 65, bestReps: 6, note: "Volume work" },
-      { date: "2026-02-25", weight: 70, bestReps: 6, note: "17 reps at 70, Feb finale" },
-      { date: "2026-03-03", weight: 70, bestReps: 5, note: "After OHP" },
-      { date: "2026-03-07", weight: 70, bestReps: 8, note: "22 reps at 70!" },
-      { date: "2026-03-11", weight: 75, bestReps: 4, note: "After OHP" },
-      { date: "2026-03-13", weight: 75, bestReps: 6, note: "March target HIT" },
-      { date: "2026-03-18", weight: 75, bestReps: 3, note: "After OHP" },
-      { date: "2026-03-20", weight: 75, bestReps: 7, note: "Rep PR at 75!" },
-      { date: "2026-03-23", weight: 75, bestReps: 6, note: "Consistent at 75" },
+      { date: "2026-02-16", weight: 70, bestReps: 3, note: "Volume building", sets: [{"w":70,"r":3},{"w":60,"r":8}] },
+      { date: "2026-02-18", weight: 72.5, bestReps: 3, note: "Feb target hit", sets: [{"w":65,"r":6},{"w":70,"r":6},{"w":72.5,"r":3}] },
+      { date: "2026-02-23", weight: 65, bestReps: 6, note: "Volume work", sets: [{"w":65,"r":6},{"w":65,"r":5}] },
+      { date: "2026-02-25", weight: 70, bestReps: 6, note: "17 reps at 70, Feb finale", sets: [{"w":70,"r":6},{"w":70,"r":6},{"w":70,"r":5}] },
+      { date: "2026-03-03", weight: 70, bestReps: 5, note: "After OHP", sets: [{"w":70,"r":5},{"w":70,"r":3}] },
+      { date: "2026-03-07", weight: 70, bestReps: 8, note: "22 reps at 70!", sets: [{"w":70,"r":7},{"w":70,"r":7},{"w":70,"r":8}] },
+      { date: "2026-03-11", weight: 75, bestReps: 4, note: "After OHP", sets: [{"w":75,"r":4},{"w":75,"r":4}] },
+      { date: "2026-03-13", weight: 75, bestReps: 6, note: "March target HIT", sets: [{"w":75,"r":6},{"w":75,"r":5},{"w":75,"r":4}] },
+      { date: "2026-03-18", weight: 75, bestReps: 3, note: "After OHP", sets: [{"w":75,"r":3},{"w":70,"r":7}] },
+      { date: "2026-03-20", weight: 75, bestReps: 7, note: "Rep PR at 75!", sets: [{"w":75,"r":7},{"w":75,"r":3},{"w":65,"r":8}] },
+      { date: "2026-03-23", weight: 75, bestReps: 6, note: "Consistent at 75", sets: [{"w":75,"r":6},{"w":75,"r":4}] },
     ]
   },
   "Hack Squat": {
@@ -962,69 +1004,69 @@ const exercises = {
       { date: "2025-11-05", weight: 132.6, bestReps: 6, note: "PR" },
       { date: "2025-11-13", weight: 137.6, bestReps: 5, note: "PR" },
       { date: "2025-11-17", weight: 147.6, bestReps: 6, note: "PR +10kg" },
-      { date: "2025-11-19", weight: 152.6, bestReps: 5, note: "PR" },
-      { date: "2025-11-24", weight: 152.6, bestReps: 6, note: "Volume PR 3 sets" },
+      { date: "2025-11-19", weight: 152.6, bestReps: 5, note: "PR", sets: [{"w":150.1,"r":5},{"w":150.1,"r":3},{"w":130.1,"r":8}] },
+      { date: "2025-11-24", weight: 152.6, bestReps: 6, note: "Volume PR 3 sets", sets: [{"w":152.6,"r":6},{"w":152.6,"r":4},{"w":142.6,"r":8}] },
       { date: "2025-11-26", weight: 157.6, bestReps: 2, note: "Limit test" },
-      { date: "2025-12-01", weight: 157.6, bestReps: 5, note: "+3 reps vs Nov" },
-      { date: "2025-12-03", weight: 160.1, bestReps: 4, note: "PR" },
+      { date: "2025-12-01", weight: 157.6, bestReps: 5, note: "+3 reps vs Nov", sets: [{"w":157.6,"r":5},{"w":157.6,"r":3}] },
+      { date: "2025-12-03", weight: 160.1, bestReps: 4, note: "PR", sets: [{"w":160.1,"r":4},{"w":140.1,"r":8},{"w":140.1,"r":8}] },
       { date: "2025-12-08", weight: 160.1, bestReps: 4, note: "Matched" },
-      { date: "2025-12-10", weight: 160.1, bestReps: 5, note: "Rep PR" },
-      { date: "2025-12-15", weight: 162.6, bestReps: 7, note: "Weight+1RM PR" },
-      { date: "2025-12-17", weight: 167.6, bestReps: 4, note: "Weight PR" },
-      { date: "2025-12-22", weight: 162.6, bestReps: 7, note: "Solo, matched" },
-      { date: "2026-01-05", weight: 167.6, bestReps: 5, note: "Rep PR" },
-      { date: "2026-01-12", weight: 170.1, bestReps: 5, note: "Jan target" },
-      { date: "2026-01-14", weight: 172.6, bestReps: 5, note: "Weight PR" },
+      { date: "2025-12-10", weight: 160.1, bestReps: 5, note: "Rep PR", sets: [{"w":160.1,"r":5},{"w":160.1,"r":4},{"w":160.1,"r":3}] },
+      { date: "2025-12-15", weight: 162.6, bestReps: 7, note: "Weight+1RM PR", sets: [{"w":162.6,"r":7}] },
+      { date: "2025-12-17", weight: 167.6, bestReps: 4, note: "Weight PR", sets: [{"w":167.6,"r":4},{"w":157.6,"r":6},{"w":157.6,"r":7}] },
+      { date: "2025-12-22", weight: 162.6, bestReps: 7, note: "Solo, matched", sets: [{"w":162.6,"r":7},{"w":162.6,"r":5},{"w":142.6,"r":8}] },
+      { date: "2026-01-05", weight: 167.6, bestReps: 5, note: "Rep PR", sets: [{"w":167.6,"r":5},{"w":167.6,"r":5}] },
+      { date: "2026-01-12", weight: 170.1, bestReps: 5, note: "Jan target", sets: [{"w":170.1,"r":5},{"w":170.1,"r":4}] },
+      { date: "2026-01-14", weight: 172.6, bestReps: 5, note: "Weight PR", sets: [{"w":172.6,"r":5},{"w":172.6,"r":5}] },
       { date: "2026-01-21", weight: 180.1, bestReps: 3, note: "Weight PR" },
-      { date: "2026-01-23", weight: 180.1, bestReps: 3, note: "Failure last set" },
+      { date: "2026-01-23", weight: 180.1, bestReps: 3, note: "Failure last set", sets: [{"w":180.1,"r":3},{"w":172.6,"r":3},{"w":162.6,"r":3}] },
       { date: "2026-02-09", weight: 172, bestReps: 3, note: "Hamstring injury sub" },
-      { date: "2026-03-23", weight: 180.1, bestReps: 3, note: "Back in rotation" },
+      { date: "2026-03-23", weight: 180.1, bestReps: 3, note: "Back in rotation", sets: [{"w":180.1,"r":3},{"w":165.1,"r":5}] },
     ]
   },
   "Preacher Curl": {
     muscle: "Biceps", unit: "kg", type: "isolation",
     data: [
-      { date: "2025-11-03", weight: 27.5, bestReps: 6, note: "Baseline" },
+      { date: "2025-11-03", weight: 27.5, bestReps: 6, note: "Baseline", sets: [{"w":30,"r":4},{"w":30,"r":4}] },
       { date: "2025-11-26", weight: 27.5, bestReps: 6, note: "Consistent" },
-      { date: "2025-11-29", weight: 30, bestReps: 5, note: "Breakthrough" },
-      { date: "2025-12-01", weight: 30, bestReps: 4, note: "" },
-      { date: "2025-12-05", weight: 30, bestReps: 4, note: "" },
+      { date: "2025-11-29", weight: 30, bestReps: 5, note: "Breakthrough", sets: [{"w":30,"r":5},{"w":30,"r":5}] },
+      { date: "2025-12-01", weight: 30, bestReps: 4, note: "", sets: [{"w":30,"r":4},{"w":30,"r":4}] },
+      { date: "2025-12-05", weight: 30, bestReps: 4, note: "", sets: [{"w":30,"r":4},{"w":22.5,"r":8}] },
       { date: "2025-12-08", weight: 30, bestReps: 5, note: "Best" },
-      { date: "2025-12-10", weight: 29.5, bestReps: 4, note: "" },
-      { date: "2025-12-15", weight: 29.5, bestReps: 6, note: "1RM indicator" },
-      { date: "2025-12-17", weight: 30, bestReps: 5, note: "" },
-      { date: "2025-12-20", weight: 30, bestReps: 7, note: "1RM PR" },
+      { date: "2025-12-10", weight: 29.5, bestReps: 4, note: "", sets: [{"w":29.5,"r":4},{"w":27.5,"r":6}] },
+      { date: "2025-12-15", weight: 29.5, bestReps: 6, note: "1RM indicator", sets: [{"w":29.5,"r":6},{"w":29.5,"r":6}] },
+      { date: "2025-12-17", weight: 30, bestReps: 5, note: "", sets: [{"w":30,"r":5},{"w":30,"r":4}] },
+      { date: "2025-12-20", weight: 30, bestReps: 7, note: "1RM PR", sets: [{"w":30,"r":7},{"w":30,"r":7}] },
       { date: "2025-12-22", weight: 30, bestReps: 6, note: "" },
-      { date: "2025-12-31", weight: 30, bestReps: 6, note: "" },
-      { date: "2026-01-03", weight: 30, bestReps: 9, note: "Volume PR" },
-      { date: "2026-01-07", weight: 30, bestReps: 7, note: "" },
-      { date: "2026-01-10", weight: 32.5, bestReps: 6, note: "Rep PR" },
-      { date: "2026-01-12", weight: 30, bestReps: 8, note: "" },
-      { date: "2026-01-14", weight: 32.5, bestReps: 3, note: "" },
-      { date: "2026-01-19", weight: 32.5, bestReps: 7, note: "Rep PR" },
-      { date: "2026-01-26", weight: 35, bestReps: 6, note: "Weight PR" },
-      { date: "2026-01-28", weight: 35, bestReps: 4, note: "" },
-      { date: "2026-01-31", weight: 30, bestReps: 10, note: "Volume PR" },
-      { date: "2026-02-04", weight: 32, bestReps: 7, note: "" },
-      { date: "2026-02-09", weight: 35, bestReps: 6, note: "Matched Jan" },
-      { date: "2026-02-11", weight: 35, bestReps: 4, note: "" },
-      { date: "2026-02-14", weight: 32.5, bestReps: 9, note: "New 1RM" },
-      { date: "2026-02-16", weight: 37.5, bestReps: 2, note: "New weight touched" },
-      { date: "2026-02-21", weight: 37.5, bestReps: 5, note: "Feb target hit!" },
-      { date: "2026-02-23", weight: 35, bestReps: 6, note: "Maintenance" },
-      { date: "2026-03-01", weight: 40, bestReps: 1, note: "40 kg touched!" },
-      { date: "2026-03-03", weight: 35, bestReps: 6, note: "" },
+      { date: "2025-12-31", weight: 30, bestReps: 6, note: "", sets: [{"w":30,"r":6},{"w":30,"r":4}] },
+      { date: "2026-01-03", weight: 30, bestReps: 9, note: "Volume PR", sets: [{"w":30,"r":9},{"w":32.5,"r":4}] },
+      { date: "2026-01-07", weight: 30, bestReps: 7, note: "", sets: [{"w":30,"r":7},{"w":30,"r":6}] },
+      { date: "2026-01-10", weight: 32.5, bestReps: 6, note: "Rep PR", sets: [{"w":32.5,"r":6},{"w":32.5,"r":5}] },
+      { date: "2026-01-12", weight: 30, bestReps: 8, note: "", sets: [{"w":30,"r":8},{"w":30,"r":5}] },
+      { date: "2026-01-14", weight: 32.5, bestReps: 3, note: "", sets: [{"w":32.5,"r":3},{"w":30,"r":7}] },
+      { date: "2026-01-19", weight: 32.5, bestReps: 7, note: "Rep PR", sets: [{"w":32.5,"r":7},{"w":32.5,"r":5}] },
+      { date: "2026-01-26", weight: 35, bestReps: 6, note: "Weight PR", sets: [{"w":35,"r":5},{"w":35,"r":6}] },
+      { date: "2026-01-28", weight: 35, bestReps: 4, note: "", sets: [{"w":35,"r":4},{"w":30,"r":7}] },
+      { date: "2026-01-31", weight: 30, bestReps: 10, note: "Volume PR", sets: [{"w":35,"r":2},{"w":30,"r":10}] },
+      { date: "2026-02-04", weight: 32, bestReps: 7, note: "", sets: [{"w":32,"r":7}] },
+      { date: "2026-02-09", weight: 35, bestReps: 6, note: "Matched Jan", sets: [{"w":35,"r":6}] },
+      { date: "2026-02-11", weight: 35, bestReps: 4, note: "", sets: [{"w":35,"r":4},{"w":30,"r":9}] },
+      { date: "2026-02-14", weight: 32.5, bestReps: 9, note: "New 1RM", sets: [{"w":32.5,"r":9}] },
+      { date: "2026-02-16", weight: 37.5, bestReps: 2, note: "New weight touched", sets: [{"w":37.5,"r":2},{"w":32.5,"r":6}] },
+      { date: "2026-02-21", weight: 37.5, bestReps: 5, note: "Feb target hit!", sets: [{"w":37.5,"r":5}] },
+      { date: "2026-02-23", weight: 35, bestReps: 6, note: "Maintenance", sets: [{"w":35,"r":6}] },
+      { date: "2026-03-01", weight: 40, bestReps: 1, note: "40 kg touched!", sets: [{"w":40,"r":1},{"w":32.5,"r":8}] },
+      { date: "2026-03-03", weight: 35, bestReps: 6, note: "", sets: [{"w":35,"r":6}] },
       { date: "2026-03-09", weight: 37.5, bestReps: 2, note: "" },
-      { date: "2026-03-16", weight: 37.5, bestReps: 5, note: "Matched Feb best" },
-      { date: "2026-03-18", weight: 40, bestReps: 3, note: "March target HIT!" },
-      { date: "2026-03-25", weight: 35, bestReps: 5, note: "Working at 35" },
+      { date: "2026-03-16", weight: 37.5, bestReps: 5, note: "Matched Feb best", sets: [{"w":37.5,"r":5},{"w":32,"r":6}] },
+      { date: "2026-03-18", weight: 40, bestReps: 3, note: "March target HIT!", sets: [{"w":40,"r":3}] },
+      { date: "2026-03-25", weight: 35, bestReps: 5, note: "Working at 35", sets: [{"w":35,"r":5},{"w":35,"r":4}] },
     ]
   },
   "Lying Leg Curl": {
     muscle: "Hamstrings", unit: "kg", type: "isolation",
     data: [
-      { date: "2026-03-20", weight: 68, bestReps: 8, note: "First session" },
-      { date: "2026-03-25", weight: 64, bestReps: 8, note: "Second session, lighter weight" },
+      { date: "2026-03-20", weight: 68, bestReps: 8, note: "First session", sets: [{"w":68,"r":8},{"w":68,"r":5}] },
+      { date: "2026-03-25", weight: 64, bestReps: 8, note: "Second session, lighter weight", sets: [{"w":64,"r":8},{"w":64,"r":6}] },
     ]
   },
 };
@@ -1053,30 +1095,30 @@ const graveyard = {
   "Weighted Dips": {
     muscle: "Chest / Triceps", unit: "kg added", type: "compound", reason: "Transitioned to Bench Press", lastSession: "11/02/2026",
     data: [
-      { date: "2025-11-17", weight: 10, bestReps: 6, note: "First weighted" },
+      { date: "2025-11-17", weight: 10, bestReps: 6, note: "First weighted", sets: [{"w":10,"r":7},{"w":10,"r":4},{"w":0,"r":9}] },
       { date: "2025-11-19", weight: 12.5, bestReps: 5, note: "+2.5kg" },
-      { date: "2025-11-21", weight: 15, bestReps: 5, note: "+2.5kg" },
-      { date: "2025-11-24", weight: 15, bestReps: 5, note: "Maintained" },
-      { date: "2025-11-29", weight: 15, bestReps: 5, note: "Consolidated" },
-      { date: "2025-12-01", weight: 20, bestReps: 2, note: "Weight PR" },
-      { date: "2025-12-05", weight: 15, bestReps: 4, note: "Shoulder fatigue" },
-      { date: "2025-12-08", weight: 20, bestReps: 3, note: "+1 rep" },
+      { date: "2025-11-21", weight: 15, bestReps: 5, note: "+2.5kg", sets: [{"w":15,"r":4},{"w":10,"r":8}] },
+      { date: "2025-11-24", weight: 15, bestReps: 5, note: "Maintained", sets: [{"w":15,"r":5},{"w":15,"r":3},{"w":0,"r":13}] },
+      { date: "2025-11-29", weight: 15, bestReps: 5, note: "Consolidated", sets: [{"w":15,"r":5},{"w":10,"r":6}] },
+      { date: "2025-12-01", weight: 20, bestReps: 2, note: "Weight PR", sets: [{"w":20,"r":2},{"w":15,"r":6},{"w":15,"r":6}] },
+      { date: "2025-12-05", weight: 15, bestReps: 4, note: "Shoulder fatigue", sets: [{"w":15,"r":4},{"w":0,"r":10}] },
+      { date: "2025-12-08", weight: 20, bestReps: 3, note: "+1 rep", sets: [{"w":20,"r":3},{"w":10,"r":8},{"w":10,"r":6}] },
       { date: "2025-12-13", weight: 15, bestReps: 3, note: "3rd exercise" },
-      { date: "2025-12-15", weight: 20, bestReps: 4, note: "PR" },
+      { date: "2025-12-15", weight: 20, bestReps: 4, note: "PR", sets: [{"w":20,"r":4},{"w":15,"r":7},{"w":15,"r":5}] },
       { date: "2025-12-20", weight: 15, bestReps: 5, note: "Matched" },
       { date: "2025-12-22", weight: 15, bestReps: 6, note: "Solo" },
       { date: "2025-12-28", weight: 15, bestReps: 5, note: "Tunisia" },
       { date: "2026-01-03", weight: 15, bestReps: 6, note: "Light" },
       { date: "2026-01-05", weight: 20, bestReps: 5, note: "3 working sets" },
       { date: "2026-01-12", weight: 25, bestReps: 2, note: "+25 unlocked" },
-      { date: "2026-01-19", weight: 20, bestReps: 4, note: "Working" },
-      { date: "2026-01-21", weight: 25, bestReps: 3, note: "Rep PR" },
-      { date: "2026-01-26", weight: 20, bestReps: 5, note: "Working" },
-      { date: "2026-01-28", weight: 25, bestReps: 4, note: "Rep PR" },
+      { date: "2026-01-19", weight: 20, bestReps: 4, note: "Working", sets: [{"w":20,"r":4},{"w":15,"r":7}] },
+      { date: "2026-01-21", weight: 25, bestReps: 3, note: "Rep PR", sets: [{"w":25,"r":3},{"w":20,"r":5},{"w":20,"r":4}] },
+      { date: "2026-01-26", weight: 20, bestReps: 5, note: "Working", sets: [{"w":20,"r":5},{"w":20,"r":5}] },
+      { date: "2026-01-28", weight: 25, bestReps: 4, note: "Rep PR", sets: [{"w":25,"r":4},{"w":20,"r":7}] },
       { date: "2026-02-02", weight: 20, bestReps: 6, note: "Post-OHP" },
       { date: "2026-02-04", weight: 25, bestReps: 5, note: "Failure cascade" },
-      { date: "2026-02-09", weight: 20, bestReps: 7, note: "Best post-OHP" },
-      { date: "2026-02-11", weight: 25, bestReps: 7, note: "Transition trigger!" },
+      { date: "2026-02-09", weight: 20, bestReps: 7, note: "Best post-OHP", sets: [{"w":20,"r":7},{"w":20,"r":6}] },
+      { date: "2026-02-11", weight: 25, bestReps: 7, note: "Transition trigger!", sets: [{"w":25,"r":7},{"w":25,"r":5}] },
     ]
   },
   "Leg Press": {
@@ -1338,18 +1380,82 @@ function renderTables() {
   const { newLifts, established } = getSortedNames();
   const allNames = [...newLifts, ...established];
 
-  container.innerHTML = '<h2>All Data Points</h2>';
+  container.innerHTML = '<h2>All Data Points</h2><p style="color:var(--muted);font-size:0.8em;margin-bottom:16px;">Tap exercise to expand, tap row to see all sets</p>';
 
   allNames.forEach(name => {
     const ex = exercises[name];
-    let html = `<h3 style="margin: 20px 0 8px; font-size: 0.9em; font-weight: 600;">${name} <span style="color:var(--muted);font-weight:400;font-size:0.85em;">${ex.muscle}</span></h3>`;
-    html += `<table><thead><tr><th>Date</th><th>Weight</th><th>Best Reps</th><th>Est. 1RM</th><th>Note</th></tr></thead><tbody>`;
+    const wrapper = document.createElement('div');
+    wrapper.style.marginBottom = '8px';
+
+    const header = document.createElement('div');
+    header.className = 'exercise-toggle';
+    header.innerHTML = `<span class="arrow">&#9656;</span> ${name} <span style="color:var(--muted);font-weight:400;font-size:0.85em;">${ex.muscle}</span> <span style="color:var(--muted);font-size:0.8em;margin-left:auto;">${ex.data.length} sessions</span>`;
+    header.addEventListener('click', () => {
+      header.classList.toggle('open');
+      tableWrap.classList.toggle('open');
+    });
+    wrapper.appendChild(header);
+
+    const tableWrap = document.createElement('div');
+    tableWrap.className = 'exercise-body';
+
+    const table = document.createElement('table');
+    table.innerHTML = '<thead><tr><th>Date</th><th>Weight</th><th>Best Reps</th><th>Est. 1RM</th><th>Note</th></tr></thead>';
+    const tbody = document.createElement('tbody');
+    let currentExpanded = null;
+
     ex.data.forEach(d => {
       const est = Math.round(e1rm(d.weight, d.bestReps) * 10) / 10;
-      html += `<tr><td>${formatDate(d.date)}</td><td>${d.weight} kg</td><td>${d.bestReps}</td><td>${est} kg</td><td>${d.note}</td></tr>`;
+      const tr = document.createElement('tr');
+      tr.className = 'data-row';
+      tr.innerHTML = `<td>${formatDate(d.date)}</td><td>${d.weight} kg</td><td>${d.bestReps}</td><td>${est} kg</td><td>${d.note}</td>`;
+
+      const setsTr = document.createElement('tr');
+      setsTr.className = 'sets-row';
+      const setsTd = document.createElement('td');
+      setsTd.colSpan = 5;
+      const setsDiv = document.createElement('div');
+      setsDiv.className = 'sets-detail';
+
+      if (d.sets && d.sets.length > 0) {
+        d.sets.forEach((s, i) => {
+          const chip = document.createElement('span');
+          const isBest = s.w === d.weight && s.r === d.bestReps;
+          chip.className = 'set-chip' + (isBest ? ' best' : '');
+          chip.innerHTML = `<span class="set-num">S${i+1}</span> ${s.w}kg × ${s.r}`;
+          setsDiv.appendChild(chip);
+        });
+      } else {
+        setsDiv.innerHTML = '<span style="color:var(--muted);font-size:12px;">No set data</span>';
+      }
+
+      setsTd.appendChild(setsDiv);
+      setsTr.appendChild(setsTd);
+
+      tr.addEventListener('click', () => {
+        if (currentExpanded === setsTr) {
+          setsTr.classList.remove('visible');
+          tr.classList.remove('expanded');
+          currentExpanded = null;
+        } else {
+          if (currentExpanded) {
+            currentExpanded.classList.remove('visible');
+            currentExpanded.previousElementSibling.classList.remove('expanded');
+          }
+          setsTr.classList.add('visible');
+          tr.classList.add('expanded');
+          currentExpanded = setsTr;
+        }
+      });
+
+      tbody.appendChild(tr);
+      tbody.appendChild(setsTr);
     });
-    html += '</tbody></table>';
-    container.innerHTML += html;
+
+    table.appendChild(tbody);
+    tableWrap.appendChild(table);
+    wrapper.appendChild(tableWrap);
+    container.appendChild(wrapper);
   });
 }
 
