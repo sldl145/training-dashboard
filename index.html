@@ -689,7 +689,7 @@
 <body>
 
 <h1>Training, Body Composition & Running Dashboard</h1>
-<p class="subtitle">November 2025 - March 2026 | Updated 25/03/2026</p>
+<p class="subtitle">November 2025 - March 2026 | Updated 26/03/2026</p>
 
 <!-- Tab Navigation -->
 <div class="tab-nav">
@@ -1208,8 +1208,8 @@ const graveyard = {
 };
 
 // ========== HELPERS ==========
-const TODAY = "2026-03-25";
-const SEVEN_DAYS_AGO = "2026-03-18";
+const TODAY = "2026-03-26";
+const SEVEN_DAYS_AGO = "2026-03-19";
 
 function formatDate(d) {
   const dt = new Date(d);
@@ -1233,7 +1233,7 @@ function firstDate(ex) {
 function isNew(ex) {
   // "New" = first data point is within 4 weeks AND at least 2 points in last 7 days
   const first = new Date(firstDate(ex));
-  const fourWeeksAgo = new Date("2026-02-25");
+  const fourWeeksAgo = new Date("2026-02-26");
   const recentPoints = ex.data.filter(d => d.date >= SEVEN_DAYS_AGO).length;
   return first >= fourWeeksAgo && recentPoints >= 2;
 }
@@ -1562,7 +1562,7 @@ function renderGoals() {
           <thead><tr><th>Exercise</th><th>Target</th><th>Best</th><th>Status</th></tr></thead>
           <tbody>
             <tr><td>Triceps Ext.</td><td>25 &times; 8</td><td style="font-weight:700;">31.25 &times; 8</td><td style="color:var(--green);font-weight:700;">&#10003; EXCEEDED</td></tr>
-            <tr><td></td><td><span style="color:var(--muted);">or</span> 27.5 &times; 5</td><td style="font-weight:700;">32.5 &times; 4</td><td style="color:var(--green);font-weight:700;">&#10003; EXCEEDED</td></tr>
+            <tr><td></td><td><span style="color:var(--muted);">or</span> 27.5 &times; 5</td><td style="font-weight:700;">32.5 &times; 6</td><td style="color:var(--green);font-weight:700;">&#10003; EXCEEDED</td></tr>
             <tr><td>Preacher Curl</td><td>40 &times; 3</td><td style="font-weight:700;">40 &times; 3</td><td style="color:var(--green);font-weight:700;">&#10003; DONE</td></tr>
           </tbody>
         </table>
@@ -1573,20 +1573,33 @@ function renderGoals() {
         <table>
           <thead><tr><th>Exercise</th><th>Approach</th><th>Status</th></tr></thead>
           <tbody>
-            <tr><td>OHP</td><td>Clean 45 kg</td><td style="color:var(--green);">45 &times; 5 clean &#10003;</td></tr>
+            <tr><td>OHP</td><td>Clean 45 kg</td><td style="color:var(--green);">50 &times; 4 clean &#10003;</td></tr>
             <tr><td>Seated Row</td><td>Toward 100 kg</td><td style="color:var(--green);font-weight:700;">100 &times; 7 &#10003;</td></tr>
             <tr><td>Chest Fly</td><td>Technique</td><td style="color:var(--muted);">Paused</td></tr>
+            <tr><td colspan="3" style="color:var(--red);font-size:0.85em;padding-top:4px;">Seated Row + SLDL paused - serratus anterior injury (16/03)</td></tr>
           </tbody>
         </table>
       </div>
 
       <div class="goal-card">
+        <h3><span class="goal-tag goal-tag-primary">BODY COMP</span> Body Composition</h3>
+        <table>
+          <thead><tr><th>Metric</th><th>Target</th><th>Latest</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>PBF</td><td>&lt; 18.0%</td><td style="font-weight:700;">18.3%</td><td style="color:var(--orange);">Missed by 0.3% - carry to April</td></tr>
+            <tr><td>SMM</td><td>&gt; 42.0 kg</td><td style="font-weight:700;">41.9 kg</td><td style="color:var(--orange);">Missed by 100g - carry to April</td></tr>
+          </tbody>
+        </table>
+        <div style="font-size:0.8em;color:var(--muted);margin-top:6px;">Plateau at 18.2-18.3% for 4 weeks. Strategy: 20k steps/day + 2x runs/week.</div>
+      </div>
+
+      <div class="goal-card">
         <h3><span class="goal-tag goal-tag-cardio">CARDIO</span> Cardio Plan</h3>
         <table>
-          <thead><tr><th>Activity</th><th>Plan</th></tr></thead>
+          <thead><tr><th>Activity</th><th>Plan</th><th>Status</th></tr></thead>
           <tbody>
-            <tr><td>Running</td><td>Restart mid-March, outdoor</td></tr>
-            <tr><td>Walking</td><td>Increase with better weather</td></tr>
+            <tr><td>Running</td><td>2x/week, building to half marathon</td><td style="color:var(--green);">6 runs, 10 km longest</td></tr>
+            <tr><td>Walking</td><td>20k steps/day target</td><td style="color:var(--green);">Active</td></tr>
           </tbody>
         </table>
       </div>
