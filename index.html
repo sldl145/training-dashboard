@@ -689,7 +689,7 @@
 <body>
 
 <h1>Training, Body Composition & Running Dashboard</h1>
-<p class="subtitle">November 2025 - March 2026 | Updated 26/03/2026</p>
+<p class="subtitle">November 2025 - March 2026 | Updated 28/03/2026</p>
 
 <!-- Tab Navigation -->
 <div class="tab-nav">
@@ -932,6 +932,7 @@ const exercises = {
       { date: "2026-03-16", weight: 45, bestReps: 5, note: "Consistent rebuild", sets: [{"w":45,"r":5},{"w":45,"r":5}] },
       { date: "2026-03-18", weight: 47.5, bestReps: 5, note: "First clean step up!", sets: [{"w":47.5,"r":5},{"w":47.5,"r":5}] },
       { date: "2026-03-25", weight: 50, bestReps: 4, note: "Back to 50 kg", sets: [{"w":50,"r":4},{"w":45,"r":5},{"w":45,"r":5}] },
+      { date: "2026-03-28", weight: 50, bestReps: 4, note: "Solo, 50 x 4 x 2 clean", sets: [{"w":50,"r":4},{"w":50,"r":4}] },
     ]
   },
   "Triceps Extension": {
@@ -949,6 +950,7 @@ const exercises = {
       { date: "2026-03-20", weight: 32.5, bestReps: 4, note: "New weight PR!", sets: [{"w":32.5,"r":4},{"w":28.75,"r":9}] },
       { date: "2026-03-23", weight: 32.5, bestReps: 6, note: "Rep PR at 32.5!", sets: [{"w":31.25,"r":8},{"w":32.5,"r":6}] },
       { date: "2026-03-25", weight: 32.5, bestReps: 5, note: "Maintained 32.5", sets: [{"w":32,"r":7},{"w":32.5,"r":5}] },
+      { date: "2026-03-28", weight: 32.5, bestReps: 9, note: "Rep PR at 32.5! (5→7→9)", sets: [{"w":32.5,"r":9},{"w":32.5,"r":7}] },
     ]
   },
   "Weighted Pull-ups": {
@@ -1071,6 +1073,7 @@ const exercises = {
       { date: "2026-03-18", weight: 75, bestReps: 3, note: "After OHP", sets: [{"w":75,"r":3},{"w":70,"r":7}] },
       { date: "2026-03-20", weight: 75, bestReps: 7, note: "Rep PR at 75!", sets: [{"w":75,"r":7},{"w":75,"r":3},{"w":65,"r":8}] },
       { date: "2026-03-23", weight: 75, bestReps: 6, note: "Consistent at 75", sets: [{"w":75,"r":6},{"w":75,"r":4}] },
+      { date: "2026-03-28", weight: 70, bestReps: 7, note: "Conservative, no spotter", sets: [{"w":65,"r":8},{"w":70,"r":7}] },
     ]
   },
   "Hack Squat": {
@@ -1097,6 +1100,7 @@ const exercises = {
       { date: "2026-01-23", weight: 180.1, bestReps: 3, note: "Failure last set", sets: [{"w":180.1,"r":3},{"w":172.6,"r":3},{"w":162.6,"r":3}] },
       { date: "2026-02-09", weight: 172, bestReps: 3, note: "Hamstring injury sub", sets: [{"w":172,"r":3},{"w":157,"r":6}] },
       { date: "2026-03-23", weight: 180.1, bestReps: 3, note: "Back in rotation", sets: [{"w":180.1,"r":3},{"w":165.1,"r":5}] },
+      { date: "2026-03-28", weight: 162.6, bestReps: 5, note: "150 x 6 rep PR, volume work", sets: [{"w":150,"r":6},{"w":162.6,"r":5},{"w":162.6,"r":5}] },
     ]
   },
   "Preacher Curl": {
@@ -1136,6 +1140,7 @@ const exercises = {
       { date: "2026-03-16", weight: 37.5, bestReps: 5, note: "Matched Feb best", sets: [{"w":37.5,"r":5},{"w":32,"r":6}] },
       { date: "2026-03-18", weight: 40, bestReps: 3, note: "March target HIT!", sets: [{"w":40,"r":3}] },
       { date: "2026-03-25", weight: 35, bestReps: 5, note: "Working at 35", sets: [{"w":35,"r":5},{"w":35,"r":4}] },
+      { date: "2026-03-28", weight: 37.5, bestReps: 7, note: "Rep PR at 37.5! (prev best 5)", sets: [{"w":37.5,"r":7}] },
     ]
   },
   "Lying Leg Curl": {
@@ -1143,6 +1148,12 @@ const exercises = {
     data: [
       { date: "2026-03-20", weight: 68, bestReps: 8, note: "First session", sets: [{"w":68,"r":8},{"w":68,"r":5}] },
       { date: "2026-03-25", weight: 64, bestReps: 8, note: "Second session, lighter weight", sets: [{"w":64,"r":8},{"w":64,"r":6}] },
+    ]
+  },
+  "Lat Pulldown": {
+    muscle: "Back / Biceps", unit: "kg", type: "compound",
+    data: [
+      { date: "2026-03-28", weight: 80, bestReps: 8, note: "Reintroduced after 4.5 months", sets: [{"w":80,"r":8},{"w":80,"r":6},{"w":80,"r":6}] },
     ]
   },
 };
@@ -1208,8 +1219,8 @@ const graveyard = {
 };
 
 // ========== HELPERS ==========
-const TODAY = "2026-03-26";
-const SEVEN_DAYS_AGO = "2026-03-19";
+const TODAY = "2026-03-28";
+const SEVEN_DAYS_AGO = "2026-03-21";
 
 function formatDate(d) {
   const dt = new Date(d);
@@ -1233,7 +1244,7 @@ function firstDate(ex) {
 function isNew(ex) {
   // "New" = first data point is within 4 weeks AND at least 2 points in last 7 days
   const first = new Date(firstDate(ex));
-  const fourWeeksAgo = new Date("2026-02-26");
+  const fourWeeksAgo = new Date("2026-02-28");
   const recentPoints = ex.data.filter(d => d.date >= SEVEN_DAYS_AGO).length;
   return first >= fourWeeksAgo && recentPoints >= 2;
 }
@@ -1562,7 +1573,7 @@ function renderGoals() {
           <thead><tr><th>Exercise</th><th>Target</th><th>Best</th><th>Status</th></tr></thead>
           <tbody>
             <tr><td>Triceps Ext.</td><td>25 &times; 8</td><td style="font-weight:700;">31.25 &times; 8</td><td style="color:var(--green);font-weight:700;">&#10003; EXCEEDED</td></tr>
-            <tr><td></td><td><span style="color:var(--muted);">or</span> 27.5 &times; 5</td><td style="font-weight:700;">32.5 &times; 6</td><td style="color:var(--green);font-weight:700;">&#10003; EXCEEDED</td></tr>
+            <tr><td></td><td><span style="color:var(--muted);">or</span> 27.5 &times; 5</td><td style="font-weight:700;">32.5 &times; 9</td><td style="color:var(--green);font-weight:700;">&#10003; EXCEEDED</td></tr>
             <tr><td>Preacher Curl</td><td>40 &times; 3</td><td style="font-weight:700;">40 &times; 3</td><td style="color:var(--green);font-weight:700;">&#10003; DONE</td></tr>
           </tbody>
         </table>
@@ -1687,7 +1698,8 @@ const injuryLog = [
       { date: "09/03", note: "OHP farewell session at 45 kg. Medical hold begins." },
       { date: "11/03", note: "Last OHP session. Two pressing movements confirmed as too much shoulder load." },
       { date: "16/03", note: "OHP cautiously reintroduced at 45 kg - pain-free after physio exercises" },
-      { date: "25/03", note: "OHP 50 kg x 4 clean. Shockwave therapy + daily rehab confirmed working." }
+      { date: "25/03", note: "OHP 50 kg x 4 clean. Shockwave therapy + daily rehab confirmed working." },
+      { date: "28/03", note: "OHP 50 x 4 x 2 sets solo - shoulder stable, rehab continuing." }
     ],
     recoveryDays: null,
     lesson: "Daily rehab exercises (ext. rotation, Y-raises, face pulls 3x12-15) + shockwave therapy. Two pressing movements = too much shoulder load."
@@ -1703,7 +1715,8 @@ const injuryLog = [
     timeline: [
       { date: "16/03", note: "First noticed - dismissed as minor" },
       { date: "20/03", note: "Re-triggered by testing seated row and SLDL in subsequent sessions" },
-      { date: "25/03", note: "Formal rest protocol. Complete stop on triggering movements until pain-free." }
+      { date: "25/03", note: "Formal rest protocol. Complete stop on triggering movements until pain-free." },
+      { date: "28/03", note: "Solo session: pain from plate handling/racking, NOT from exercises under load. Useful physio diagnostic." }
     ],
     recoveryDays: null,
     lesson: "Same pattern as hamstring: 'I thought it was nothing' → kept testing → prolonged recovery. Stop poking injuries."
