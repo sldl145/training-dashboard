@@ -689,7 +689,7 @@
 <body>
 
 <h1>Training, Body Composition & Running Dashboard</h1>
-<p class="subtitle">November 2025 - March 2026 | Updated 30/03/2026</p>
+<p class="subtitle">November 2025 - April 2026 | Updated 30/03/2026</p>
 
 <!-- Tab Navigation -->
 <div class="tab-nav">
@@ -1297,7 +1297,7 @@ function renderSummary() {
   const cards = [
     { label: 'Tracked Lifts', value: names.length, change: compounds + ' compound, ' + isolations + ' isolation' },
     { label: 'Data Points', value: names.reduce((s, n) => s + exercises[n].data.length, 0), change: '' },
-    { label: 'Time Span', value: '5 mo', change: 'Nov 25 - Mar 26' },
+    { label: 'Time Span', value: '6 mo', change: 'Nov 25 - Apr 26' },
     { label: 'Unique Sessions', value: allDates.size, change: '' },
   ];
 
@@ -1555,19 +1555,22 @@ function renderTables() {
 function renderGoals() {
   const container = document.getElementById('goals');
   container.innerHTML = `
-    <div class="section-label">March 2026 Goals - Progress <span class="count">4/4 primary done</span></div>
+    <div class="section-label">April 2026 Goals <span class="count">0/6 primary done</span></div>
+    <div style="font-size:0.8em;color:var(--muted);margin-bottom:14px;">Goals set harder this month - expectation is 4/6 primary. Hack squat replaces barbell squat. SLDL + Leg Curl combined as posterior chain goal.</div>
     <div class="goals-grid">
 
       <div class="goal-card">
-        <h3><span class="goal-tag goal-tag-primary">PRIMARY</span> Lift Goals</h3>
+        <h3><span class="goal-tag goal-tag-primary">PRIMARY</span> Lift Goals (6)</h3>
         <table>
           <thead><tr><th>Exercise</th><th>Target</th><th>Best</th><th>Status</th></tr></thead>
           <tbody>
-            <tr><td>Bench Press</td><td>75 &times; 5</td><td style="font-weight:700;">80 &times; 3</td><td style="color:var(--green);font-weight:700;">&#10003; EXCEEDED</td></tr>
-            <tr><td>Pull-ups</td><td>+15 &times; 4</td><td style="font-weight:700;">+15 &times; 5</td><td style="color:var(--green);font-weight:700;">&#10003; EXCEEDED</td></tr>
-            <tr><td>Barbell Squat</td><td>120 &times; 5</td><td style="font-weight:700;">120 &times; 5</td><td style="color:var(--green);font-weight:700;">&#10003; DONE</td></tr>
-            <tr><td>SLDL</td><td>140 &times; 3</td><td style="font-weight:700;">145 &times; 5</td><td style="color:var(--green);font-weight:700;">&#10003; EXCEEDED</td></tr>
-            <tr><td></td><td><span style="color:var(--muted);">or</span> 135 &times; 7</td><td style="font-weight:700;">135 &times; 7</td><td style="color:var(--green);font-weight:700;">&#10003; DONE</td></tr>
+            <tr><td>Bench Press</td><td>82.5 &times; 4</td><td style="font-weight:700;">80 &times; 3</td><td style="color:var(--muted);">Awaiting data</td></tr>
+            <tr><td>Hack Squat</td><td>190 &times; 2</td><td style="font-weight:700;">182.6 &times; 2</td><td style="color:var(--muted);">Awaiting data</td></tr>
+            <tr><td>Posterior Chain</td><td>SLDL 150 &times; 3</td><td style="font-weight:700;">145 &times; 5</td><td style="color:var(--muted);">Serratus recovery</td></tr>
+            <tr><td></td><td><span style="color:var(--muted);">or</span> Leg Curl 72 &times; 8</td><td style="font-weight:700;">68 &times; 8</td><td style="color:var(--muted);">Awaiting data</td></tr>
+            <tr><td>Pull-ups</td><td>+17.5 &times; 4</td><td style="font-weight:700;">+15 &times; 5</td><td style="color:var(--muted);">Awaiting data</td></tr>
+            <tr><td>OHP</td><td>52.5 &times; 3</td><td style="font-weight:700;">50 &times; 4</td><td style="color:var(--muted);">Shoulder rehab ongoing</td></tr>
+            <tr><td>Triceps Ext.</td><td>38 &times; 5</td><td style="font-weight:700;">36.25 &times; 5</td><td style="color:var(--muted);">Awaiting data</td></tr>
           </tbody>
         </table>
       </div>
@@ -1577,22 +1580,30 @@ function renderGoals() {
         <table>
           <thead><tr><th>Exercise</th><th>Target</th><th>Best</th><th>Status</th></tr></thead>
           <tbody>
-            <tr><td>Triceps Ext.</td><td>25 &times; 8</td><td style="font-weight:700;">36.25 &times; 5</td><td style="color:var(--green);font-weight:700;">&#10003; EXCEEDED</td></tr>
-            <tr><td></td><td><span style="color:var(--muted);">or</span> 27.5 &times; 5</td><td style="font-weight:700;">36.25 &times; 5</td><td style="color:var(--green);font-weight:700;">&#10003; EXCEEDED</td></tr>
-            <tr><td>Preacher Curl</td><td>40 &times; 3</td><td style="font-weight:700;">40 &times; 3</td><td style="color:var(--green);font-weight:700;">&#10003; DONE</td></tr>
+            <tr><td>Preacher Curl</td><td>42 &times; 2</td><td style="font-weight:700;">40 &times; 3</td><td style="color:var(--muted);">Awaiting data</td></tr>
+            <tr><td>Seated Row</td><td>105 &times; 5</td><td style="font-weight:700;">100 &times; 7</td><td style="color:var(--muted);">Serratus recovery</td></tr>
           </tbody>
         </table>
       </div>
 
       <div class="goal-card">
-        <h3><span class="goal-tag goal-tag-nice">TRACK</span> Nice to Have</h3>
+        <h3><span class="goal-tag goal-tag-nice">STRETCH</span> Stretch Goals</h3>
+        <table>
+          <thead><tr><th>Exercise</th><th>Target</th><th>Best</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>Bench Press</td><td>85 &times; 2</td><td style="font-weight:700;">80 &times; 3</td><td style="color:var(--muted);">Stretch</td></tr>
+            <tr><td>Hack Squat</td><td>192.5 &times; 1</td><td style="font-weight:700;">182.6 &times; 2</td><td style="color:var(--muted);">Stretch</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="goal-card">
+        <h3><span class="goal-tag goal-tag-nice">TRACK</span> Tracked (No Goal)</h3>
         <table>
           <thead><tr><th>Exercise</th><th>Approach</th><th>Status</th></tr></thead>
           <tbody>
-            <tr><td>OHP</td><td>Clean 45 kg</td><td style="color:var(--green);">50 &times; 4 clean &#10003;</td></tr>
-            <tr><td>Seated Row</td><td>Toward 100 kg</td><td style="color:var(--green);font-weight:700;">100 &times; 7 &#10003;</td></tr>
-            <tr><td>Chest Fly</td><td>Technique</td><td style="color:var(--muted);">Paused</td></tr>
-            <tr><td colspan="3" style="color:var(--red);font-size:0.85em;padding-top:4px;">Seated Row + SLDL paused - serratus anterior injury (16/03)</td></tr>
+            <tr><td>Lat Pulldown</td><td>Rebuild toward 90 kg</td><td style="color:var(--muted);">80 &times; 8 (reintroduced 28/03)</td></tr>
+            <tr><td>Barbell Squat</td><td>On hold - hack squat primary</td><td style="color:var(--muted);">In graveyard (125 &times; 2 best)</td></tr>
           </tbody>
         </table>
       </div>
@@ -1602,11 +1613,11 @@ function renderGoals() {
         <table>
           <thead><tr><th>Metric</th><th>Target</th><th>Latest</th><th>Status</th></tr></thead>
           <tbody>
-            <tr><td>PBF</td><td>&lt; 18.0%</td><td style="font-weight:700;">18.3%</td><td style="color:var(--orange);">Missed by 0.3% - carry to April</td></tr>
-            <tr><td>SMM</td><td>&gt; 42.0 kg</td><td style="font-weight:700;">41.9 kg</td><td style="color:var(--orange);">Missed by 100g - carry to April</td></tr>
+            <tr><td>PBF</td><td>&lt; 18.0%</td><td style="font-weight:700;">18.3%</td><td style="color:var(--orange);">Carried from March (missed by 0.3%)</td></tr>
+            <tr><td>SMM</td><td>&gt; 42.0 kg</td><td style="font-weight:700;">41.9 kg</td><td style="color:var(--orange);">Carried from March (missed by 100g)</td></tr>
           </tbody>
         </table>
-        <div style="font-size:0.8em;color:var(--muted);margin-top:6px;">Plateau at 18.2-18.3% for 4 weeks. Strategy: 20k steps/day + 2x runs/week.</div>
+        <div style="font-size:0.8em;color:var(--muted);margin-top:6px;">Strategy: 20k steps/day + 2x runs/week to break plateau.</div>
       </div>
 
       <div class="goal-card">
@@ -1614,7 +1625,7 @@ function renderGoals() {
         <table>
           <thead><tr><th>Activity</th><th>Plan</th><th>Status</th></tr></thead>
           <tbody>
-            <tr><td>Running</td><td>2x/week, building to half marathon</td><td style="color:var(--green);">6 runs, 10 km longest</td></tr>
+            <tr><td>Running</td><td>2x/week, building to half marathon</td><td style="color:var(--muted);">6 runs total, 10 km longest</td></tr>
             <tr><td>Walking</td><td>20k steps/day target</td><td style="color:var(--green);">Active</td></tr>
           </tbody>
         </table>
