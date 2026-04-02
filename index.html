@@ -1095,16 +1095,16 @@ const exercises = {
       { date: "2026-04-02", weight: 64, bestReps: 8, note: "Single set at 64, steady", sets: [{"w":64,"r":8}] },
     ]
   },
-  "Lat Pulldown": {
-    muscle: "Back / Biceps", unit: "kg", type: "compound",
-    data: [
-      { date: "2026-03-28", weight: 80, bestReps: 8, note: "Temp sub for Seated Row (serratus injury)", sets: [{"w":80,"r":8},{"w":80,"r":6},{"w":80,"r":6}] },
-    ]
-  },
 };
 
 // ========== GRAVEYARD (preserved data, removed from main charts) ==========
 const graveyard = {
+  "Lat Pulldown": {
+    muscle: "Back / Biceps", unit: "kg", type: "compound", reason: "PT decided pull-ups instead", lastSession: "28/03/2026",
+    data: [
+      { date: "2026-03-28", weight: 80, bestReps: 8, note: "Temp sub for Seated Row (serratus injury)", sets: [{"w":80,"r":8},{"w":80,"r":6},{"w":80,"r":6}] },
+    ]
+  },
   "Barbell Squat": {
     muscle: "Quads / Glutes / Core", unit: "kg", type: "compound", reason: "Replaced by Hack Squat for 2-3 months", lastSession: "20/03/2026",
     data: [
@@ -1666,22 +1666,86 @@ function renderGraveyard() {
     `;
   });
 
-  html += '</div>';
+  html += '</div></div>';
+  container.innerHTML = html;
 
-  // Collapsed tables
+  // Collapsible exercise tables (same pattern as All Data Points)
+  const body = document.getElementById('graveyard-body');
   names.forEach(name => {
     const ex = graveyard[name];
-    html += `<h3 style="margin: 16px 0 8px; font-size: 0.9em; font-weight: 600;">${name} <span style="color:var(--muted);font-weight:400;font-size:0.85em;">${ex.muscle}</span></h3>`;
-    html += `<table><thead><tr><th>Date</th><th>Weight</th><th>Best Reps</th><th>Est. 1RM</th><th>Note</th></tr></thead><tbody>`;
+    const wrapper = document.createElement('div');
+    wrapper.style.marginBottom = '8px';
+
+    const header = document.createElement('div');
+    header.className = 'exercise-toggle';
+    header.innerHTML = `<span class="arrow">&#9656;</span> ${name} <span style="color:var(--muted);font-weight:400;font-size:0.85em;">${ex.muscle}</span> <span style="color:var(--muted);font-size:0.8em;margin-left:auto;">${ex.data.length} sessions</span>`;
+    header.addEventListener('click', () => {
+      header.classList.toggle('open');
+      tableWrap.classList.toggle('open');
+    });
+    wrapper.appendChild(header);
+
+    const tableWrap = document.createElement('div');
+    tableWrap.className = 'exercise-body';
+
+    const table = document.createElement('table');
+    table.innerHTML = '<thead><tr><th>Date</th><th>Weight</th><th>Best Reps</th><th>Est. 1RM</th><th>Note</th></tr></thead>';
+    const tbody = document.createElement('tbody');
+    let currentExpanded = null;
+
     [...ex.data].reverse().forEach(d => {
       const est = Math.round(e1rm(d.weight, d.bestReps) * 10) / 10;
-      html += `<tr><td>${formatDate(d.date)}</td><td>${d.weight} kg</td><td>${d.bestReps}</td><td>${est} kg</td><td>${d.note}</td></tr>`;
-    });
-    html += '</tbody></table>';
-  });
+      const tr = document.createElement('tr');
+      tr.className = 'data-row';
+      tr.innerHTML = `<td>${formatDate(d.date)}</td><td>${d.weight} kg</td><td>${d.bestReps}</td><td>${est} kg</td><td>${d.note}</td>`;
 
-  html += '</div>';
-  container.innerHTML = html;
+      const setsTr = document.createElement('tr');
+      setsTr.className = 'sets-row';
+      const setsTd = document.createElement('td');
+      setsTd.colSpan = 5;
+      const setsDiv = document.createElement('div');
+      setsDiv.className = 'sets-detail';
+
+      if (d.sets && d.sets.length > 0) {
+        d.sets.forEach((s, i) => {
+          const chip = document.createElement('span');
+          const isBest = s.w === d.weight && s.r === d.bestReps;
+          chip.className = 'set-chip' + (isBest ? ' best' : '');
+          chip.innerHTML = `<span class="set-num">S${i+1}</span> ${s.w}kg &times; ${s.r}`;
+          setsDiv.appendChild(chip);
+        });
+      } else {
+        setsDiv.innerHTML = '<span style="color:var(--muted);font-size:12px;">No set data</span>';
+      }
+
+      setsTd.appendChild(setsDiv);
+      setsTr.appendChild(setsTd);
+
+      tr.addEventListener('click', () => {
+        if (currentExpanded === setsTr) {
+          setsTr.classList.remove('visible');
+          tr.classList.remove('expanded');
+          currentExpanded = null;
+        } else {
+          if (currentExpanded) {
+            currentExpanded.classList.remove('visible');
+            currentExpanded.previousElementSibling.classList.remove('expanded');
+          }
+          setsTr.classList.add('visible');
+          tr.classList.add('expanded');
+          currentExpanded = setsTr;
+        }
+      });
+
+      tbody.appendChild(tr);
+      tbody.appendChild(setsTr);
+    });
+
+    table.appendChild(tbody);
+    tableWrap.appendChild(table);
+    wrapper.appendChild(tableWrap);
+    body.appendChild(wrapper);
+  });
 }
 
 // ========== INJURY LOG ==========
