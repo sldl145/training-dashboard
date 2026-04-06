@@ -689,7 +689,7 @@
 <body>
 
 <h1>Training, Body Composition & Running Dashboard</h1>
-<p class="subtitle">November 2025 - April 2026 | Updated 04/04/2026</p>
+<p class="subtitle">November 2025 - April 2026 | Updated 06/04/2026</p>
 
 <!-- Tab Navigation -->
 <div class="tab-nav">
@@ -955,6 +955,7 @@ const exercises = {
       { date: "2026-03-28", weight: 32.5, bestReps: 9, note: "Rep PR at 32.5! (5→7→9)", sets: [{"w":32.5,"r":9},{"w":32.5,"r":7}] },
       { date: "2026-03-30", weight: 36.25, bestReps: 5, note: "36.25 kg NEW WEIGHT! +4 kg jump", sets: [{"w":36.25,"r":5},{"w":36.25,"r":5}] },
       { date: "2026-04-04", weight: 28.75, bestReps: 8, note: "Depleted - light food before session, not representative", sets: [{"w":28.75,"r":8}] },
+      { date: "2026-04-06", weight: 36.25, bestReps: 6, note: "Rep PR at 36.25! (prev best 5)", sets: [{"w":36.25,"r":6},{"w":32.5,"r":5}] },
     ]
   },
   "Weighted Pull-ups": {
@@ -998,6 +999,7 @@ const exercises = {
       { date: "2026-03-25", weight: 15, bestReps: 5, note: "Back to +15, matched PR", sets: [{"w":15,"r":5},{"w":15,"r":4}] },
       { date: "2026-03-30", weight: 10, bestReps: 5, note: "After bench, consistent at +10", sets: [{"w":10,"r":5},{"w":5,"r":6}] },
       { date: "2026-04-02", weight: 20, bestReps: 3, note: "+20 kg first touch! New weight PR, April goal surpassed on day 1", sets: [{"w":20,"r":3},{"w":15,"r":5}] },
+      { date: "2026-04-06", weight: 10, bestReps: 5, note: "After bench, consistent at +10", sets: [{"w":10,"r":5},{"w":10,"r":4},{"w":10,"r":4}] },
     ]
   },
   "Bench Press": {
@@ -1019,6 +1021,7 @@ const exercises = {
       { date: "2026-03-28", weight: 70, bestReps: 7, note: "Conservative, no spotter", sets: [{"w":65,"r":8},{"w":70,"r":7}] },
       { date: "2026-03-30", weight: 80, bestReps: 3, note: "80 kg NEW WEIGHT! 60→80 in 7 weeks", sets: [{"w":80,"r":3},{"w":75,"r":6},{"w":75,"r":5}] },
       { date: "2026-04-04", weight: 80, bestReps: 4, note: "80 x 4 after OHP - rep PR at 80!", sets: [{"w":80,"r":4},{"w":75,"r":4}] },
+      { date: "2026-04-06", weight: 80, bestReps: 4, note: "Consistent at 80, 3 sets", sets: [{"w":80,"r":4},{"w":80,"r":4},{"w":70,"r":7}] },
     ]
   },
   "Hack Squat": {
@@ -1048,6 +1051,7 @@ const exercises = {
       { date: "2026-03-28", weight: 162.6, bestReps: 5, note: "150 x 6 rep PR, volume work", sets: [{"w":150,"r":6},{"w":162.6,"r":5},{"w":162.6,"r":5}] },
       { date: "2026-03-30", weight: 182.6, bestReps: 2, note: "182.6 kg ALL-TIME PR weight!", sets: [{"w":182.6,"r":2},{"w":172.6,"r":4}] },
       { date: "2026-04-04", weight: 167.6, bestReps: 6, note: "Volume work at 167.6", sets: [{"w":167.6,"r":6},{"w":167.6,"r":5}] },
+      { date: "2026-04-06", weight: 172.6, bestReps: 5, note: "Back to 172.6, 2x5", sets: [{"w":172.6,"r":5},{"w":172.6,"r":5}] },
     ]
   },
   "Preacher Curl": {
@@ -1104,6 +1108,7 @@ const exercises = {
       { date: "2026-03-20", weight: 68, bestReps: 8, note: "First session", sets: [{"w":68,"r":8},{"w":68,"r":5}] },
       { date: "2026-03-25", weight: 64, bestReps: 8, note: "Second session, lighter weight", sets: [{"w":64,"r":8},{"w":64,"r":6}] },
       { date: "2026-04-02", weight: 64, bestReps: 8, note: "Single set at 64, steady", sets: [{"w":64,"r":8}] },
+      { date: "2026-04-06", weight: 66, bestReps: 7, note: "Weight up to 66 (+2), 2 sets", sets: [{"w":66,"r":7},{"w":66,"r":6}] },
     ]
   },
 };
@@ -1240,8 +1245,8 @@ const graveyard = {
 };
 
 // ========== HELPERS ==========
-const TODAY = "2026-04-04";
-const SEVEN_DAYS_AGO = "2026-03-28";
+const TODAY = "2026-04-06";
+const SEVEN_DAYS_AGO = "2026-03-30";
 
 function formatDate(d) {
   const dt = new Date(d);
@@ -1265,7 +1270,7 @@ function firstDate(ex) {
 function isNew(ex) {
   // "New" = first data point is within 4 weeks AND at least 2 points in last 7 days
   const first = new Date(firstDate(ex));
-  const fourWeeksAgo = new Date("2026-03-07");
+  const fourWeeksAgo = new Date("2026-03-09");
   const recentPoints = ex.data.filter(d => d.date >= SEVEN_DAYS_AGO).length;
   return first >= fourWeeksAgo && recentPoints >= 2;
 }
@@ -1582,10 +1587,10 @@ function renderGoals() {
           <tbody>
             <tr><td>Bench Press</td><td>82.5 &times; 4</td><td style="font-weight:700;">80 &times; 4</td><td style="color:var(--orange);">80 x 4 after OHP - rep PR! 82.5 next when bench goes first</td></tr>
             <tr><td>Hack Squat</td><td>190 &times; 2</td><td style="font-weight:700;">182.6 &times; 2</td><td style="color:var(--muted);">Awaiting data</td></tr>
-            <tr><td>Posterior Chain</td><td>Leg Curl 72 &times; 8</td><td style="font-weight:700;">64 &times; 8</td><td style="color:var(--muted);">SLDL path eliminated - serratus rest 4 wks</td></tr>
+            <tr><td>Posterior Chain</td><td>Leg Curl 72 &times; 8</td><td style="font-weight:700;">66 &times; 7</td><td style="color:var(--orange);">Weight up to 66 (+2), tracking toward 72</td></tr>
             <tr><td>Pull-ups</td><td>+17.5 &times; 4</td><td style="font-weight:700;">+20 &times; 3</td><td style="color:var(--orange);">Target weight surpassed! +20 kg on day 1</td></tr>
             <tr><td>OHP</td><td>52.5 &times; 3</td><td style="font-weight:700;">50 &times; 4</td><td style="color:var(--muted);">Shoulder rehab ongoing</td></tr>
-            <tr><td>Triceps Ext.</td><td>38 &times; 5</td><td style="font-weight:700;">36.25 &times; 5</td><td style="color:var(--muted);">Awaiting data</td></tr>
+            <tr><td>Triceps Ext.</td><td>38 &times; 5</td><td style="font-weight:700;">36.25 &times; 6</td><td style="color:var(--orange);">Rep PR at 36.25 - closing in on 38</td></tr>
           </tbody>
         </table>
       </div>
