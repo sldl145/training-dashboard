@@ -1343,51 +1343,65 @@ function renderSummary() {
 }
 
 // ========== RENDER CHARTS ==========
+// Hardcoded display order. New exercises not in this list appear at the bottom with a NEW badge.
+const EXERCISE_ORDER = [
+  "Bench Press", "Overhead Press",
+  "Hack Squat", "Lying Leg Curl",
+  "Weighted Pull-ups", "Chin-ups",
+  "Triceps Extension", "Preacher Curl"
+];
+
+function getOrderedNames() {
+  const all = Object.keys(exercises);
+  const ordered = EXERCISE_ORDER.filter(n => all.includes(n));
+  const newExercises = all.filter(n => !EXERCISE_ORDER.includes(n));
+  return { ordered, newExercises };
+}
+
 function renderCharts() {
   const container = document.getElementById('sections');
-  const { newLifts, established } = getSortedNames();
+  const { ordered, newExercises } = getOrderedNames();
+  const allNames = [...ordered, ...newExercises];
   let colorIdx = 0;
 
-  function renderSection(title, names, isNewSection) {
-    if (names.length === 0) return;
+  const sectionDiv = document.createElement('div');
+  sectionDiv.innerHTML = `
+    <div class="section-label">
+      All Lifts <span class="count">${allNames.length}</span>
+    </div>
+  `;
+  const grid = document.createElement('div');
+  grid.className = 'chart-grid';
 
-    const sectionDiv = document.createElement('div');
-    sectionDiv.innerHTML = `
-      <div class="section-label">
-        ${title} <span class="count">${names.length}</span>
-      </div>
-    `;
-    const grid = document.createElement('div');
-    grid.className = 'chart-grid';
+  allNames.forEach((name) => {
+    const ex = exercises[name];
+    const data = ex.data;
+    const labels = data.map(d => formatDate(d.date));
+    const weights = data.map(d => d.weight);
+    const reps = data.map(d => d.bestReps);
+    const e1rms = data.map(d => Math.round(e1rm(d.weight, d.bestReps) * 10) / 10);
 
-    names.forEach((name) => {
-      const ex = exercises[name];
-      const data = ex.data;
-      const labels = data.map(d => formatDate(d.date));
-      const weights = data.map(d => d.weight);
-      const reps = data.map(d => d.bestReps);
-      const e1rms = data.map(d => Math.round(e1rm(d.weight, d.bestReps) * 10) / 10);
+    const firstE1rm = e1rms[0];
+    const bestE1rm = Math.max(...e1rms);
+    const currentE1rm = e1rms[e1rms.length - 1];
+    const totalGain = firstE1rm > 0 ? ((bestE1rm - firstE1rm) / firstE1rm * 100).toFixed(0) : '~';
 
-      const firstE1rm = e1rms[0];
-      const bestE1rm = Math.max(...e1rms);
-      const currentE1rm = e1rms[e1rms.length - 1];
-      const totalGain = firstE1rm > 0 ? ((bestE1rm - firstE1rm) / firstE1rm * 100).toFixed(0) : '~';
+    const color = chartColors[colorIdx % chartColors.length];
+    colorIdx++;
 
-      const color = chartColors[colorIdx % chartColors.length];
-      colorIdx++;
+    const hasInjury = false;
+    const isPR = Math.abs(bestE1rm - currentE1rm) < 0.5;
+    const exerciseIsNew = !EXERCISE_ORDER.includes(name);
 
-      const hasInjury = false; // SLDL injury recovered 18/02
-      const isPR = Math.abs(bestE1rm - currentE1rm) < 0.5;
-
-      const div = document.createElement('div');
-      div.className = 'chart-card';
-      const chartId = 'chart-' + name.replace(/[^a-zA-Z0-9]/g, '_');
-      div.innerHTML = `
-        <h3>${name} <span style="color:var(--muted);font-weight:400;font-size:0.8em;">${ex.muscle}</span>
-        ${isNewSection ? '<span class="badge badge-new">NEW</span>' : ''}
-        ${isPR ? '<span class="badge badge-pr">Current PR</span>' : ''}
-        ${hasInjury ? '<span class="badge badge-injury">Injured 07/02</span>' : ''}
-        </h3>
+    const div = document.createElement('div');
+    div.className = 'chart-card';
+    const chartId = 'chart-' + name.replace(/[^a-zA-Z0-9]/g, '_');
+    div.innerHTML = `
+      <h3>${name} <span style="color:var(--muted);font-weight:400;font-size:0.8em;">${ex.muscle}</span>
+      ${exerciseIsNew ? '<span class="badge badge-new">NEW</span>' : ''}
+      ${isPR ? '<span class="badge badge-pr">Current PR</span>' : ''}
+      ${hasInjury ? '<span class="badge badge-injury">Injured 07/02</span>' : ''}
+      </h3>
         <div class="meta">${data.length} sessions | ${ex.unit} | e1RM gain: ${totalGain}%</div>
         <div class="stats-row">
           <div class="mini"><span>Start:</span> ${data[0].weight} kg x${data[0].bestReps}</div>
@@ -1490,19 +1504,15 @@ function renderCharts() {
       });
     });
 
-    sectionDiv.appendChild(grid);
-    container.appendChild(sectionDiv);
-  }
-
-  renderSection('New Lifts', newLifts, true);
-  renderSection('Established Lifts', established, false);
+  sectionDiv.appendChild(grid);
+  container.appendChild(sectionDiv);
 }
 
 // ========== RENDER TABLES ==========
 function renderTables() {
   const container = document.getElementById('tables');
-  const { newLifts, established } = getSortedNames();
-  const allNames = [...newLifts, ...established];
+  const { ordered, newExercises } = getOrderedNames();
+  const allNames = [...ordered, ...newExercises];
 
   container.innerHTML = '<h2>All Data Points</h2><p style="color:var(--muted);font-size:0.8em;margin-bottom:16px;">Tap exercise to expand, tap row to see all sets</p>';
 
