@@ -1060,13 +1060,6 @@ const exercises = {
       { date: "2026-04-20", weight: 10, bestReps: 5, note: "+10 x 5 x 2 sets - consistent working volume, post-bench", sets: [{"w":10,"r":5},{"w":10,"r":5}] },
     ]
   },
-  "Chin-ups": {
-    muscle: "Back / Biceps", unit: "kg added", type: "compound",
-    data: [
-      { date: "2026-04-04", weight: 0, bestReps: 8, note: "New exercise - row replacement (serratus)", sets: [{"w":0,"r":8},{"w":0,"r":6}] },
-      { date: "2026-04-11", weight: 5, bestReps: 6, note: "+5 kg first weighted! Up from BW on 04/04", sets: [{"w":5,"r":6},{"w":5,"r":6}] },
-    ]
-  },
   "Triceps Extension": {
     muscle: "Triceps", unit: "kg", type: "isolation",
     data: [
@@ -1149,6 +1142,13 @@ const graveyard = {
       { date: "2026-03-28", weight: 80, bestReps: 8, note: "Temp sub for Seated Row (serratus injury)", sets: [{"w":80,"r":8},{"w":80,"r":6},{"w":80,"r":6}] },
     ]
   },
+  "Chin-ups": {
+    muscle: "Back / Biceps", unit: "kg added", type: "compound", reason: "Row replacement during serratus rest - retired as Seated Row reintroduced via Iso-Lateral Row (75 x 8 x 2 pain-free on 18/04)", lastSession: "11/04/2026",
+    data: [
+      { date: "2026-04-04", weight: 0, bestReps: 8, note: "New exercise - row replacement (serratus)", sets: [{"w":0,"r":8},{"w":0,"r":6}] },
+      { date: "2026-04-11", weight: 5, bestReps: 6, note: "+5 kg first weighted! Up from BW on 04/04", sets: [{"w":5,"r":6},{"w":5,"r":6}] },
+    ]
+  },
   "Barbell Squat": {
     muscle: "Quads / Glutes / Core", unit: "kg", type: "compound", reason: "Replaced by Hack Squat for 2-3 months", lastSession: "20/03/2026",
     data: [
@@ -1198,11 +1198,12 @@ const graveyard = {
     ]
   },
   "Leg Press": {
-    muscle: "Quads / Glutes", unit: "kg", type: "compound", reason: "Holiday substitute for Hack Squat", lastSession: "07/01/2026",
+    muscle: "Quads / Glutes", unit: "kg", type: "compound", reason: "Equipment substitute for Hack Squat - not an active programme exercise", lastSession: "20/04/2026",
     data: [
       { date: "2025-12-24", weight: 180, bestReps: 6, note: "Hack replacement, Tunisia", sets: [{"w":180,"r":6},{"w":180,"r":6},{"w":160,"r":8}] },
       { date: "2025-12-31", weight: 217, bestReps: 6, note: "Weight + 1RM PR", sets: [{"w":212,"r":6},{"w":217,"r":6}] },
       { date: "2026-01-07", weight: 227, bestReps: 5, note: "+10kg from Dec", sets: [{"w":227,"r":5},{"w":227,"r":5},{"w":227,"r":5}] },
+      { date: "2026-04-20", weight: 227, bestReps: 6, note: "One-off substitute for Hack Squat (equipment unavailable). 227 x 5 then 227 x 6 - rep PR at previous top weight. Not a data point against Hack Squat goal - Hack Squat returns next session.", sets: [{"w":227,"r":5},{"w":227,"r":6}] },
     ]
   },
   "Seated Row": {
@@ -1367,7 +1368,7 @@ function renderSummary() {
 const EXERCISE_ORDER = [
   "Bench Press", "Overhead Press",
   "Hack Squat", "Lying Leg Curl",
-  "Weighted Pull-ups", "Chin-ups",
+  "Weighted Pull-ups",
   "Triceps Extension", "Preacher Curl"
 ];
 
@@ -1663,7 +1664,7 @@ function renderGoals() {
         <table>
           <thead><tr><th>Exercise</th><th>Approach</th><th>Status</th></tr></thead>
           <tbody>
-            <tr><td>Chin-ups</td><td>Row replacement (serratus)</td><td style="color:var(--muted);">+5 kg &times; 6 (weighted 11/04)</td></tr>
+            <tr><td>Seated Row</td><td>Serratus-safe rebuild via Iso-Lateral</td><td style="color:var(--muted);">75 &times; 8 &times; 2 pain-free (18/04)</td></tr>
             <tr><td>Lat Pulldown</td><td>Rebuild toward 90 kg</td><td style="color:var(--muted);">80 &times; 8 (reintroduced 28/03)</td></tr>
             <tr><td>Barbell Squat</td><td>On hold - hack squat primary</td><td style="color:var(--muted);">In graveyard (125 &times; 2 best)</td></tr>
           </tbody>
