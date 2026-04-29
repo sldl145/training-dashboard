@@ -689,7 +689,7 @@
 <body>
 
 <h1>Training, Body Composition & Running Dashboard</h1>
-<p class="subtitle">November 2025 - April 2026 | Updated 29/04/2026 | April CLOSED - new goals 02/05</p>
+<p class="subtitle">November 2025 - April 2026 | Updated 29/04/2026</p>
 
 <!-- Tab Navigation -->
 <div class="tab-nav">
@@ -918,7 +918,7 @@ const exercises = {
       { date: "2026-04-18", weight: 75, bestReps: 5, note: "75 x 5 then 75 x 2 after OHP. Saturday morning + post-OHP fatigue. Not a PR day - Monday is for bench PRs.", sets: [{"w":75,"r":5},{"w":75,"r":2}] },
       { date: "2026-04-20", weight: 80, bestReps: 5, note: "Monday PR day - 80 x 5 top set (rep PR at 80, prev best 4), 80 x 3, 75 x 6 back-off. April goal 82.5 x 5 is 2.5 kg away.", sets: [{"w":80,"r":5},{"w":80,"r":3},{"w":75,"r":6}] },
       { date: "2026-04-27", weight: 70, bestReps: 5, note: "First session post-cold (6 days off). 70 x 5 x 2 is INTENTIONAL DELOAD - banking energy for Wednesday's 82.5 attempt. Last bench 80 x 5 on 20/04. Not a data point against the 82.5 goal.", sets: [{"w":70,"r":5},{"w":70,"r":5}] },
-      { date: "2026-04-29", weight: 80, bestReps: 2, note: "Last session of April. 80 x 2 (no force, body still under cold recovery), then 75 x 4 x 2. 82.5 attempt did not land - PT call: normal post-illness, catch-up expected. April peak stands at 80 x 5 (20/04). April goal 82.5 x 4 NOT MET.", sets: [{"w":80,"r":2},{"w":75,"r":4},{"w":75,"r":4}] },
+      { date: "2026-04-29", weight: 80, bestReps: 2, note: "Last session of April. 80 x 2 (body under cold recovery), then 75 x 4 x 2. PT call: normal post-illness, catch-up expected. April peak stands at 80 x 5 (20/04).", sets: [{"w":80,"r":2},{"w":75,"r":4},{"w":75,"r":4}] },
     ]
   },
   "Overhead Press": {
@@ -1001,7 +1001,7 @@ const exercises = {
       { date: "2026-04-11", weight: 175.1, bestReps: 6, note: "175.1 x 6 x 2 - new total weight PR at rep range per PT", sets: [{"w":175.1,"r":6},{"w":175.1,"r":6}] },
       { date: "2026-04-13", weight: 182.6, bestReps: 4, note: "182.6 x 4 REP PR at weight (prev 182.6 x 2). Lift to absolute failure - couldn't complete 2nd set even with 10-15 kg deload.", sets: [{"w":182.6,"r":4}] },
       { date: "2026-04-18", weight: 182.6, bestReps: 4, note: "182.6 x 4 x 2 sets - VOLUME PR. Repeated last session's 4-rep effort across 2 sets, no deload needed. Strength platform consolidated.", sets: [{"w":182.6,"r":4},{"w":182.6,"r":4}] },
-      { date: "2026-04-29", weight: 182.6, bestReps: 3, note: "182.6 x 3 then 172.6 x 4. Top set -1 rep vs 18/04 best (182.6 x 4 x 2). Cold context. April goal (190 x 2) NOT met. April peak stands at 182.6 x 4 x 2 (18/04).", sets: [{"w":182.6,"r":3},{"w":172.6,"r":4}] },
+      { date: "2026-04-29", weight: 182.6, bestReps: 3, note: "182.6 x 3 then 172.6 x 4. Cold context. April peak stands at 182.6 x 4 x 2 (18/04).", sets: [{"w":182.6,"r":3},{"w":172.6,"r":4}] },
     ]
   },
   "Lying Leg Curl": {
@@ -1015,7 +1015,36 @@ const exercises = {
       { date: "2026-04-13", weight: 66, bestReps: 8, note: "66 x 8 - rep target matched at this weight. Next: 68 kg.", sets: [{"w":66,"r":8},{"w":66,"r":7}] },
       { date: "2026-04-15", weight: 70, bestReps: 6, note: "70 kg! Skipped 68, +4 kg jump. 72 x 8 goal = 2 kg + 2 reps away", sets: [{"w":70,"r":6},{"w":70,"r":6}] },
       { date: "2026-04-27", weight: 70, bestReps: 7, note: "70 x 7 - new working weight at +1 rep on 15/04 (70 x 6). Post-cold session, no leg deconditioning visible. 72 x 8 goal now 2 kg + 1 rep away - clearly within reach.", sets: [{"w":70,"r":7}] },
-      { date: "2026-04-29", weight: 70, bestReps: 7, note: "70 x 7 single set - held working weight from 27/04. Last session of April. April goal (72 x 8) NOT met but very close - 2 kg + 1 rep away, one productive session away.", sets: [{"w":70,"r":7}] },
+      { date: "2026-04-29", weight: 70, bestReps: 7, note: "70 x 7 single set - held working weight from 27/04. Last session of April.", sets: [{"w":70,"r":7}] },
+    ]
+  },
+  "SLDL": {
+    muscle: "Hamstrings / Glutes", unit: "kg", type: "compound",
+    data: [
+      { date: "2025-12-13", weight: 105, bestReps: 6, note: "New exercise", sets: [{"w":120,"r":3},{"w":110,"r":3}] },
+      { date: "2025-12-15", weight: 125, bestReps: 5, note: "Weight PR", sets: [{"w":125,"r":5}] },
+      { date: "2025-12-20", weight: 115, bestReps: 5, note: "3 identical sets", sets: [{"w":115,"r":5},{"w":115,"r":5},{"w":115,"r":5}] },
+      { date: "2026-01-03", weight: 115, bestReps: 6, note: "Pain-free", sets: [{"w":115,"r":6},{"w":115,"r":2}] },
+      { date: "2026-01-05", weight: 105, bestReps: 8, note: "Deloaded", sets: [{"w":95,"r":8},{"w":105,"r":8}] },
+      { date: "2026-01-12", weight: 115, bestReps: 7, note: "Volume PR", sets: [{"w":115,"r":7},{"w":115,"r":7}] },
+      { date: "2026-01-19", weight: 125, bestReps: 5, note: "Back to Dec PR", sets: [{"w":120,"r":7},{"w":125,"r":5}] },
+      { date: "2026-01-21", weight: 130, bestReps: 5, note: "All-time PR", sets: [{"w":130,"r":5},{"w":125,"r":5}] },
+      { date: "2026-01-26", weight: 130, bestReps: 2, note: "CNS failure", sets: [{"w":110,"r":8}] },
+      { date: "2026-01-28", weight: 125, bestReps: 2, note: "Smart deload", sets: [{"w":125,"r":2},{"w":115,"r":6},{"w":115,"r":6}] },
+      { date: "2026-02-02", weight: 130, bestReps: 6, note: "PR, new technique", sets: [{"w":125,"r":6},{"w":125,"r":6},{"w":130,"r":6}] },
+      { date: "2026-02-04", weight: 135, bestReps: 2, note: "New weight touched", sets: [{"w":135,"r":2},{"w":125,"r":6}] },
+      { date: "2026-02-07", weight: 125, bestReps: 6, note: "INJURY set 2", sets: [{"w":125,"r":6},{"w":125,"r":4}] },
+      { date: "2026-02-18", weight: 120, bestReps: 6, note: "Hamstring back!", sets: [{"w":105,"r":6},{"w":120,"r":6}] },
+      { date: "2026-02-21", weight: 130, bestReps: 6, note: "Back to pre-injury PR", sets: [{"w":125,"r":6},{"w":130,"r":6}] },
+      { date: "2026-02-25", weight: 135, bestReps: 5, note: "New PR, exceeds pre-injury", sets: [{"w":135,"r":5},{"w":135,"r":5}] },
+      { date: "2026-03-01", weight: 135, bestReps: 4, note: "", sets: [{"w":135,"r":4},{"w":115,"r":10}] },
+      { date: "2026-03-07", weight: 135, bestReps: 7, note: "March target hit (135x7)", sets: [{"w":135,"r":7}] },
+      { date: "2026-03-09", weight: 140, bestReps: 5, note: "March target hit (140x3+)", sets: [{"w":135,"r":6},{"w":135,"r":6},{"w":140,"r":5}] },
+      { date: "2026-03-13", weight: 140, bestReps: 5, note: "Consistent at 140", sets: [{"w":140,"r":5},{"w":140,"r":5}] },
+      { date: "2026-03-16", weight: 145, bestReps: 5, note: "145 kg NEW WEIGHT!", sets: [{"w":140,"r":6},{"w":145,"r":5}] },
+      { date: "2026-03-30", weight: 105, bestReps: 8, note: "Serratus test with PT, light weights", sets: [{"w":105,"r":8},{"w":85,"r":8}] },
+      { date: "2026-04-20", weight: 85, bestReps: 5, note: "Re-test too early - 55 x 8 warm-up clean, 85 x 5 flared rib cage pain on set 2. Iso-lateral row path not predictive of SLDL readiness.", sets: [{"w":55,"r":8},{"w":85,"r":5}] },
+      { date: "2026-04-29", weight: 85, bestReps: 8, note: "85 x 8 PAIN-FREE under doctor's graduated low-load protocol (28/04 teleconference). Same weight that flared rib on 20/04, now tolerated for 3 more reps with zero rib signal. Reintroduction protocol active - tracking low-weight progress as post-injury rebuild.", sets: [{"w":55,"r":8},{"w":85,"r":8}] },
     ]
   },
   "Weighted Pull-ups": {
@@ -1092,7 +1121,7 @@ const exercises = {
       { date: "2026-04-18", weight: 31.25, bestReps: 6, note: "31.25 x 6 single set - matched last session's top set, technique solid", sets: [{"w":31.25,"r":6}] },
       { date: "2026-04-20", weight: 31.25, bestReps: 6, note: "31.25 x 6 then x 5 - consistent top set, two working sets, solid progression from single-set sessions", sets: [{"w":31.25,"r":6},{"w":31.25,"r":5}] },
       { date: "2026-04-27", weight: 31.25, bestReps: 7, note: "31.25 x 7 single set - +1 rep on 20/04 (31.25 x 6). First session post-cold, working weight progressing.", sets: [{"w":31.25,"r":7}] },
-      { date: "2026-04-29", weight: 31.25, bestReps: 7, note: "31.25 x 7 x 2 sets - held weight, +1 set on 27/04. Last session of April. April goal (38 x 5) NOT met - never approached due to cold + post-injury programming.", sets: [{"w":31.25,"r":7},{"w":31.25,"r":7}] },
+      { date: "2026-04-29", weight: 31.25, bestReps: 7, note: "31.25 x 7 x 2 sets - held weight, +1 set on 27/04. Last session of April.", sets: [{"w":31.25,"r":7},{"w":31.25,"r":7}] },
     ]
   },
   "Preacher Curl": {
@@ -1255,35 +1284,6 @@ const graveyard = {
       { date: "2026-04-15", weight: 68, bestReps: 10, note: "Iso-Lateral Row (Machine) - first row test after serratus rest, mapped to Seated Row. 68 x 10 conservative weight.", sets: [{"w":68,"r":10}] },
       { date: "2026-04-18", weight: 75, bestReps: 8, note: "Iso-Lateral Row (Machine) 75 x 8 x 2 - PAIN-FREE across both sets. Serratus cleared.", sets: [{"w":75,"r":8},{"w":75,"r":8}] },
       { date: "2026-04-27", weight: 77, bestReps: 8, note: "Iso-Lateral Row 77 x 8 - clean, +2 kg on 18/04. Row pathway is the safe progression channel for the rib while SLDL waits.", sets: [{"w":77,"r":8}] },
-    ]
-  },
-  "SLDL": {
-    muscle: "Hamstrings / Glutes", unit: "kg", type: "compound", reason: "Serratus anterior injury - paused. Reintroduction now active under doctor's graduated low-load protocol (28/04 teleconference). 85 x 8 PAIN-FREE on 29/04 - same load that flared rib on 20/04. Healing trajectory positive.", lastSession: "29/04/2026",
-    data: [
-      { date: "2025-12-13", weight: 105, bestReps: 6, note: "New exercise", sets: [{"w":120,"r":3},{"w":110,"r":3}] },
-      { date: "2025-12-15", weight: 125, bestReps: 5, note: "Weight PR", sets: [{"w":125,"r":5}] },
-      { date: "2025-12-20", weight: 115, bestReps: 5, note: "3 identical sets", sets: [{"w":115,"r":5},{"w":115,"r":5},{"w":115,"r":5}] },
-      { date: "2026-01-03", weight: 115, bestReps: 6, note: "Pain-free", sets: [{"w":115,"r":6},{"w":115,"r":2}] },
-      { date: "2026-01-05", weight: 105, bestReps: 8, note: "Deloaded", sets: [{"w":95,"r":8},{"w":105,"r":8}] },
-      { date: "2026-01-12", weight: 115, bestReps: 7, note: "Volume PR", sets: [{"w":115,"r":7},{"w":115,"r":7}] },
-      { date: "2026-01-19", weight: 125, bestReps: 5, note: "Back to Dec PR", sets: [{"w":120,"r":7},{"w":125,"r":5}] },
-      { date: "2026-01-21", weight: 130, bestReps: 5, note: "All-time PR", sets: [{"w":130,"r":5},{"w":125,"r":5}] },
-      { date: "2026-01-26", weight: 130, bestReps: 2, note: "CNS failure", sets: [{"w":110,"r":8}] },
-      { date: "2026-01-28", weight: 125, bestReps: 2, note: "Smart deload", sets: [{"w":125,"r":2},{"w":115,"r":6},{"w":115,"r":6}] },
-      { date: "2026-02-02", weight: 130, bestReps: 6, note: "PR, new technique", sets: [{"w":125,"r":6},{"w":125,"r":6},{"w":130,"r":6}] },
-      { date: "2026-02-04", weight: 135, bestReps: 2, note: "New weight touched", sets: [{"w":135,"r":2},{"w":125,"r":6}] },
-      { date: "2026-02-07", weight: 125, bestReps: 6, note: "INJURY set 2", sets: [{"w":125,"r":6},{"w":125,"r":4}] },
-      { date: "2026-02-18", weight: 120, bestReps: 6, note: "Hamstring back!", sets: [{"w":105,"r":6},{"w":120,"r":6}] },
-      { date: "2026-02-21", weight: 130, bestReps: 6, note: "Back to pre-injury PR", sets: [{"w":125,"r":6},{"w":130,"r":6}] },
-      { date: "2026-02-25", weight: 135, bestReps: 5, note: "New PR, exceeds pre-injury", sets: [{"w":135,"r":5},{"w":135,"r":5}] },
-      { date: "2026-03-01", weight: 135, bestReps: 4, note: "", sets: [{"w":135,"r":4},{"w":115,"r":10}] },
-      { date: "2026-03-07", weight: 135, bestReps: 7, note: "March target hit (135x7)", sets: [{"w":135,"r":7}] },
-      { date: "2026-03-09", weight: 140, bestReps: 5, note: "March target hit (140x3+)", sets: [{"w":135,"r":6},{"w":135,"r":6},{"w":140,"r":5}] },
-      { date: "2026-03-13", weight: 140, bestReps: 5, note: "Consistent at 140", sets: [{"w":140,"r":5},{"w":140,"r":5}] },
-      { date: "2026-03-16", weight: 145, bestReps: 5, note: "145 kg NEW WEIGHT!", sets: [{"w":140,"r":6},{"w":145,"r":5}] },
-      { date: "2026-03-30", weight: 105, bestReps: 8, note: "Serratus test with PT, light weights", sets: [{"w":105,"r":8},{"w":85,"r":8}] },
-      { date: "2026-04-20", weight: 85, bestReps: 5, note: "SLDL re-test too early - 55 x 8 warm-up clean, 85 x 5 flared rib cage pain on set 2 (SAME location as original serratus injury). NOT a lumbar issue. Iso-lateral row path is not predictive of SLDL readiness. SLDL remains paused indefinitely.", sets: [{"w":55,"r":8},{"w":85,"r":5}] },
-      { date: "2026-04-29", weight: 85, bestReps: 8, note: "85 x 8 PAIN-FREE under doctor's graduated low-load protocol (28/04 teleconference). SAME weight that flared rib on 20/04 - now tolerated for 3 more reps with zero rib signal. Major positive signal: serratus healing trajectory turned a corner. SLDL reintroduction protocol now active.", sets: [{"w":55,"r":8},{"w":85,"r":8}] },
     ]
   },
 };
@@ -1630,82 +1630,11 @@ function renderTables() {
 function renderGoals() {
   const container = document.getElementById('goals');
   container.innerHTML = `
-    <div class="section-label">April 2026 Goals <span class="count">CLOSED - 1/6 primary + body comp + cardio</span></div>
-    <div style="font-size:0.8em;color:var(--muted);margin-bottom:14px;">Month closed 29/04. Cold (23/04) and serratus injury reshaped the runway. Effort given was full - sickness and injury are not within personal control, the response was right. New goals set 02/05.</div>
+    <div class="section-label">Goals</div>
     <div class="goals-grid">
-
-      <div class="goal-card">
-        <h3><span class="goal-tag goal-tag-primary">PRIMARY</span> Lift Goals - 1/6 done (final)</h3>
-        <table>
-          <thead><tr><th>Exercise</th><th>Target</th><th>April Best</th><th>Final Status</th></tr></thead>
-          <tbody>
-            <tr><td>Bench Press</td><td>82.5 &times; 4</td><td style="font-weight:700;">80 &times; 5</td><td style="color:var(--orange);">NOT MET - rep PR at 80 (20/04). Cold disrupted 82.5 attempt window. Carry to May.</td></tr>
-            <tr><td>Hack Squat</td><td>190 &times; 2</td><td style="font-weight:700;">182.6 &times; 4 &times; 2</td><td style="color:var(--orange);">NOT MET - volume PR (182.6 x 4 x 2 on 18/04) but never approached 190. Carry to May.</td></tr>
-            <tr><td>Posterior Chain</td><td>Leg Curl 72 &times; 8</td><td style="font-weight:700;">70 &times; 7</td><td style="color:var(--orange);">NOT MET - very close (2 kg + 1 rep). SLDL path re-opened 29/04 (85 x 8 clean). One productive session away.</td></tr>
-            <tr><td>Pull-ups</td><td>+17.5 &times; 4</td><td style="font-weight:700;">+20 &times; 4</td><td style="color:var(--green); font-weight:700;">&#10003; EXCEEDED (+20 x 4 vs +17.5 x 4 target, 15/04)</td></tr>
-            <tr><td>OHP</td><td>52.5 &times; 3</td><td style="font-weight:700;">50 &times; 5 &times; 2</td><td style="color:var(--orange);">NOT MET - matched PR repeatable (18/04) but 52.5 gate (50 x 6 x 2) never opened. Carry to May.</td></tr>
-            <tr><td>Triceps Ext.</td><td>38 &times; 5</td><td style="font-weight:700;">36.25 &times; 6</td><td style="color:var(--orange);">NOT MET - never approached 38. Cold + post-injury programming pushed working sets to 31.25 in second half. Carry to May.</td></tr>
-          </tbody>
-        </table>
+      <div class="goal-card" style="text-align:center;padding:32px 16px;">
+        <h3 style="margin:0;color:var(--muted);font-weight:500;">a/w set up for May</h3>
       </div>
-
-      <div class="goal-card">
-        <h3><span class="goal-tag goal-tag-secondary">SECONDARY</span> Lift Goals (final)</h3>
-        <table>
-          <thead><tr><th>Exercise</th><th>Target</th><th>April Best</th><th>Final Status</th></tr></thead>
-          <tbody>
-            <tr><td>Preacher Curl</td><td>42 &times; 2</td><td style="font-weight:700;">40 &times; 6</td><td style="color:var(--orange);">NOT MET - rep PR at top weight (40 x 6 on 18/04). 42 never touched.</td></tr>
-            <tr><td>Seated Row</td><td>105 &times; 5</td><td style="font-weight:700;">77 &times; 8</td><td style="color:var(--muted);">PARKED - 4-week serratus rest. Reintroduced via Iso-Lateral Row, rebuilding (77 x 8 on 27/04, pain-free).</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="goal-card">
-        <h3><span class="goal-tag goal-tag-nice">STRETCH</span> Stretch Goals</h3>
-        <table>
-          <thead><tr><th>Exercise</th><th>Target</th><th>Best</th><th>Status</th></tr></thead>
-          <tbody>
-            <tr><td>Bench Press</td><td>85 &times; 2</td><td style="font-weight:700;">80 &times; 5</td><td style="color:var(--muted);">Stretch</td></tr>
-            <tr><td>Hack Squat</td><td>192.5 &times; 1</td><td style="font-weight:700;">182.6 &times; 4</td><td style="color:var(--muted);">Stretch</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="goal-card">
-        <h3><span class="goal-tag goal-tag-nice">TRACK</span> Tracked (No Goal)</h3>
-        <table>
-          <thead><tr><th>Exercise</th><th>Approach</th><th>Status</th></tr></thead>
-          <tbody>
-            <tr><td>Seated Row</td><td>Serratus-safe rebuild via Iso-Lateral</td><td style="color:var(--muted);">75 &times; 8 &times; 2 pain-free (18/04)</td></tr>
-            <tr><td>Lat Pulldown</td><td>Rebuild toward 90 kg</td><td style="color:var(--muted);">80 &times; 8 (reintroduced 28/03)</td></tr>
-            <tr><td>Barbell Squat</td><td>On hold - hack squat primary</td><td style="color:var(--muted);">In graveyard (125 &times; 2 best)</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="goal-card">
-        <h3><span class="goal-tag goal-tag-primary">BODY COMP</span> Body Composition</h3>
-        <table>
-          <thead><tr><th>Metric</th><th>Target</th><th>Latest</th><th>Status</th></tr></thead>
-          <tbody>
-            <tr><td>PBF</td><td>&lt; 18.0%</td><td style="font-weight:700;">17.1%</td><td style="color:var(--green); font-weight:700;">&#10003; EXCEEDED (17.1% vs &lt; 18.0% target)</td></tr>
-            <tr><td>SMM</td><td>&gt; 42.0 kg</td><td style="font-weight:700;">42.4 kg</td><td style="color:var(--green); font-weight:700;">&#10003; EXCEEDED (42.4 kg vs &gt; 42.0 target)</td></tr>
-          </tbody>
-        </table>
-        <div style="font-size:0.8em;color:var(--muted);margin-top:6px;">&#10003; HIT 11/04/2026 (pre-session scan, PBF 17.1% / SMM 42.4 kg) - first time both simultaneously. 20k steps/day + 2x runs/week strategy validated. Counts as April win.</div>
-      </div>
-
-      <div class="goal-card">
-        <h3><span class="goal-tag goal-tag-cardio">CARDIO</span> Cardio Plan</h3>
-        <table>
-          <thead><tr><th>Activity</th><th>Plan</th><th>Status</th></tr></thead>
-          <tbody>
-            <tr><td>Running</td><td>2x/week, building to half marathon</td><td style="color:var(--muted);">6 runs total, 10 km longest</td></tr>
-            <tr><td>Walking</td><td>20k steps/day target</td><td style="color:var(--green);">Active</td></tr>
-          </tbody>
-        </table>
-      </div>
-
     </div>
   `;
 }
