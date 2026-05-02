@@ -689,7 +689,7 @@
 <body>
 
 <h1>Training, Body Composition & Running Dashboard</h1>
-<p class="subtitle">November 2025 - April 2026 | Updated 29/04/2026</p>
+<p class="subtitle">November 2025 - May 2026 | Updated 02/05/2026</p>
 
 <!-- Tab Navigation -->
 <div class="tab-nav">
@@ -968,6 +968,7 @@ const exercises = {
       { date: "2026-04-15", weight: 45, bestReps: 5, note: "Wed step-back protocol: 45 x 5 x 3 sets, no failure, sets up Saturday push", sets: [{"w":45,"r":5},{"w":45,"r":5},{"w":45,"r":5}] },
       { date: "2026-04-18", weight: 50, bestReps: 5, note: "50 x 5 x 2 sets - matched PR, repeatable! Wed step-back protocol VALIDATED. PT rule: need 50 x 6 both sets before 52.5", sets: [{"w":50,"r":5},{"w":50,"r":5}] },
       { date: "2026-04-27", weight: 50, bestReps: 5, note: "First session post-cold (6 days off). 50 x 5 then 50 x 4 - shoulder visibly the most affected by deconditioning. 52.5 gate (50 x 6 x 2) not opened. April goal 52.5 x 3 functionally off the table.", sets: [{"w":50,"r":5},{"w":50,"r":4}] },
+      { date: "2026-05-02", weight: 45, bestReps: 5, note: "45 x 5 x 3 sets in Pawel 2 (after pull-ups) - deliberate volume work, not a strength data point. Wednesday-step-back logic still in effect (Pawel 3 = strength).", sets: [{"w":45,"r":5},{"w":45,"r":5},{"w":45,"r":5}] },
     ]
   },
   "Hack Squat": {
@@ -1094,6 +1095,7 @@ const exercises = {
       { date: "2026-04-15", weight: 20, bestReps: 4, note: "+20 x 4 APRIL GOAL EXCEEDED! Target was +17.5 x 4", sets: [{"w":20,"r":4},{"w":15,"r":4}] },
       { date: "2026-04-20", weight: 10, bestReps: 5, note: "+10 x 5 x 2 sets - consistent working volume, post-bench", sets: [{"w":10,"r":5},{"w":10,"r":5}] },
       { date: "2026-04-29", weight: 0, bestReps: 6, note: "Bodyweight x 6 x 3 - DELIBERATE DELOAD to bank energy for Saturday +20 push. Not a regression. April goal already locked at +20 x 4 (15/04, EXCEEDED).", sets: [{"w":0,"r":6},{"w":0,"r":6},{"w":0,"r":6}] },
+      { date: "2026-05-02", weight: 20, bestReps: 4, note: "+20 x 4 then 15 x 5 - matches 15/04 PR. Second confirmation +20 territory. Saturday morning, fasted, opener of Pawel 2.", sets: [{"w":20,"r":4},{"w":15,"r":5}] },
     ]
   },
   "Triceps Extension": {
@@ -1169,6 +1171,7 @@ const exercises = {
       { date: "2026-04-15", weight: 37.5, bestReps: 5, note: "37.5 x 5/4, slight dip from PR but consistent at weight", sets: [{"w":37.5,"r":5},{"w":37.5,"r":4}] },
       { date: "2026-04-18", weight: 40, bestReps: 6, note: "40 x 6 REP PR at 40 kg! Previous best at 40 was 3 reps (18/03). Major breakthrough at top weight.", sets: [{"w":40,"r":6}] },
       { date: "2026-04-27", weight: 40, bestReps: 5, note: "40 x 5 light single set - first session post-cold (6 days off). Slight dip from 40 x 6 PR on 18/04.", sets: [{"w":40,"r":5}] },
+      { date: "2026-05-02", weight: 37.5, bestReps: 5, note: "37.5 x 5 x 2 sets - Pawel 2 light volume work after row.", sets: [{"w":37.5,"r":5},{"w":37.5,"r":5}] },
     ]
   }
 };
@@ -1243,6 +1246,7 @@ const graveyard = {
       { date: "2025-12-31", weight: 217, bestReps: 6, note: "Weight + 1RM PR", sets: [{"w":212,"r":6},{"w":217,"r":6}] },
       { date: "2026-01-07", weight: 227, bestReps: 5, note: "+10kg from Dec", sets: [{"w":227,"r":5},{"w":227,"r":5},{"w":227,"r":5}] },
       { date: "2026-04-20", weight: 227, bestReps: 6, note: "One-off substitute for Hack Squat (equipment unavailable). 227 x 5 then 227 x 6 - rep PR at previous top weight. Not a data point against Hack Squat goal - Hack Squat returns next session.", sets: [{"w":227,"r":5},{"w":227,"r":6}] },
+      { date: "2026-05-02", weight: 232, bestReps: 5, note: "One-off substitute for Hack Squat (machine taken). 232 x 5 x 2 - PT-loaded, handled cleanly. Not a data point against Hack Squat goal - Hack Squat returns next session.", sets: [{"w":232,"r":5},{"w":232,"r":5}] },
     ]
   },
   "Seated Row": {
@@ -1284,13 +1288,14 @@ const graveyard = {
       { date: "2026-04-15", weight: 68, bestReps: 10, note: "Iso-Lateral Row (Machine) - first row test after serratus rest, mapped to Seated Row. 68 x 10 conservative weight.", sets: [{"w":68,"r":10}] },
       { date: "2026-04-18", weight: 75, bestReps: 8, note: "Iso-Lateral Row (Machine) 75 x 8 x 2 - PAIN-FREE across both sets. Serratus cleared.", sets: [{"w":75,"r":8},{"w":75,"r":8}] },
       { date: "2026-04-27", weight: 77, bestReps: 8, note: "Iso-Lateral Row 77 x 8 - clean, +2 kg on 18/04. Row pathway is the safe progression channel for the rib while SLDL waits.", sets: [{"w":77,"r":8}] },
+      { date: "2026-05-02", weight: 79, bestReps: 8, note: "First clean re-entry to Seated Row machine since serratus injury (16/03). 72 x 8 then 79 x 8 - zero pain signals. Pre-injury peak 100 x 7, ~21% load gap. Slow ramp from here. May recovery target: 95 x 6.", sets: [{"w":72,"r":8},{"w":79,"r":8}] },
     ]
   },
 };
 
 // ========== HELPERS ==========
-const TODAY = "2026-04-29";
-const SEVEN_DAYS_AGO = "2026-04-22";
+const TODAY = "2026-05-02";
+const SEVEN_DAYS_AGO = "2026-04-25";
 
 function formatDate(d) {
   const dt = new Date(d);
@@ -1314,7 +1319,7 @@ function firstDate(ex) {
 function isNew(ex) {
   // "New" = first data point is within 4 weeks AND at least 2 points in last 7 days
   const first = new Date(firstDate(ex));
-  const fourWeeksAgo = new Date("2026-04-01");
+  const fourWeeksAgo = new Date("2026-04-04");
   const recentPoints = ex.data.filter(d => d.date >= SEVEN_DAYS_AGO).length;
   return first >= fourWeeksAgo && recentPoints >= 2;
 }
@@ -1362,7 +1367,7 @@ function renderSummary() {
   const cards = [
     { label: 'Tracked Lifts', value: names.length, change: compounds + ' compound, ' + isolations + ' isolation' },
     { label: 'Data Points', value: names.reduce((s, n) => s + exercises[n].data.length, 0), change: '' },
-    { label: 'Time Span', value: '6 mo', change: 'Nov 25 - Apr 26' },
+    { label: 'Time Span', value: '7 mo', change: 'Nov 25 - May 26' },
     { label: 'Unique Sessions', value: allDates.size, change: '' },
   ];
 
@@ -1630,10 +1635,71 @@ function renderTables() {
 function renderGoals() {
   const container = document.getElementById('goals');
   container.innerHTML = `
-    <div class="section-label">Goals</div>
+    <div class="section-label">May 2026 Goals <span class="count">Set 02/05 - calibrated, P(hit) explicit</span></div>
     <div class="goals-grid">
-      <div class="goal-card" style="text-align:center;padding:32px 16px;">
-        <h3 style="margin:0;color:var(--muted);font-weight:500;">a/w set up for May</h3>
+      <div class="goal-card">
+        <h3><span class="goal-tag goal-tag-primary">Primary 1</span> Overhead Press</h3>
+        <table>
+          <tr><th>Tier</th><th>Target</th><th>Status</th></tr>
+          <tr><td>Primary</td><td>50 kg &times; 6</td><td style="color:var(--muted);">P=38% &middot; April best 50&times;5</td></tr>
+          <tr><td>Stretch</td><td>52.5 kg &times; 4</td><td style="color:var(--muted);">Pawel 3 sessions only (bench-second confound filtered)</td></tr>
+        </table>
+      </div>
+      <div class="goal-card">
+        <h3><span class="goal-tag goal-tag-primary">Primary 2</span> Hack Squat</h3>
+        <table>
+          <tr><th>Tier</th><th>Target</th><th>Status</th></tr>
+          <tr><td>Primary</td><td>190 kg &times; 4</td><td style="color:var(--muted);">P=72% &middot; April best 182.6&times;4&times;2</td></tr>
+          <tr><td>Stretch</td><td>190 kg &times; 5</td><td style="color:var(--muted);">P=32%</td></tr>
+        </table>
+      </div>
+      <div class="goal-card">
+        <h3><span class="goal-tag goal-tag-primary">Primary 3</span> Bench Press</h3>
+        <table>
+          <tr><th>Tier</th><th>Target</th><th>Status</th></tr>
+          <tr><td>Primary</td><td>82.5 kg &times; 4</td><td style="color:var(--muted);">P=75% &middot; April best 80&times;5 (Pawel 1)</td></tr>
+          <tr><td>Stretch</td><td>82.5 kg &times; 5</td><td style="color:var(--muted);">Round-number friction respected</td></tr>
+        </table>
+      </div>
+      <div class="goal-card">
+        <h3><span class="goal-tag goal-tag-secondary">Recovery 1</span> Machine Row (Serratus)</h3>
+        <table>
+          <tr><th>Stage</th><th>Target</th><th>Status</th></tr>
+          <tr><td>May milestone</td><td>95 kg &times; 6 (zero signal)</td><td style="color:var(--orange);">P~50% &middot; current 79&times;8 (02/05)</td></tr>
+          <tr><td>Pre-injury peak</td><td>100 kg &times; 7 (16/03)</td><td style="color:var(--muted);">June target</td></tr>
+        </table>
+      </div>
+      <div class="goal-card">
+        <h3><span class="goal-tag goal-tag-secondary">Recovery 2</span> SLDL (Serratus)</h3>
+        <table>
+          <tr><th>Stage</th><th>Target</th><th>Status</th></tr>
+          <tr><td>May milestone</td><td>120 kg &times; 6 (zero signal)</td><td style="color:var(--orange);">P~50% &middot; current 85&times;8 clean (29/04)</td></tr>
+          <tr><td>Pre-injury peak</td><td>145 kg &times; 5 (16/03)</td><td style="color:var(--muted);">June target &middot; doctor's graduated protocol</td></tr>
+        </table>
+      </div>
+      <div class="goal-card">
+        <h3><span class="goal-tag goal-tag-body">Body Composition</span> Carry from April</h3>
+        <table>
+          <tr><th>Metric</th><th>Target</th><th>Status</th></tr>
+          <tr><td>PBF</td><td>&lt; 18.0%</td><td style="color:var(--green); font-weight:700;">17.1% (11/04 pre-session)</td></tr>
+          <tr><td>SMM</td><td>&gt; 42.0 kg</td><td style="color:var(--green); font-weight:700;">42.4 kg (11/04 pre-session)</td></tr>
+          <tr><td>Both simultaneous</td><td>Maintain or improve</td><td style="color:var(--orange);">Hit once - hold through May</td></tr>
+        </table>
+      </div>
+      <div class="goal-card">
+        <h3><span class="goal-tag goal-tag-cardio">Cardio</span> Running (HM prep first stake)</h3>
+        <table>
+          <tr><th>Goal</th><th>Target</th><th>Status</th></tr>
+          <tr><td>Volume</td><td>3 runs in May</td><td style="color:var(--muted);">0/3</td></tr>
+          <tr><td>Long run</td><td>10 km by month end</td><td style="color:var(--muted);">Progressive: 6 -&gt; 8 -&gt; 10 km</td></tr>
+          <tr><td>Race day</td><td>Half marathon 20/09/2026</td><td style="color:var(--muted);">~4.5 months runway</td></tr>
+        </table>
+      </div>
+      <div class="goal-card" style="background:#f8fafc;border-color:#e2e8f0;">
+        <h3 style="color:var(--muted);">Goal Philosophy</h3>
+        <p style="font-size:0.85em;color:var(--muted);margin:0;line-height:1.5;">
+          Calibrated using Epley e1RM, log-linear regression on 3 months of session-top e1RMs, 80% prediction intervals on May 31 projection, and explicit P(hit) probabilities. Pre-fatigue confounds filtered (OHP-when-first, bench-when-first). Sickness session 29/04 excluded from bench analysis. P=38-75% for primary lift goals - the 'try hard, not an easy win' zone. Recovery goals deliberately set as May milestones; full pre-injury PRs are the June target. Model and gut reconciled, not blindly followed.
+        </p>
       </div>
     </div>
   `;
