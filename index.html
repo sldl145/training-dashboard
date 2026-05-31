@@ -1564,12 +1564,7 @@ function renderCharts() {
                 borderColor: '#334155',
                 borderWidth: 1,
                 cornerRadius: 8,
-                callbacks: {
-                  afterBody: function(items) {
-                    const idx = items[0].dataIndex;
-                    return data[idx].note ? 'Note: ' + data[idx].note : '';
-                  }
-                }
+                bodyFont: { size: 11 }
               }
             },
             scales: {
