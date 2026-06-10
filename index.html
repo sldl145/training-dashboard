@@ -689,13 +689,13 @@
 <body>
 
 <h1>Training, Body Composition & Running Dashboard</h1>
-<p class="subtitle">November 2025 - June 2026 | Updated 08/06/2026</p>
+<p class="subtitle" id="subtitle"></p>
 
 <!-- Tab Navigation -->
 <div class="tab-nav">
-  <button class="tab-button active" onclick="switchTab('training')">Training</button>
-  <button class="tab-button" onclick="switchTab('body-comp')">Body Composition</button>
-  <button class="tab-button" onclick="switchTab('running')">Running</button>
+  <button class="tab-button active" onclick="switchTab('training', this)">Training</button>
+  <button class="tab-button" onclick="switchTab('body-comp', this)">Body Composition</button>
+  <button class="tab-button" onclick="switchTab('running', this)">Running</button>
 </div>
 
 <!-- Training Tab -->
@@ -731,7 +731,7 @@
     <div class="inbody-header">
       <div class="inbody-header-left">
         <h2 style="font-size: 1.2em; font-weight: 700; margin-bottom: 4px;">InBody Progress</h2>
-        <p style="color: var(--muted); font-size: 14px;">Pawel - SATS Copenhagen - 13 scans from 15/11/2025 to 20/03/2026</p>
+        <p style="color: var(--muted); font-size: 14px;" id="inbody-subtitle"></p>
       </div>
       <button class="inbody-export-btn" onclick="exportPDF()">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
@@ -739,65 +739,11 @@
       </button>
     </div>
 
-    <!-- Score Hero -->
-    <div class="inbody-score-hero">
-      <div class="inbody-score-circle" style="--score: 88">
-        <div class="inbody-score-circle-inner">
-          <div class="inbody-score-number">88</div>
-          <div class="inbody-score-label">InBody</div>
-        </div>
-      </div>
-      <div class="inbody-score-details">
-        <h2>Latest Score: 88/100</h2>
-        <span class="inbody-score-change up">&#9650; +5 points since first scan</span>
-        <div class="inbody-score-stats">
-          <div class="inbody-score-stat-item"><label>Period</label><div class="val">203 days</div></div>
-          <div class="inbody-score-stat-item"><label>Total Scans</label><div class="val">18</div></div>
-          <div class="inbody-score-stat-item"><label>Fat Lost</label><div class="val">-2.2 kg</div></div>
-          <div class="inbody-score-stat-item"><label>Muscle</label><div class="val">+1.2 kg</div></div>
-        </div>
-      </div>
-    </div>
+    <!-- Score Hero (filled automatically from scan data) -->
+    <div class="inbody-score-hero" id="inbody-score-hero"></div>
 
-    <!-- KPI Cards -->
-    <div class="inbody-kpi-grid">
-      <div class="inbody-kpi-card">
-        <div class="inbody-kpi-label">Weight</div>
-        <div class="inbody-kpi-value">90.5 <span style="font-size:14px;color:var(--muted)">kg</span></div>
-        <div class="inbody-kpi-change neutral">&#9660; -0.1 kg</div>
-        <div class="inbody-kpi-sub">from 90.6 kg start</div>
-      </div>
-      <div class="inbody-kpi-card">
-        <div class="inbody-kpi-label">Skeletal Muscle</div>
-        <div class="inbody-kpi-value">42.5 <span style="font-size:14px;color:var(--muted)">kg</span></div>
-        <div class="inbody-kpi-change positive">&#9650; +1.2 kg</div>
-        <div class="inbody-kpi-sub">from 41.3 kg start</div>
-      </div>
-      <div class="inbody-kpi-card">
-        <div class="inbody-kpi-label">Body Fat Mass</div>
-        <div class="inbody-kpi-value">16.5 <span style="font-size:14px;color:var(--muted)">kg</span></div>
-        <div class="inbody-kpi-change positive">&#9660; -2.2 kg</div>
-        <div class="inbody-kpi-sub">from 18.7 kg start</div>
-      </div>
-      <div class="inbody-kpi-card">
-        <div class="inbody-kpi-label">Body Fat %</div>
-        <div class="inbody-kpi-value">18.3<span style="font-size:14px;color:var(--muted)">%</span></div>
-        <div class="inbody-kpi-change positive">&#9660; -2.3%</div>
-        <div class="inbody-kpi-sub">from 20.6% start</div>
-      </div>
-      <div class="inbody-kpi-card">
-        <div class="inbody-kpi-label">BMI</div>
-        <div class="inbody-kpi-value">27.0</div>
-        <div class="inbody-kpi-change neutral">&#9660; -0.1</div>
-        <div class="inbody-kpi-sub">from 27.1 start</div>
-      </div>
-      <div class="inbody-kpi-card">
-        <div class="inbody-kpi-label">Visceral Fat</div>
-        <div class="inbody-kpi-value">Level 6</div>
-        <div class="inbody-kpi-change positive">&#9660; from 7-8</div>
-        <div class="inbody-kpi-sub">Normal range (1-9)</div>
-      </div>
-    </div>
+    <!-- KPI Cards (filled automatically from scan data) -->
+    <div class="inbody-kpi-grid" id="inbody-kpi-grid"></div>
 
     <!-- Charts Grid 1: Weight + SMM -->
     <div class="inbody-charts-grid">
@@ -856,7 +802,7 @@
     </div>
 
     <div class="inbody-footer">
-      <p>Generated on 20/03/2026 - Data from SATS InBody 270 scanner - ID: 31444857</p>
+      <p id="inbody-footer"></p>
     </div>
   </div>
 </div>
@@ -866,14 +812,14 @@
 let inbodyInitialized = false;
 let runningInitialized = false;
 
-function switchTab(tabName) {
+function switchTab(tabName, btn) {
   // Hide all tabs
   document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-  document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
 
   // Show selected tab
   document.getElementById(tabName).classList.add('active');
-  event.target.classList.add('active');
+  btn.classList.add('active');
 
   // Initialize InBody charts on first switch to body-comp tab
   if (tabName === 'body-comp' && !inbodyInitialized) {
@@ -1369,8 +1315,16 @@ const graveyard = {
 };
 
 // ========== HELPERS ==========
+// TODAY is the ONLY date constant to update each session. Everything else derives from it.
 const TODAY = "2026-06-08";
-const SEVEN_DAYS_AGO = "2026-06-01";
+
+// Derived automatically - do not edit these.
+function shiftDate(iso, days) {
+  const d = new Date(iso);
+  d.setDate(d.getDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+const SEVEN_DAYS_AGO = shiftDate(TODAY, -7);
 
 function formatDate(d) {
   const dt = new Date(d);
@@ -1394,7 +1348,7 @@ function firstDate(ex) {
 function isNew(ex) {
   // "New" = first data point is within 4 weeks AND at least 2 points in last 7 days
   const first = new Date(firstDate(ex));
-  const fourWeeksAgo = new Date("2026-05-11");
+  const fourWeeksAgo = new Date(shiftDate(TODAY, -28));
   const recentPoints = ex.data.filter(d => d.date >= SEVEN_DAYS_AGO).length;
   return first >= fourWeeksAgo && recentPoints >= 2;
 }
@@ -1430,6 +1384,24 @@ const chartColors = [
   '#059669', '#9333ea'
 ];
 
+// ========== HEADER + TIME SPAN (derived from data, no manual updates) ==========
+function getTimeSpan() {
+  let minDate = TODAY;
+  Object.keys(exercises).forEach(n => exercises[n].data.forEach(d => { if (d.date < minDate) minDate = d.date; }));
+  Object.keys(graveyard).forEach(n => graveyard[n].data.forEach(d => { if (d.date < minDate) minDate = d.date; }));
+  const a = new Date(minDate), b = new Date(TODAY);
+  const months = (b.getFullYear() - a.getFullYear()) * 12 + (b.getMonth() - a.getMonth()) + 1;
+  const short = dt => dt.toLocaleDateString('en-GB', { month: 'short' }) + ' ' + String(dt.getFullYear()).slice(2);
+  const long = dt => dt.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+  return { months, shortLabel: short(a) + ' - ' + short(b), longLabel: long(a) + ' - ' + long(b) };
+}
+
+function renderHeader() {
+  const span = getTimeSpan();
+  const [y, m, d] = TODAY.split('-');
+  document.getElementById('subtitle').textContent = span.longLabel + ' | Updated ' + d + '/' + m + '/' + y;
+}
+
 // ========== RENDER SUMMARY ==========
 function renderSummary() {
   const container = document.getElementById('summary');
@@ -1438,11 +1410,12 @@ function renderSummary() {
   names.forEach(n => exercises[n].data.forEach(d => allDates.add(d.date)));
   const compounds = names.filter(n => exercises[n].type === 'compound').length;
   const isolations = names.filter(n => exercises[n].type === 'isolation').length;
+  const span = getTimeSpan();
 
   const cards = [
     { label: 'Tracked Lifts', value: names.length, change: compounds + ' compound, ' + isolations + ' isolation' },
     { label: 'Data Points', value: names.reduce((s, n) => s + exercises[n].data.length, 0), change: '' },
-    { label: 'Time Span', value: '8 mo', change: 'Nov 25 - Jun 26' },
+    { label: 'Time Span', value: span.months + ' mo', change: span.shortLabel },
     { label: 'Unique Sessions', value: allDates.size, change: '' },
   ];
 
@@ -2051,6 +2024,7 @@ function renderInjuryLog() {
 }
 
 // ========== INIT ==========
+renderHeader();
 renderSummary();
 renderGoals();
 renderCharts();
@@ -2099,35 +2073,54 @@ function getWeekNumber(dateStr) {
   return Math.round(((d - week1) / 86400000 + (week1.getDay() + 6) % 7 - 3) / 7) + 1;
 }
 
-// ===== Reference HM training curve (26-week plan) =====
-// Week 0 = TRAINING_START, Week 26 = RACE_DATE
-// Values represent recommended targets per week
+// ===== Race pace targets (derived from finish-time goal, not hardcoded) =====
+const TARGET_FINISH_MIN = 120;  // minutes - ambitious end (2:00)
+const TARGET_FINISH_MAX = 130;  // minutes - comfortable end (2:10)
+function getRacePaceBand() {
+  const dist = 21.0975;
+  const fast = Math.round(TARGET_FINISH_MIN * 60 / dist);   // sec/km at 2:00
+  const slow = Math.round(TARGET_FINISH_MAX * 60 / dist);   // sec/km at 2:10
+  return { fast, slow, mid: Math.round((fast + slow) / 2) };
+}
+// Easy-run pace: roughly 60-90 sec/km SLOWER than race pace (standard endurance guidance)
+function getEasyPaceBand() {
+  const race = getRacePaceBand();
+  return { from: race.mid + 60, to: race.mid + 90 };
+}
+
+// ===== Reference HM training curve - anchored to the REAL race date =====
+// Total length = actual weeks from TRAINING_START to RACE_DATE (recalculated automatically).
+// Phases are counted backwards from race day: race week, 4-week taper, 8-week peak,
+// 8-week build, and base building fills whatever time remains at the start.
+function getTotalPlanWeeks() {
+  return Math.round((new Date(RACE_DATE) - new Date(TRAINING_START)) / (7 * 86400000));
+}
+
 function getTrainingPlan() {
+  const total = getTotalPlanWeeks();
+  const taperStart = total - 4;
+  const peakStart = taperStart - 8;
+  const buildStart = peakStart - 8;
+  const lerp = (a, b, t) => a + (b - a) * Math.max(0, Math.min(1, t));
   const plan = [];
-  for (let w = 0; w <= 26; w++) {
-    let longRun, weeklyKm, runsPerWeek;
-    if (w <= 4) {          // Base building
-      longRun = 5 + w * 1;           // 5 -> 9 km
-      weeklyKm = 10 + w * 2;         // 10 -> 18 km
-      runsPerWeek = 2;
-    } else if (w <= 12) {  // Building phase
-      longRun = 9 + (w - 4) * 1.2;   // 9 -> 18.6 km
-      weeklyKm = 18 + (w - 4) * 3;   // 18 -> 42 km
-      runsPerWeek = 3;
-    } else if (w <= 20) {  // Peak phase
-      longRun = Math.min(19 + (w - 12) * 0.5, 21.1);
-      weeklyKm = 35 + (w - 12) * 1.5; // 35 -> 47 km
-      runsPerWeek = 3;
-    } else if (w <= 24) {  // Taper
-      longRun = 21.1 - (w - 20) * 2.5; // 21.1 -> 11
-      weeklyKm = 47 - (w - 20) * 7;    // 47 -> 19
-      runsPerWeek = 3;
-    } else {               // Race week
-      longRun = 5;
-      weeklyKm = 15;
-      runsPerWeek = 2;
+  for (let w = 0; w <= total; w++) {
+    let longRun, weeklyKm, runsPerWeek, phase;
+    if (w < buildStart) {                 // Base building
+      const t = buildStart > 1 ? w / (buildStart - 1) : 1;
+      longRun = lerp(5, 9, t); weeklyKm = lerp(10, 18, t); runsPerWeek = 2; phase = "Base Building";
+    } else if (w < peakStart) {           // Building
+      const t = (w - buildStart) / Math.max(1, peakStart - buildStart - 1);
+      longRun = lerp(9, 18.6, t); weeklyKm = lerp(18, 42, t); runsPerWeek = 3; phase = "Building";
+    } else if (w < taperStart) {          // Peak
+      const t = (w - peakStart) / Math.max(1, taperStart - peakStart - 1);
+      longRun = Math.min(lerp(19, 21.1, t), 21.1); weeklyKm = lerp(35, 47, t); runsPerWeek = 3; phase = "Peak";
+    } else if (w < total) {               // Taper
+      const t = (w - taperStart) / Math.max(1, total - taperStart - 1);
+      longRun = lerp(18, 8, t); weeklyKm = lerp(40, 19, t); runsPerWeek = 3; phase = "Taper";
+    } else {                              // Race week
+      longRun = 5; weeklyKm = 15; runsPerWeek = 2; phase = "Race Week";
     }
-    plan.push({ week: w, longRun: +longRun.toFixed(1), weeklyKm: +weeklyKm.toFixed(1), runsPerWeek });
+    plan.push({ week: w, longRun: +longRun.toFixed(1), weeklyKm: +weeklyKm.toFixed(1), runsPerWeek, phase });
   }
   return plan;
 }
@@ -2150,7 +2143,7 @@ function calculateReadiness() {
   const target = plan[Math.min(currentWeek, plan.length - 1)];
 
   // Component 1: Longest run vs where it should be (40% weight)
-  const longestRun = Math.max(...runs.map(r => r.distance));
+  const longestRun = runs.length > 0 ? Math.max(...runs.map(r => r.distance)) : 0;
   const longRunScore = Math.min(100, (longestRun / target.longRun) * 100);
 
   // Component 2: Weekly volume last 4 weeks vs target (25% weight)
@@ -2160,9 +2153,9 @@ function calculateReadiness() {
   const recentWeeklyKm = recentRuns.reduce((s, r) => s + r.distance, 0) / 4;
   const volumeScore = Math.min(100, (recentWeeklyKm / target.weeklyKm) * 100);
 
-  // Component 3: Pace vs target range 5:41-6:09 (341-369 sec/km) (20% weight)
-  const targetPaceMax = 369; // 6:09
-  const targetPaceMid = 355; // ~5:55 midpoint
+  // Component 3: Pace vs race target band (derived from finish-time goal) (20% weight)
+  const paceBand = getRacePaceBand();
+  const targetPaceMax = paceBand.slow;
   const recentPace = recentRuns.length > 0
     ? recentRuns.reduce((s, r) => s + r.avgPaceSec * r.distance, 0) / recentRuns.reduce((s, r) => s + r.distance, 0)
     : 400;
@@ -2200,7 +2193,7 @@ function calculateReadiness() {
       longestRun, targetLong: target.longRun,
       recentWeeklyKm, targetWeeklyKm: target.weeklyKm,
       recentRunsPerWeek, targetRuns: target.runsPerWeek,
-      recentPace, targetPaceMax: 369
+      recentPace, targetPaceMax
     })
   };
 }
@@ -2312,7 +2305,7 @@ function renderRunningReadiness(r) {
         <div class="score" style="color:${scoreColor}">${r.score}<span style="font-size:0.35em; color:var(--muted); font-weight:600;"> / 100</span></div>
         <div class="score-label">Readiness Score</div>
         <div style="font-size:0.82em; font-weight:600; color:${statusColor}; margin-top:6px;">${statusText}</div>
-        <div style="font-size:0.72em; color:var(--muted); margin-top:4px;">Week ${r.currentWeek} of 26</div>
+        <div style="font-size:0.72em; color:var(--muted); margin-top:4px;">Week ${r.currentWeek} of ${getTotalPlanWeeks()} &middot; ${r.target.phase} phase</div>
         <div class="confidence" style="background:${r.confidenceColor}20; color:${r.confidenceColor}; margin-top:8px;">${r.confidenceLabel}</div>
       </div>
       <div>
@@ -2357,8 +2350,9 @@ function renderRunningAlerts(r) {
 
   // Pace - positive signal
   if (r.components[2].value >= 100) {
+    const band = getRacePaceBand();
     alerts.push({ type: "green", icon: "&#9889;", title: "Pace ahead of target",
-      body: `Current pace ${formatPace(r.recentPace)} /km is already within your race target range (5:41-6:09). Your speed is not the bottleneck - focus on distance and consistency.` });
+      body: `Current pace ${formatPace(r.recentPace)} /km is already within your race target range (${formatPace(band.fast)}-${formatPace(band.slow)}). Your speed is not the bottleneck - focus on distance and consistency.` });
   }
 
   // Good progress
@@ -2385,15 +2379,10 @@ function renderWeeklySuggestion(r) {
   const suggestedLongRun = Math.min(currentLongest + 2, currentLongest * 1.1, nextWeek.longRun);
   const suggestedWeeklyKm = nextWeek.weeklyKm;
   const suggestedRuns = nextWeek.runsPerWeek;
-  const suggestedEasyPace = "5:20 - 5:50";
-
-  // What phase are we in?
-  let phase;
-  if (r.currentWeek <= 4) phase = "Base Building";
-  else if (r.currentWeek <= 12) phase = "Building";
-  else if (r.currentWeek <= 20) phase = "Peak";
-  else if (r.currentWeek <= 24) phase = "Taper";
-  else phase = "Race Week";
+  // Easy pace derived from the race-pace goal: easy runs should be SLOWER than race pace
+  const easy = getEasyPaceBand();
+  const suggestedEasyPace = formatPace(easy.from) + " - " + formatPace(easy.to);
+  const phase = nextWeek.phase;
 
   document.getElementById("running-weekly-suggestion").innerHTML = `
     <div class="weekly-suggestion">
@@ -2408,6 +2397,7 @@ function renderWeeklySuggestion(r) {
 }
 
 function renderRunningSummary() {
+  if (runs.length === 0) { document.getElementById("running-summary").innerHTML = ""; return; }
   const totalRuns = runs.length;
   const totalKm = runs.reduce((s, r) => s + r.distance, 0);
   const longestRun = runs.reduce((max, r) => r.distance > max.distance ? r : max, runs[0]);
@@ -2445,6 +2435,47 @@ function renderRunningSummary() {
 }
 
 function renderRunningGoals() {
+  // Everything below is computed from the runs data and the plan - no manual updates needed.
+  const plan = getTrainingPlan();
+  const weeksOut = getWeeksToRace();
+  const band = getRacePaceBand();
+
+  // Milestone rows: achieved date from actual runs, target month from the plan curve
+  const milestones = [10, 15, 18, 21.1];
+  const planDateFor = km => {
+    const hit = plan.find(p => p.longRun >= km - 0.05);
+    if (!hit) return "Race day";
+    const d = new Date(TRAINING_START);
+    d.setDate(d.getDate() + hit.week * 7);
+    return d.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+  };
+  const milestoneRows = milestones.map(m => {
+    const achieved = runs.find(r => r.distance >= m - 0.05);
+    const label = m === 21.1 ? "21.1 km" : m + " km";
+    const target = m === 21.1 ? "20/09/2026 (race day)" : "plan: " + planDateFor(m);
+    const status = achieved
+      ? `<td style="color:var(--green); font-weight:700;">&#10003; DONE (${formatDateDDMM(achieved.date)})</td>`
+      : `<td style="color:var(--muted);">Pending</td>`;
+    return `<tr><td>${label}</td><td>${target}</td>${status}</tr>`;
+  }).join("");
+
+  // Current 4-week volume / frequency / pace vs the current phase target
+  const currentWeek = Math.min(getCurrentWeek(), plan.length - 1);
+  const target = plan[currentWeek];
+  const fourWeeksAgo = new Date(TODAY);
+  fourWeeksAgo.setDate(fourWeeksAgo.getDate() - 28);
+  const recent = runs.filter(r => new Date(r.date) >= fourWeeksAgo);
+  const recentKm = recent.reduce((s, r) => s + r.distance, 0) / 4;
+  const recentFreq = recent.length / 4;
+  const recentPace = recent.length > 0
+    ? Math.round(recent.reduce((s, r) => s + r.avgPaceSec * r.distance, 0) / recent.reduce((s, r) => s + r.distance, 0))
+    : null;
+  const paceStatus = recentPace === null
+    ? `<td style="color:var(--muted);">No runs in last 4 weeks</td>`
+    : recentPace <= band.slow
+      ? `<td style="color:var(--green); font-weight:700;">Current: ~${formatPace(recentPace)} - within range</td>`
+      : `<td style="color:var(--orange);">Current: ~${formatPace(recentPace)}</td>`;
+
   document.getElementById("running-goals").innerHTML = `
     <div class="section-label">RUNNING GOALS <span class="count">Half Marathon Prep</span></div>
     <div class="goals-grid">
@@ -2452,34 +2483,29 @@ function renderRunningGoals() {
         <h3><span class="goal-tag goal-tag-primary">Race Readiness</span> Longest Run Progression</h3>
         <table>
           <tr><th>Milestone</th><th>Target</th><th>Status</th></tr>
-          <tr><td>10 km</td><td>March 2026</td><td style="color:var(--green); font-weight:700;">&#10003; DONE (22/03)</td></tr>
-          <tr><td>15 km</td><td>May 2026</td><td style="color:var(--muted);">Pending</td></tr>
-          <tr><td>18 km</td><td>July 2026</td><td style="color:var(--muted);">Pending</td></tr>
-          <tr><td>21.1 km</td><td>20/09/2026</td><td style="color:var(--muted);">Race day</td></tr>
+          ${milestoneRows}
         </table>
       </div>
       <div class="goal-card">
         <h3><span class="goal-tag goal-tag-secondary">Volume</span> Weekly Distance</h3>
         <table>
           <tr><th>Phase</th><th>Target</th><th>Status</th></tr>
-          <tr><td>Base building</td><td>10-15 km/week</td><td style="color:var(--orange);">Building</td></tr>
-          <tr><td>Peak training</td><td>25-35 km/week</td><td style="color:var(--muted);">Pending</td></tr>
+          <tr><td>${target.phase} (now)</td><td>${target.weeklyKm} km/week</td><td style="color:var(--orange);">Current 4-wk avg: ${recentKm.toFixed(1)} km/week</td></tr>
         </table>
       </div>
       <div class="goal-card">
         <h3><span class="goal-tag goal-tag-nice">Frequency</span> Runs Per Week</h3>
         <table>
           <tr><th>Phase</th><th>Target</th><th>Status</th></tr>
-          <tr><td>Current</td><td>1-2x/week</td><td style="color:var(--orange);">Establishing</td></tr>
-          <tr><td>Target</td><td>3x/week</td><td style="color:var(--muted);">Pending</td></tr>
+          <tr><td>${target.phase} (now)</td><td>${target.runsPerWeek}x/week</td><td style="color:var(--orange);">Current 4-wk avg: ${recentFreq.toFixed(1)}x/week</td></tr>
         </table>
       </div>
       <div class="goal-card">
         <h3><span class="goal-tag goal-tag-cardio">Pace</span> Race Pace Target</h3>
         <table>
           <tr><th>Metric</th><th>Value</th><th>Status</th></tr>
-          <tr><td>Target finish</td><td>2:00 - 2:10</td><td style="color:var(--muted);">26 weeks out</td></tr>
-          <tr><td>Required pace</td><td>5:41 - 6:09 /km</td><td style="color:var(--green); font-weight:700;">Current: ~5:28</td></tr>
+          <tr><td>Target finish</td><td>2:00 - 2:10</td><td style="color:var(--muted);">${weeksOut} weeks out</td></tr>
+          <tr><td>Required pace</td><td>${formatPace(band.fast)} - ${formatPace(band.slow)} /km</td>${paceStatus}</tr>
         </table>
       </div>
     </div>`;
@@ -2849,18 +2875,72 @@ const scans = [
 
 const labels = scans.map(s => s.date);
 const n = scans.length;
+const firstScan = scans[0], lastScan = scans[n - 1];
 
-// ========== CHART DEFAULTS ==========
-Chart.defaults.color = '#9ca3af';
-Chart.defaults.borderColor = 'rgba(42,45,58,0.6)';
-Chart.defaults.font.family = "'Inter', sans-serif";
+// Average days between scans (used to express trends per month honestly)
+const parseScanDate = s => { const [dd, mm, yy] = s.date.split('/'); return new Date(yy + '-' + mm + '-' + dd); };
+const scanSpanDays = Math.round((parseScanDate(lastScan) - parseScanDate(firstScan)) / 86400000);
+const avgGapDays = scanSpanDays / (n - 1);
+
+// ========== DYNAMIC HEADER / HERO / KPI / FOOTER (computed from scans) ==========
+document.getElementById('inbody-subtitle').textContent =
+  `Pawel - SATS Copenhagen - ${n} scans from ${firstScan.date} to ${lastScan.date}`;
+document.getElementById('inbody-footer').textContent =
+  `Latest scan ${lastScan.date} - Data from SATS InBody 270 scanner - ID: 31444857`;
+
+const scoreDelta = lastScan.score - firstScan.score;
+document.getElementById('inbody-score-hero').innerHTML = `
+  <div class="inbody-score-circle" style="--score: ${lastScan.score}">
+    <div class="inbody-score-circle-inner">
+      <div class="inbody-score-number">${lastScan.score}</div>
+      <div class="inbody-score-label">InBody</div>
+    </div>
+  </div>
+  <div class="inbody-score-details">
+    <h2>Latest Score: ${lastScan.score}/100</h2>
+    <span class="inbody-score-change${scoreDelta >= 0 ? ' up' : ''}">${scoreDelta >= 0 ? '&#9650; +' : '&#9660; '}${scoreDelta} points since first scan</span>
+    <div class="inbody-score-stats">
+      <div class="inbody-score-stat-item"><label>Period</label><div class="val">${scanSpanDays} days</div></div>
+      <div class="inbody-score-stat-item"><label>Total Scans</label><div class="val">${n}</div></div>
+      <div class="inbody-score-stat-item"><label>Fat Lost</label><div class="val">${(lastScan.bfm - firstScan.bfm).toFixed(1)} kg</div></div>
+      <div class="inbody-score-stat-item"><label>Muscle</label><div class="val">${(lastScan.smm - firstScan.smm) >= 0 ? '+' : ''}${(lastScan.smm - firstScan.smm).toFixed(1)} kg</div></div>
+    </div>
+  </div>`;
+
+// KPI cards: change vs first scan, coloured by whether the direction is good for that metric
+function kpiCard(label, value, unit, delta, deltaUnit, goodWhenDown, sub) {
+  const arrow = delta >= 0 ? '&#9650;' : '&#9660;';
+  let cls = 'neutral';
+  if (Math.abs(delta) >= 0.2) {
+    const improved = goodWhenDown === null ? null : (goodWhenDown ? delta < 0 : delta > 0);
+    cls = improved === null ? 'neutral' : (improved ? 'positive' : 'negative');
+  }
+  const signed = (delta >= 0 ? '+' : '') + (Number.isInteger(delta) ? delta : delta.toFixed(1));
+  return `
+    <div class="inbody-kpi-card">
+      <div class="inbody-kpi-label">${label}</div>
+      <div class="inbody-kpi-value">${value}${unit ? ' <span style="font-size:14px;color:var(--muted)">' + unit + '</span>' : ''}</div>
+      <div class="inbody-kpi-change ${cls}">${arrow} ${signed}${deltaUnit}</div>
+      <div class="inbody-kpi-sub">${sub}</div>
+    </div>`;
+}
+
+document.getElementById('inbody-kpi-grid').innerHTML =
+  kpiCard('Weight', lastScan.weight, 'kg', lastScan.weight - firstScan.weight, ' kg', null, `from ${firstScan.weight} kg start`) +
+  kpiCard('Skeletal Muscle', lastScan.smm, 'kg', lastScan.smm - firstScan.smm, ' kg', false, `from ${firstScan.smm} kg start`) +
+  kpiCard('Body Fat Mass', lastScan.bfm, 'kg', lastScan.bfm - firstScan.bfm, ' kg', true, `from ${firstScan.bfm} kg start`) +
+  kpiCard('Body Fat %', lastScan.pbf, '%', lastScan.pbf - firstScan.pbf, '%', true, `from ${firstScan.pbf}% start`) +
+  kpiCard('BMI', lastScan.bmi, '', lastScan.bmi - firstScan.bmi, '', true, `from ${firstScan.bmi} start`) +
+  kpiCard('Visceral Fat', 'Level ' + lastScan.vfl, '', lastScan.vfl - firstScan.vfl, '', true, `from Level ${firstScan.vfl} - Normal range (1-9)`);
+
+// ========== CHART DEFAULTS (light theme, matching the dashboard) ==========
 Chart.defaults.font.size = 11;
 
-const gridOpts = { color: 'rgba(42,45,58,0.6)', drawBorder: false };
+const gridOpts = { color: 'rgba(0,0,0,0.07)', drawBorder: false };
 
 const tooltipStyle = {
   backgroundColor: '#1a1d27', borderColor: '#2a2d3a', borderWidth: 1,
-  titleColor: '#e4e4e7', bodyColor: '#9ca3af', padding: 12, cornerRadius: 8,
+  titleColor: '#e4e4e7', bodyColor: '#cbd5e1', padding: 12, cornerRadius: 8,
 };
 
 // ========== LINEAR REGRESSION ==========
@@ -2883,8 +2963,8 @@ function linearRegression(yValues) {
 
   const trendLine = xValues.map(x => +(intercept + slope * x).toFixed(2));
 
-  // Slope per scan (approx every 9 days, so ~monthly = slope * 3.3)
-  const perMonth = slope * (30 / 9); // rough: 99 days / 11 scans ~ 9 days apart
+  // Slope is per scan; convert to per month using the REAL average gap between scans
+  const perMonth = slope * (30 / avgGapDays);
 
   return { slope, intercept, rSquared, trendLine, perMonth };
 }
@@ -2898,7 +2978,11 @@ function trendText(reg, unit, label) {
 }
 
 // ========== CHART BUILDER ==========
-function makeTrendChart(canvasId, infoId, data, color, bgColor, yMin, yMax, unit, label) {
+function makeTrendChart(canvasId, infoId, data, color, bgColor, unit, label) {
+  // Y-axis bounds computed from the data with padding, so new highs/lows never clip
+  const lo = Math.min(...data), hi = Math.max(...data);
+  const pad = Math.max((hi - lo) * 0.15, 0.5);
+  const yMin = +(lo - pad).toFixed(1), yMax = +(hi + pad).toFixed(1);
   const reg = linearRegression(data);
   document.getElementById(infoId).textContent = trendText(reg, unit, label);
 
@@ -2918,7 +3002,7 @@ function makeTrendChart(canvasId, infoId, data, color, bgColor, yMin, yMax, unit
           pointRadius: 5,
           pointHoverRadius: 7,
           pointBackgroundColor: color,
-          pointBorderColor: '#1a1d27',
+          pointBorderColor: '#ffffff',
           pointBorderWidth: 2,
         },
         {
@@ -2964,21 +3048,21 @@ function makeTrendChart(canvasId, infoId, data, color, bgColor, yMin, yMax, unit
 
 // ========== ROW 1: Weight + SMM ==========
 makeTrendChart('weightTrendChart', 'weightTrendInfo',
-  scans.map(s => s.weight), '#6366f1', 'rgba(99,102,241,0.12)', 87.5, 91.5, 'kg', 'Weight');
+  scans.map(s => s.weight), '#6366f1', 'rgba(99,102,241,0.12)', 'kg', 'Weight');
 
 makeTrendChart('smmTrendChart', 'smmTrendInfo',
-  scans.map(s => s.smm), '#22c55e', 'rgba(34,197,94,0.12)', 40.0, 42.5, 'kg', 'Skeletal Muscle');
+  scans.map(s => s.smm), '#22c55e', 'rgba(34,197,94,0.12)', 'kg', 'Skeletal Muscle');
 
 // ========== ROW 2: BFM + PBF ==========
 makeTrendChart('bfmTrendChart', 'bfmTrendInfo',
-  scans.map(s => s.bfm), '#ef4444', 'rgba(239,68,68,0.12)', 15.5, 20.0, 'kg', 'Body Fat Mass');
+  scans.map(s => s.bfm), '#ef4444', 'rgba(239,68,68,0.12)', 'kg', 'Body Fat Mass');
 
 makeTrendChart('pbfTrendChart', 'pbfTrendInfo',
-  scans.map(s => s.pbf), '#f59e0b', 'rgba(245,158,11,0.12)', 16, 23, '%', 'Body Fat %');
+  scans.map(s => s.pbf), '#f59e0b', 'rgba(245,158,11,0.12)', '%', 'Body Fat %');
 
 // ========== ROW 3: Score ==========
 makeTrendChart('scoreChart', 'scoreTrendInfo',
-  scans.map(s => s.score), '#8b5cf6', 'rgba(139,92,246,0.12)', 78, 92, 'pts', 'InBody Score');
+  scans.map(s => s.score), '#8b5cf6', 'rgba(139,92,246,0.12)', 'pts', 'InBody Score');
 
 // ========== ROW 3: BMI WITH MALE RANGES ==========
 (function() {
@@ -3057,7 +3141,7 @@ makeTrendChart('scoreChart', 'scoreTrendInfo',
           tension: 0.35,
           pointRadius: 6, pointHoverRadius: 8,
           pointBackgroundColor: bmiData.map((v, i) => i === bmiData.length - 1 ? '#ffffff' : '#06b6d4'),
-          pointBorderColor: bmiData.map((v, i) => i === bmiData.length - 1 ? '#06b6d4' : '#1a1d27'),
+          pointBorderColor: bmiData.map((v, i) => i === bmiData.length - 1 ? '#06b6d4' : '#ffffff'),
           pointBorderWidth: bmiData.map((v, i) => i === bmiData.length - 1 ? 3 : 2),
           pointRadius: bmiData.map((v, i) => i === bmiData.length - 1 ? 8 : 5),
         },
@@ -3145,9 +3229,9 @@ function exportPDF() {
 
   html2pdf().set({
     margin: [8, 8, 8, 8],
-    filename: 'InBody_Dashboard_Pawel_20032026.pdf',
+    filename: 'InBody_Dashboard_Pawel_' + TODAY.split('-').reverse().join('') + '.pdf',
     image: { type: 'jpeg', quality: 0.95 },
-    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#0f1117', logging: false },
+    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#faf9f6', logging: false },
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
     pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
   }).from(el).save().then(() => {
@@ -3157,6 +3241,10 @@ function exportPDF() {
     alert('PDF export failed. Try opening in Chrome and using Ctrl+P instead.');
   });
 }
+
+// Make the button work: the Export button lives in the page's HTML and can only
+// "see" functions registered globally, so we register exportPDF there explicitly.
+window.exportPDF = exportPDF;
 
 }
 
