@@ -1238,18 +1238,18 @@ const exercises = {
       { date: "2026-06-06", weight: 93, bestReps: 8, note: "93 x 8 - single volume set, rep-quality work below the 100 kg peak touch (#99). June goal 100 x 6 still open. Session #100.", sets: [{"w":93,"r":8}] },
       { date: "2026-06-12", weight: 85, bestReps: 8, note: "85 x 8, 80 x 8 - new gym, different machine (much heavier feel). **Non-comparable with the SATS cable baseline - read the dip as a machine change, not a strength drop.** Plotted on Pawel's call; excluded from June goal tracking (100 x 6 stands on the SATS machine). Session #103.", sets: [{"w":80,"r":8},{"w":85,"r":8}] },
     ]
-  },
-  "Iso-Lateral Row": {
-    muscle: "Mid-back / Biceps", unit: "kg", type: "compound",
-    data: [
-      { date: "2026-06-10", weight: 100, bestReps: 8, note: "100 x 8, 100 x 8 - plate-loaded Iso-Lateral Row (Hevy `AA1EB7D8`) at the new gym. Moved off the cable Seated Row line on 21/06 after a re-tag fix (had briefly mis-shown as cable). **Separate machine - not comparable to the SATS cable Seated Row.** Session #102.", sets: [{"w":100,"r":8},{"w":100,"r":8}] },
-      { date: "2026-06-18", weight: 139, bestReps: 6, note: "139 x 6 - same plate-loaded Iso-Lateral Row unit. The 100 -> 139 jump (e1RM ~127 -> ~167 in 8 days) is **not a strength gain - LOW confidence, mechanics/setup-driven** (seat/leverage on an unfamiliar unit). Logged as a data point only; build reps on the same setup before trusting the line. Kept fully separate from the cable Seated Row series. Session #105.", sets: [{"w":139,"r":6}] },
-    ]
   }
 };
 
 // ========== GRAVEYARD (preserved data, removed from main charts) ==========
 const graveyard = {
+  "Iso-Lateral Row": {
+    muscle: "Mid-back / Biceps", unit: "kg", type: "compound", reason: "One-off plate-loaded machine at the new gym - non-comparable to the cable Seated Row baseline and the 100->139 'jump' was mechanics/setup, not strength. Not a tracked progression; pulled from the main charts (Pawel's call, 21/06). Cable Seated Row remains the row line of record.", lastSession: "18/06/2026",
+    data: [
+      { date: "2026-06-10", weight: 100, bestReps: 8, note: "100 x 8, 100 x 8 - plate-loaded Iso-Lateral Row (Hevy `AA1EB7D8`) at the new gym. Separate machine - not comparable to the SATS cable Seated Row. Session #102.", sets: [{"w":100,"r":8},{"w":100,"r":8}] },
+      { date: "2026-06-18", weight: 139, bestReps: 6, note: "139 x 6 - same plate-loaded unit. The 100 -> 139 jump (e1RM ~127 -> ~167 in 8 days) is mechanics/setup-driven, not a strength gain. Session #105.", sets: [{"w":139,"r":6}] },
+    ]
+  },
   "Lying Leg Curl": {
     muscle: "Hamstrings", unit: "kg", type: "isolation", reason: "SLDL returned to the program permanently (Pawel's call, 16/06) and reclaimed the Pawel 1 hamstring slot. Leg curl had been revived 08/06 as cover during the SLDL stop-signal window.", lastSession: "10/06/2026",
     data: [
@@ -1460,7 +1460,7 @@ const EXERCISE_ORDER = [
   "Hack Squat", "SLDL",
   "Weighted Pull-ups",
   "Triceps Extension", "Preacher Curl",
-  "Seated Row", "Iso-Lateral Row"
+  "Seated Row"
 ];
 
 function getOrderedNames() {
