@@ -98,14 +98,19 @@ Scan photo pasted into the session →
 - Env var `HEVY_API_KEY` is set in the Claude Code environment (Hevy Pro key from
   hevy.com → Settings → Developer).
 - Base URL `https://api.hevyapp.com`, auth header `api-key: $HEVY_API_KEY`.
-- Expected endpoints (verify against https://api.hevyapp.com/docs on first use and
-  update this section with the confirmed shapes):
-  - `GET /v1/workouts?page=1&pageSize=10` — newest workouts, paginated
-  - `GET /v1/workouts/events?since=<ISO date>` — changes since a date
+- Confirmed endpoints (verified live 01/08/2026):
+  - `GET /v1/workouts?page=1&pageSize=10` — newest first, paginated. Returns
+    `{page, page_count, workouts: [...]}`. Each workout: `id`, `title`,
+    `start_time`/`end_time` (ISO 8601), `exercises[]` with `title`,
+    `exercise_template_id`, and `sets[]` of `{index, type, weight_kg, reps, rpe, ...}`.
+  - `GET /v1/workouts/events?since=<ISO datetime>&page=1&pageSize=10` — changes since
+    a date. Returns `{page, page_count, events: [{type: "updated"|..., workout: {...}}]}`.
+  - `GET /v1/workouts/count` — returns `{workout_count}`.
 - If the key is missing or the API unreachable, ask for a pasted export instead.
-- Note: `api.hevyapp.com` must be allowed in the Claude Code environment's network
-  policy — as of 01/08/2026 it was blocked (curl returned no response). Until Pawel
-  allowlists it (environment settings → network), use the pasted-export fallback.
+- Network policy: `api.hevyapp.com` was initially blocked, but as of 01/08/2026 the
+  allowlist is in place and the connection is confirmed working (HTTP 200 with the
+  session key). If it ever fails again, check the environment's network policy before
+  falling back to pasted exports.
 
 ## Data conventions (the important part)
 
