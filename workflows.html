@@ -80,6 +80,9 @@
   .scan .you-bring { border-left-color: var(--green); background: #f0fdf4; }
   .run .stage .num { border-color: var(--orange); color: var(--orange); background: #fff7ed; }
   .run .you-bring { border-left-color: var(--orange); background: #fff7ed; }
+  .month h2 .icon { font-size: 1.2em; }
+  .month .stage .num { border-color: var(--purple); color: var(--purple); background: #f5f3ff; }
+  .month .you-bring { border-left-color: var(--purple); background: #f5f3ff; }
 
   .note-card {
     background: #f8fafc; border: 1px dashed var(--border); border-radius: 10px;
@@ -190,6 +193,39 @@
   <div class="stage"><div class="num">4</div><div>
     <div class="label">Dashboard updated &rarr; published</div>
     <div class="detail">Readiness score, alerts, milestones, and next week's targets all recompute automatically; checks pass; live in ~60 seconds.</div>
+    <span class="tag tag-code">Claude Code</span><span class="tag tag-live">Live dashboard</span>
+  </div></div>
+</div>
+
+<!-- MONTH ROLLOVER -->
+<div class="flow-section month">
+  <h2><span class="icon">&#128197;</span> Month Rollover</h2>
+  <div class="desc">Closing one month and opening the next - goals, month summary, new Notion page</div>
+  <div class="you-bring"><b>You bring:</b> yourself, and about ten minutes. This one is a conversation - the session needs you to confirm which goals landed, and to sign off the new month's targets before they go live.</div>
+
+  <div class="stage"><div class="num">1</div><div>
+    <div class="label">Open a Code session on (or just after) the 1st &rarr; "new month"</div>
+    <div class="detail">One session does the whole rollover. If you also trained that day, the rollover happens first and the session gets logged after.</div>
+    <span class="tag tag-you">You</span><span class="tag tag-code">Claude Code</span>
+  </div></div>
+  <div class="stage"><div class="num">2</div><div>
+    <div class="label">Last month's goals reconciled</div>
+    <div class="detail">Every target checked against the logged sets first, then confirmed with you - hit, missed, or superseded. Data before memory.</div>
+    <span class="tag tag-you">You</span><span class="tag tag-code">Claude Code</span>
+  </div></div>
+  <div class="stage"><div class="num">3</div><div>
+    <div class="label">Month summary written to Notion</div>
+    <div class="detail">The narrative record of the month: consistency, headline wins, what didn't happen, and what carries forward. A month isn't closed until this is written.</div>
+    <span class="tag tag-code">Claude Code</span><span class="tag tag-notion">Notion</span>
+  </div></div>
+  <div class="stage"><div class="num">4</div><div>
+    <div class="label">New month page created + new goals calibrated</div>
+    <div class="detail">Targets are worked out from your actual logged sets - trend fitted per lift, adjusted for travel and days you'll actually train, and aimed at roughly a coin flip. Hard, but genuinely reachable. You see them and can change any of them before they're written.</div>
+    <span class="tag tag-code">Claude Code</span><span class="tag tag-notion">Notion</span>
+  </div></div>
+  <div class="stage"><div class="num">5</div><div>
+    <div class="label">Dashboard goals updated &rarr; published</div>
+    <div class="detail">The new targets land in the Goals section with their status; checks pass; live in ~60 seconds. If no goals are agreed, the section says so rather than being padded out.</div>
     <span class="tag tag-code">Claude Code</span><span class="tag tag-live">Live dashboard</span>
   </div></div>
 </div>

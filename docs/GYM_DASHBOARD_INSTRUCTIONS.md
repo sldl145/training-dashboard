@@ -300,11 +300,73 @@ Date, Score, Weight (kg), SMM (kg), BFM (kg), PBF (%), BMI, VFL, WHR.
 
 ## End-of-Month Checklist
 
-1. Confirm all goal statuses with Pawel.
-2. Agree new month's goals (body comp + primary + secondary + nice-to-have + cardio).
-3. Update `renderGoals()` with new targets; archive the old month's block.
-4. Check all exercises against the 2-week inactivity rule.
+Month-end reconciliation and closeout runs as **one Claude Code session, the first
+session on or after the 1st of the new month**. That session owns it end to end. It is
+not split between Chat and Code, and it is not left implicit - before Aug 2026 the
+month summary was nominally Chat's and in practice nobody's, which is how July 2026
+reached the 1st with an unwritten summary.
+
+Interactive session required: steps 1 and 4 need Pawel, and the Notion connector is
+unavailable in headless/scheduled runs.
+
+**Reconcile the closing month**
+
+1. **Confirm every goal status with Pawel** - hit, missed, or superseded. Check each
+   target against the logged sets first so the conversation starts from data, not memory.
+2. **Write the month summary** on the closing month's Notion page, replacing the
+   placeholder. Narrative and evaluative, in the style of the June and July 2026
+   summaries: session count and consistency, headline wins, what did **not** happen,
+   goals hit vs set, and the watch-points carried forward. Name process failures
+   plainly - a month that ran without goals or without a planned training block should
+   say so.
+3. **Check all exercises against the 2-week inactivity rule** (ask before removing).
+
+**Open the new month**
+
+4. **Agree the new month's goals.** Calibrate from the logged sets, not memory - see
+   Goal Calibration below. Goals cover current exercises only.
+5. **Create the new month's Notion page** as a child of the Gym Hub, using the Month
+   Page Template on that page. **Dedup on the month first** - never create a second
+   page for a month that already has one.
+6. **Carry forward live trackers** (e.g. the Bench 100 kg Watch) to the new month page.
+   Leave the closing month's full evaluation log where it is.
+7. **Update `renderGoals()`** with the new targets; delete the old month's cards and put
+   the month back in the section label. No in-file archive - git history and the Notion
+   month pages are the record. If no goals are agreed, render the empty state.
+8. **Update the Gym Hub index table:** new month `Active`, closing month `Closed`. A
+   month is only `Closed` once its summary is written.
+
 (The subtitle/time-span update themselves from TODAY - no manual step.)
+
+### Goal Calibration
+
+Goals are calibrated statistically from the logged sets, not set by feel. Method as run
+for August 2026:
+
+- **Per-session top e1RM** - max e1RM across all sets in a session, using the dashboard's
+  own `e1rm()` (Brzycki form, `w * 36 / (37 - r)`). Note May-July 2026 used Epley
+  (`w * (1 + r/30)`); Session #117 documented Epley overestimating Pawel's true max by
+  4-5 kg, so the dashboard form is preferred. Figures are not comparable across the two.
+- **Log-linear fit** of `log(e1RM) ~ days` over a ~120-day window; slope gives monthly
+  growth, residual SD gives session noise.
+- **Shrink and cap the slope** - multiply by `n/(n+6)`, cap at +5%/month, or +3%/month
+  for a lift still finding its working load. Un-shrunk fits on new lifts produce absurd
+  extrapolations (Reverse Curl fitted +43%/month in Aug 2026 off a load-finding ramp).
+- **Exclude the rows the notes already flag** - `NOT trend-valid`, volume days, jet lag.
+  In Aug 2026 an unexcluded volume day flipped the RDL trend to -6%/month and would have
+  proposed a target below the current lift.
+- **Simulate the month that actually exists** - subtract travel and known absences from
+  the trainable weeks, and treat sessions within a month as correlated (rho ~0.5), not
+  as independent coin flips.
+- **The target must be a genuinely new achievement** - reject any candidate where a past
+  set had both weight >= and reps >= the candidate. Without this the model will happily
+  propose something already lifted.
+- **Aim for P(hit) ~40-55%** - "try hard, not an easy win". Record the probability
+  alongside each target so the difficulty is visible rather than asserted.
+- **Respect the equipment.** Check the target weight exists on that machine; where a
+  stack is maxed out, the target is a rep, not a plate.
+- **Pawel's calls override the calibration** - record them as deliberate, with the
+  calibrated figure noted alongside.
 
 ---
 

@@ -32,6 +32,19 @@ flowchart TD
     D6 --> LIVE["🌐 Live dashboard<br/>sldl145.github.io/training-dashboard"]
 
     NOTION[("Notion — Gym Hub<br/>Training Logs / Running Log / InBody DB<br/>(the narrative record)")] <--> D2
+
+    MONTH["📅 First session on or after the 1st"] --> CLOSE
+
+    subgraph CLOSE["Month-end closeout — same Claude Code session"]
+        C1["Reconcile goal statuses<br/>against logged sets, with Pawel"] --> C2["Write month summary<br/>on the closing month's Notion page"]
+        C2 --> C3["Create new month page<br/>dedup on month, carry live trackers"]
+        C3 --> C4["Calibrate new goals from the data<br/>see docs: Goal Calibration"]
+        C4 --> C5["Write renderGoals + flip Gym Hub index<br/>new month Active, old month Closed"]
+    end
+
+    C5 --> D5
+    C2 <--> NOTION
+    C3 <--> NOTION
 ```
 
 - **Notion** is the narrative record (journals, flags, decisions, scan database) —

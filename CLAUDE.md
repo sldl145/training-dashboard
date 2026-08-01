@@ -15,7 +15,8 @@ anywhere else. Pushing `main` is publishing.
 | New run data / Running tab changes | `docs/RUNNING_TAB_SPEC.md` |
 | New InBody scan | `docs/GYM_DASHBOARD_INSTRUCTIONS.md` (InBody section) |
 | Publishing questions, live-site issues | `docs/DEPLOYMENT.md` |
-| Monthly rollover | `docs/GYM_DASHBOARD_INSTRUCTIONS.md` (End-of-Month Checklist) |
+| Monthly rollover / first session of a new month | `docs/GYM_DASHBOARD_INSTRUCTIONS.md` (End-of-Month Checklist) |
+| Setting goals for a new month | `docs/GYM_DASHBOARD_INSTRUCTIONS.md` (Goal Calibration) |
 | How the whole system fits together | `README.md` (diagram) |
 | Pawel asks "how do I update X" | `workflows.html` (visual guide, live at /workflows.html on Pages) |
 
@@ -53,6 +54,19 @@ one conversation does the whole pipeline — debrief, Notion journal, dashboard,
 This workflow assumes an interactive session (the Notion connector is not available in
 headless/scheduled runs). If Hevy or Notion is unreachable, say so and fall back to data
 pasted into the chat — do not guess numbers.
+
+## Month-end closeout (first session on or after the 1st)
+
+If the session is the first on or after the 1st of a month, the closing month needs
+reconciling **before** anything else — run the End-of-Month Checklist in
+`docs/GYM_DASHBOARD_INSTRUCTIONS.md`, then continue with the workflow above if there is
+also a gym session to log. That one session owns the whole closeout: reconcile goal
+statuses with Pawel, write the closing month's Notion summary, create the new month page
+(dedup on the month), carry live trackers forward, calibrate and write the new goals, and
+flip the Gym Hub index. A month is only `Closed` once its summary is written.
+
+Do not leave the summary for "Chat at month end" — that split is retired, and it is why
+July 2026 reached the 1st with an unwritten summary.
 
 ## House rules
 
