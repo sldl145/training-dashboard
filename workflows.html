@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Training Dashboard - How to Update</title>
+<style>
+  :root {
+    --bg: #faf9f6;
+    --card: #ffffff;
+    --border: #e8e5df;
+    --text: #1a1a1a;
+    --muted: #7a7a7a;
+    --accent: #2563eb;
+    --green: #16a34a;
+    --orange: #ea580c;
+    --red: #dc2626;
+    --purple: #7c3aed;
+    --teal: #0d9488;
+    --pink: #be185d;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg); color: var(--text);
+    padding: 24px; max-width: 900px; margin: 0 auto; line-height: 1.55;
+  }
+  h1 { font-size: 1.4em; letter-spacing: -0.02em; margin-bottom: 2px; }
+  .subtitle { color: var(--muted); font-size: 0.85em; margin-bottom: 24px; }
+  a { color: var(--accent); }
+
+  /* Start here card */
+  .start-here {
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    color: #fff; border-radius: 12px; padding: 20px 24px; margin-bottom: 28px;
+  }
+  .start-here h2 { font-size: 0.8em; text-transform: uppercase; letter-spacing: 1px; opacity: 0.85; margin-bottom: 8px; }
+  .start-here .big { font-size: 1.05em; font-weight: 600; margin-bottom: 10px; }
+  .start-here ol { margin-left: 1.2em; font-size: 0.92em; }
+  .start-here li { margin: 4px 0; }
+  .start-here .hint { font-size: 0.8em; opacity: 0.85; margin-top: 10px; }
+
+  /* Sections */
+  .flow-section {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 20px 22px; margin-bottom: 20px; box-shadow: var(--shadow);
+  }
+  .flow-section h2 { font-size: 1.05em; display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+  .flow-section .desc { color: var(--muted); font-size: 0.82em; margin-bottom: 16px; }
+  .you-bring {
+    border-radius: 8px; padding: 10px 14px; font-size: 0.85em; margin-bottom: 16px;
+    border-left: 4px solid var(--accent); background: #eff6ff;
+  }
+  .you-bring b { text-transform: uppercase; font-size: 0.8em; letter-spacing: 0.5px; }
+
+  .stage { display: flex; gap: 12px; margin-bottom: 14px; }
+  .stage .num {
+    width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8em; font-weight: 700; margin-top: 2px;
+    border: 2px solid var(--accent); color: var(--accent); background: #eff6ff;
+  }
+  .stage .label { font-weight: 600; font-size: 0.92em; }
+  .stage .detail { font-size: 0.83em; color: var(--muted); margin-top: 1px; }
+  .tag {
+    display: inline-block; font-size: 0.68em; font-weight: 600; padding: 2px 8px;
+    border-radius: 4px; margin: 4px 4px 0 0; text-transform: uppercase; letter-spacing: 0.3px;
+  }
+  .tag-you    { background: #fce7f3; color: var(--pink); }
+  .tag-code   { background: #ede9fe; color: var(--purple); }
+  .tag-notion { background: #fee2e2; color: var(--red); }
+  .tag-hevy   { background: #dbeafe; color: var(--accent); }
+  .tag-apple  { background: #ffedd5; color: var(--orange); }
+  .tag-inbody { background: #dcfce7; color: var(--green); }
+  .tag-live   { background: #ccfbf1; color: var(--teal); }
+
+  .gym h2 .icon, .scan h2 .icon, .run h2 .icon { font-size: 1.2em; }
+  .scan .stage .num { border-color: var(--green); color: var(--green); background: #f0fdf4; }
+  .scan .you-bring { border-left-color: var(--green); background: #f0fdf4; }
+  .run .stage .num { border-color: var(--orange); color: var(--orange); background: #fff7ed; }
+  .run .you-bring { border-left-color: var(--orange); background: #fff7ed; }
+
+  .note-card {
+    background: #f8fafc; border: 1px dashed var(--border); border-radius: 10px;
+    padding: 14px 18px; font-size: 0.83em; color: var(--muted); margin-bottom: 20px;
+  }
+  .note-card b { color: var(--text); }
+  footer { text-align: center; color: var(--muted); font-size: 0.75em; padding: 14px 0 6px; border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+
+<h1>How to Update the Dashboard</h1>
+<p class="subtitle">The three workflows - gym session, body scan, run. Everything happens from your phone. <a href="index.html">Back to the dashboard</a></p>
+
+<div class="start-here">
+  <h2>Start here - every workflow begins the same way</h2>
+  <div class="big">Open the Claude app &rarr; Code &rarr; new session on <b>training-dashboard</b></div>
+  <ol>
+    <li>Pick the <b>training-dashboard</b> environment (not Default) when starting the session.</li>
+    <li>Say what happened: <i>"update dashboard"</i>, <i>"new InBody scan"</i>, or <i>"log a run"</i>.</li>
+    <li>The session takes it from there - it will tell you if it needs anything.</li>
+  </ol>
+  <div class="hint">One session can handle all three at once ("gym session done, and here's a run from yesterday"). Everything publishes to the live dashboard automatically at the end.</div>
+</div>
+
+<!-- GYM -->
+<div class="flow-section gym">
+  <h2><span class="icon">&#127947;&#65039;</span> Gym Session</h2>
+  <div class="desc">Training tab - lifts, sets, PRs, goals</div>
+  <div class="you-bring"><b>You bring:</b> nothing to upload. The PT logs every set in Hevy during the session, and the dashboard fetches it from Hevy directly. Just bring your memory of how it felt.</div>
+
+  <div class="stage"><div class="num">1</div><div>
+    <div class="label">Train at SATS</div>
+    <div class="detail">PT logs all sets in Hevy during the session - this is the ground truth.</div>
+    <span class="tag tag-you">You</span><span class="tag tag-hevy">Hevy</span>
+  </div></div>
+  <div class="stage"><div class="num">2</div><div>
+    <div class="label">Open a Code session &rarr; "update dashboard"</div>
+    <div class="detail">On the phone, whenever suits - same evening or next morning.</div>
+    <span class="tag tag-you">You</span><span class="tag tag-code">Claude Code</span>
+  </div></div>
+  <div class="stage"><div class="num">3</div><div>
+    <div class="label">Debrief chat</div>
+    <div class="detail">How it went, what the PT said, any pain signals. The session writes your journal page to Notion (Session #XXX with Journal / Flags / Decisions / Context).</div>
+    <span class="tag tag-you">You</span><span class="tag tag-code">Claude Code</span><span class="tag tag-notion">Notion</span>
+  </div></div>
+  <div class="stage"><div class="num">4</div><div>
+    <div class="label">Data pulled from Hevy and cross-checked</div>
+    <div class="detail">Every number verified against the actual Hevy sets - Hevy always wins. Dashboard data, notes, and goals updated with targeted edits.</div>
+    <span class="tag tag-code">Claude Code</span><span class="tag tag-hevy">Hevy</span>
+  </div></div>
+  <div class="stage"><div class="num">5</div><div>
+    <div class="label">Checks pass &rarr; published</div>
+    <div class="detail">Data validator + real-browser render check must both pass, then the session pushes and the live page updates in ~60 seconds. Decisions get checked off in Notion.</div>
+    <span class="tag tag-code">Claude Code</span><span class="tag tag-live">Live dashboard</span>
+  </div></div>
+</div>
+
+<!-- SCAN -->
+<div class="flow-section scan">
+  <h2><span class="icon">&#128202;</span> Body Scan (InBody)</h2>
+  <div class="desc">Body Composition tab - weight, muscle, fat %, InBody score</div>
+  <div class="you-bring"><b>You bring:</b> a photo of the InBody result sheet. Take it with your phone camera right at the machine, then attach it in the session chat (the &#43; / attach button, same as sending any photo).</div>
+
+  <div class="stage"><div class="num">1</div><div>
+    <div class="label">Scan at SATS, photograph the results</div>
+    <div class="detail">The printed sheet or the machine screen - either works.</div>
+    <span class="tag tag-you">You</span><span class="tag tag-inbody">InBody</span>
+  </div></div>
+  <div class="stage"><div class="num">2</div><div>
+    <div class="label">Open a Code session &rarr; "new InBody scan" + attach the photo</div>
+    <div class="detail">The session reads all metrics from the image (Score, Weight, SMM, BFM, PBF, BMI, VFL, WHR) and asks what you want: log it, update the dashboard, or discuss the numbers first.</div>
+    <span class="tag tag-you">You</span><span class="tag tag-code">Claude Code</span>
+  </div></div>
+  <div class="stage"><div class="num">3</div><div>
+    <div class="label">Logged to Notion, photo attached</div>
+    <div class="detail">New row in the InBody Scan Log (skips duplicates), your photo attached to the row, and a Scan #XX analysis page if you discussed the results.</div>
+    <span class="tag tag-code">Claude Code</span><span class="tag tag-notion">Notion</span>
+  </div></div>
+  <div class="stage"><div class="num">4</div><div>
+    <div class="label">Dashboard updated &rarr; published</div>
+    <div class="detail">The scan joins the trend charts and KPI cards; checks pass; live in ~60 seconds.</div>
+    <span class="tag tag-code">Claude Code</span><span class="tag tag-live">Live dashboard</span>
+  </div></div>
+</div>
+
+<!-- RUN -->
+<div class="flow-section run">
+  <h2><span class="icon">&#127939;</span> Run</h2>
+  <div class="desc">Running tab - half marathon prep, readiness score, pace trends</div>
+  <div class="you-bring"><b>You bring:</b> a screenshot of the workout summary from the Fitness app on your phone (the screen with distance, time, pace, heart rate). Attach it in the session chat.</div>
+
+  <div class="stage"><div class="num">1</div><div>
+    <div class="label">Run with the Apple Watch</div>
+    <div class="detail">Afterwards, open the Fitness app, find the workout, screenshot the summary.</div>
+    <span class="tag tag-you">You</span><span class="tag tag-apple">Apple Fitness</span>
+  </div></div>
+  <div class="stage"><div class="num">2</div><div>
+    <div class="label">Open a Code session &rarr; "log a run" + attach the screenshot</div>
+    <div class="detail">The session extracts distance, duration, pace, HR, elevation, calories, and classifies the run (easy / tempo / long / interval / race). Quick chat about how it felt.</div>
+    <span class="tag tag-you">You</span><span class="tag tag-code">Claude Code</span>
+  </div></div>
+  <div class="stage"><div class="num">3</div><div>
+    <div class="label">Written to the Notion Running Log</div>
+    <div class="detail">Entry with data, notes, and any flags (weekly volume jumps get flagged automatically). Duplicates skipped.</div>
+    <span class="tag tag-code">Claude Code</span><span class="tag tag-notion">Notion</span>
+  </div></div>
+  <div class="stage"><div class="num">4</div><div>
+    <div class="label">Dashboard updated &rarr; published</div>
+    <div class="detail">Readiness score, alerts, milestones, and next week's targets all recompute automatically; checks pass; live in ~60 seconds.</div>
+    <span class="tag tag-code">Claude Code</span><span class="tag tag-live">Live dashboard</span>
+  </div></div>
+</div>
+
+<div class="note-card">
+  <b>Fallbacks, so nothing ever blocks:</b> if Hevy can't be reached, the session asks you to paste a screenshot of the workout from the Hevy app instead. If you'd rather debrief in regular Claude Chat (on the metro, say), that works too - Chat writes the journal to Notion and the next Code session picks up the unchecked decisions. Duplicates are always detected and skipped.
+</div>
+
+<footer>Living document - any workflow change must update this page (and the README diagram) in the same session. See CLAUDE.md in the repo.</footer>
+
+</body>
+</html>

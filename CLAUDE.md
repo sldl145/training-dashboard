@@ -16,7 +16,11 @@ anywhere else. Pushing `main` is publishing.
 | New InBody scan | `docs/GYM_DASHBOARD_INSTRUCTIONS.md` (InBody section) |
 | Publishing questions, live-site issues | `docs/DEPLOYMENT.md` |
 | Monthly rollover | `docs/GYM_DASHBOARD_INSTRUCTIONS.md` (End-of-Month Checklist) |
-| How the whole system fits together | `README.md` (diagram — update it whenever the workflow changes) |
+| How the whole system fits together | `README.md` (diagram) |
+| Pawel asks "how do I update X" | `workflows.html` (visual guide, live at /workflows.html on Pages) |
+
+Any workflow change must update BOTH the README diagram and `workflows.html` in the
+same session — they are the system's self-description.
 
 ## The update workflow (single session, post-gym)
 

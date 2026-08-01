@@ -10,7 +10,8 @@ detailed manuals live in [`docs/`](docs/).
 ## How the system works
 
 > **Rule (inherited from the old workflows.html):** any change to this workflow must
-> update this diagram in the same session.
+> update this diagram AND [`workflows.html`](workflows.html) (the Pawel-facing visual
+> guide, served on Pages next to the dashboard) in the same session.
 
 ```mermaid
 flowchart TD
@@ -44,6 +45,7 @@ flowchart TD
 | Path | Purpose |
 |------|---------|
 | `index.html` | The dashboard (Training / Body Composition / Running tabs) |
+| `workflows.html` | Visual "how to update" guide for the three flows — live at [/workflows.html](https://sldl145.github.io/training-dashboard/workflows.html) |
 | `CLAUDE.md` | Session contract: workflow, house rules, conventions |
 | `docs/GYM_DASHBOARD_INSTRUCTIONS.md` | Full operating manual (Hevy mapping, data rules, goals, graveyard) |
 | `docs/DEBRIEF.md` | Post-session conversation guide + Notion journal formats |
