@@ -303,7 +303,7 @@
     margin-top: 10px;
     padding: 8px 12px;
     background: #f8fafc;
-    border-left: 3px solid var(--primary);
+    border-left: 3px solid var(--accent);
     border-radius: 0 6px 6px 0;
     font-style: italic;
     font-size: 0.9em;
@@ -2534,9 +2534,10 @@ function calculateReadiness() {
   const targetPaceMax = paceBand.slow;
   const recentPace = recentRuns.length > 0
     ? recentRuns.reduce((s, r) => s + r.avgPaceSec * r.distance, 0) / recentRuns.reduce((s, r) => s + r.distance, 0)
-    : 400;
-  // If faster than target, score 100. If slower, scale down.
-  const paceScore = recentPace <= targetPaceMax ? 100 : Math.max(0, 100 - ((recentPace - targetPaceMax) / 60) * 100);
+    : null;
+  // If faster than target, score 100. If slower, scale down. No runs in the window = no pace data = 0.
+  const paceScore = recentPace === null ? 0
+    : recentPace <= targetPaceMax ? 100 : Math.max(0, 100 - ((recentPace - targetPaceMax) / 60) * 100);
 
   // Component 4: Frequency last 4 weeks vs target (15% weight)
   const recentRunsPerWeek = recentRuns.length / 4;
@@ -2557,10 +2558,10 @@ function calculateReadiness() {
     components: [
       { label: "Long Run", value: longRunScore, detail: longestRun.toFixed(1) + " / " + target.longRun + " km", weight: "40%", color: "#2563eb" },
       { label: "Weekly Volume", value: volumeScore, detail: recentWeeklyKm.toFixed(1) + " / " + target.weeklyKm + " km/wk", weight: "25%", color: "#0d9488" },
-      { label: "Pace", value: paceScore, detail: formatPace(Math.round(recentPace)) + " / " + formatPace(targetPaceMax) + " target", weight: "20%", color: "#7c3aed" },
+      { label: "Pace", value: paceScore, detail: recentPace === null ? "No runs in last 4 weeks" : formatPace(Math.round(recentPace)) + " / " + formatPace(targetPaceMax) + " target", weight: "20%", color: "#7c3aed" },
       { label: "Frequency", value: freqScore, detail: recentRunsPerWeek.toFixed(1) + " / " + target.runsPerWeek + "x/wk", weight: "15%", color: "#ea580c" }
     ],
-    longestRun, recentWeeklyKm, recentPace: Math.round(recentPace), recentRunsPerWeek,
+    longestRun, recentWeeklyKm, recentPace: recentPace === null ? null : Math.round(recentPace), recentRunsPerWeek,
     target, currentWeek, weeksToRace,
     // Expected score: what 100% plan adherence would look like at this week
     expectedScore: 100,
@@ -2613,9 +2614,9 @@ function calculateGaps(longRunScore, volumeScore, paceScore, freqScore, d) {
   if (paceLost > 2) {
     gaps.push({
       points: Math.round(paceLost),
-      action: "Improve easy pace toward target range",
+      action: d.recentPace === null ? "Log a run to establish a recent pace" : "Improve easy pace toward target range",
       priority: paceLost,
-      tip: "Pace usually improves naturally as volume increases - don't force it"
+      tip: d.recentPace === null ? "Any run in the last 4 weeks gives this component real data" : "Pace usually improves naturally as volume increases - don't force it"
     });
   }
 
@@ -3302,13 +3303,19 @@ function kpiCard(label, value, unit, delta, deltaUnit, goodWhenDown, sub) {
     </div>`;
 }
 
+// Newest scans may omit visceral fat - use the latest scan that actually has a reading
+const lastVflScan = [...scans].reverse().find(s => s.vfl != null);
+
 document.getElementById('inbody-kpi-grid').innerHTML =
   kpiCard('Weight', lastScan.weight, 'kg', lastScan.weight - firstScan.weight, ' kg', null, `from ${firstScan.weight} kg start`) +
   kpiCard('Skeletal Muscle', lastScan.smm, 'kg', lastScan.smm - firstScan.smm, ' kg', false, `from ${firstScan.smm} kg start`) +
   kpiCard('Body Fat Mass', lastScan.bfm, 'kg', lastScan.bfm - firstScan.bfm, ' kg', true, `from ${firstScan.bfm} kg start`) +
   kpiCard('Body Fat %', lastScan.pbf, '%', lastScan.pbf - firstScan.pbf, '%', true, `from ${firstScan.pbf}% start`) +
   kpiCard('BMI', lastScan.bmi, '', lastScan.bmi - firstScan.bmi, '', true, `from ${firstScan.bmi} start`) +
-  kpiCard('Visceral Fat', 'Level ' + lastScan.vfl, '', lastScan.vfl - firstScan.vfl, '', true, `from Level ${firstScan.vfl} - Normal range (1-9)`);
+  (lastVflScan
+    ? kpiCard('Visceral Fat', 'Level ' + lastVflScan.vfl, '', lastVflScan.vfl - firstScan.vfl, '', true,
+        `from Level ${firstScan.vfl} - Normal range (1-9)` + (lastVflScan === lastScan ? '' : ` - last measured ${lastVflScan.date}`))
+    : kpiCard('Visceral Fat', '-', '', 0, '', null, 'No measurement recorded'));
 
 // ========== CHART DEFAULTS (light theme, matching the dashboard) ==========
 Chart.defaults.font.size = 11;
