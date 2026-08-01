@@ -1992,13 +1992,45 @@ function renderTables() {
 // ========== RENDER GOALS ==========
 // Goals only. A card belongs here if it carries a target with a live status; the
 // narrative, program detail and open questions live in Notion, not on the dashboard.
-// When goals are agreed, replace the empty state with a .goals-grid of .goal-card blocks
-// and put the month back in the section label ("August 2026 Goals").
+// When a month has no agreed targets, render the empty state instead:
+//   <div class="section-label">Goals</div>
+//   <p class="goals-empty">Currently no goals are set up.</p>
+// August 2026: calibrated 01/08 from the logged sets - log-linear trend on session-top
+// e1RMs, slope shrunk for low-sample lifts, simulated over the 3.4 trainable weeks August
+// has (Greece 03-06/08 out). Targets aimed at a ~40-55% hit rate; every target is a set
+// not already achieved. Update the Status cell as each lands.
 function renderGoals() {
   const container = document.getElementById('goals');
   container.innerHTML = `
-    <div class="section-label">Goals</div>
-    <p class="goals-empty">Currently no goals are set up.</p>
+    <div class="section-label">August 2026 Goals <span class="count">8 targets - expect ~4</span></div>
+    <div class="goals-grid">
+      <div class="goal-card">
+        <h3><span class="goal-tag goal-tag-primary">Anchors</span> Bench / OHP / RDL</h3>
+        <table>
+          <tr><th>Lift</th><th>Target</th><th>Status</th></tr>
+          <tr><td>Bench Press</td><td><strong>100 &times; 1</strong><br><span style="color:var(--muted);font-size:0.85em;">from 97.5 &times; 1</span></td><td style="color:var(--muted);">Pending &middot; 67%</td></tr>
+          <tr><td>Overhead Press</td><td><strong>55 &times; 4</strong> or <strong>50 &times; 7</strong><br><span style="color:var(--muted);font-size:0.85em;">from 50 &times; 5 - either clears the 8-month plateau</span></td><td style="color:var(--muted);">Pending &middot; 31%</td></tr>
+          <tr><td>Romanian Deadlift</td><td><strong>145 &times; 5</strong><br><span style="color:var(--muted);font-size:0.85em;">from 140 &times; 5</span></td><td style="color:var(--muted);">Pending &middot; 39%</td></tr>
+        </table>
+      </div>
+      <div class="goal-card">
+        <h3><span class="goal-tag goal-tag-secondary">Back</span> Row / Pulldown</h3>
+        <table>
+          <tr><th>Lift</th><th>Target</th><th>Status</th></tr>
+          <tr><td>Seated Row</td><td><strong>105 &times; 7</strong><br><span style="color:var(--muted);font-size:0.85em;">from 100 &times; 7 - check 105 exists on this machine</span></td><td style="color:var(--muted);">Pending &middot; 43%</td></tr>
+          <tr><td>Lat Pulldown</td><td><strong>105 &times; 6</strong><br><span style="color:var(--muted);font-size:0.85em;">from 102.5 &times; 6</span></td><td style="color:var(--muted);">Pending &middot; 52%</td></tr>
+        </table>
+      </div>
+      <div class="goal-card">
+        <h3><span class="goal-tag goal-tag-nice">Accessories</span> Legs / Arms</h3>
+        <table>
+          <tr><th>Lift</th><th>Target</th><th>Status</th></tr>
+          <tr><td>Leg Extension</td><td><strong>138 &times; 8</strong><br><span style="color:var(--muted);font-size:0.85em;">from 138 &times; 7 - stack maxed, so the rep is the goal</span></td><td style="color:var(--muted);">Pending &middot; 39%</td></tr>
+          <tr><td>Single Arm Triceps Pushdown</td><td><strong>13.5 &times; 7</strong><br><span style="color:var(--muted);font-size:0.85em;">from 12.5 &times; 8</span></td><td style="color:var(--muted);">Pending &middot; 46%</td></tr>
+          <tr><td>Reverse Curl</td><td><strong>28.75 &times; 7</strong><br><span style="color:var(--muted);font-size:0.85em;">from 27.5 &times; 6</span></td><td style="color:var(--muted);">Pending &middot; 48%</td></tr>
+        </table>
+      </div>
+    </div>
   `;
 }
 
