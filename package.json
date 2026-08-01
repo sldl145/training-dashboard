@@ -1,0 +1,13 @@
+{
+  "name": "training-dashboard",
+  "private": true,
+  "description": "Pawel's training dashboard - validation tooling (the dashboard itself is index.html, no build step)",
+  "scripts": {
+    "validate": "node scripts/validate.js",
+    "smoke": "node scripts/smoke.js",
+    "check": "node scripts/validate.js && node scripts/smoke.js"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.62.1"
+  }
+}

@@ -6,28 +6,71 @@ Live at: https://sldl145.github.io/training-dashboard/ (GitHub Pages, serves `ma
 This repo is updated **directly by Claude Code sessions** — there is no local working copy
 anywhere else. Pushing `main` is publishing.
 
-## The update workflow
+## The update workflow (single session, post-gym)
 
-When asked to "update the dashboard" (typically after a gym session):
+When Pawel opens a session after training ("update dashboard", "gym session done", etc.),
+one conversation does the whole pipeline — debrief, Notion journal, dashboard, publish:
 
-1. **Read Notion decisions.** Go to the Gym Hub page → current month's Training Log →
-   list its session child pages → collect **unchecked items in each `Decisions` section**.
-   Those are the literal work orders. Also read `Flags` and `Context` for note-writing context.
-2. **Fetch ground truth from Hevy** (see Hevy API below). Cross-check every number in the
-   Decisions against the actual Hevy sets. **Hevy always wins** — the PT logs into Hevy;
-   any verbal/PT number that contradicts Hevy sets gets the Hevy value plus a correction
+1. **Debrief.** Ask the post-session questions (how it went, what the PT said, any pain
+   signals, anything unusual) — see `docs/DEBRIEF.md` once ported; until then follow the
+   session template on the Gym Hub page. Write the **Notion session page** as a child of
+   the current month's Training Log: title `Session #NNN - DD/MM/YYYY` (next number in
+   sequence), sections Journal / Flags / Decisions / Context. Journal is written in
+   Pawel's voice from what he shared. Decisions are the literal dashboard work orders.
+   **Notion Dedup Rule applies** (below).
+2. **Collect decisions.** The ones just written, plus any still-unchecked Decisions on
+   earlier session pages (e.g. from a Chat-side debrief — Chat remains a valid fallback).
+3. **Fetch ground truth from Hevy** (see Hevy API below). Cross-check every number
+   against the actual Hevy sets. **Hevy always wins** — the PT logs into Hevy; any
+   verbal/PT number that contradicts Hevy sets gets the Hevy value plus a correction
    annotation (format below).
-3. **Apply targeted edits to `index.html`.** Never regenerate the file or a whole data
+4. **Apply targeted edits to `index.html`.** Never regenerate the file or a whole data
    block wholesale — use surgical edits only. Bump the `TODAY` constant (the ONLY date
    constant to update; everything else derives from it).
-4. **Validate:** `node scripts/validate.js` must exit 0 (warnings are OK, errors are not).
-5. **Commit and push `main` directly** (no PRs, no side branches). Commit message
+5. **Validate:** `node scripts/validate.js` AND `node scripts/smoke.js` must both pass
+   (validate: warnings OK, errors are not; smoke: real-browser render check).
+6. **Commit and push `main` directly** (no PRs, no side branches). Commit message
    convention: `Deploy YYYY-MM-DD HH:MM` with a body summarizing what changed.
-6. **Check off the executed Decisions** in the Notion session pages.
+7. **Check off the executed Decisions** in the Notion session pages (on the same page
+   where each was found).
 
 This workflow assumes an interactive session (the Notion connector is not available in
 headless/scheduled runs). If Hevy or Notion is unreachable, say so and fall back to data
 pasted into the chat — do not guess numbers.
+
+## House rules
+
+- **Notion Dedup Rule.** Before ANY Notion write (session page, Running Log entry,
+  Scan Log row), check for an existing entry keyed on the date. Identical → skip.
+  Different values → flag to Pawel, do not overwrite. Never silently duplicate or clobber.
+- **2-week inactivity rule.** If an exercise has no data for 2 consecutive weeks, never
+  remove it on your own — ask Pawel first. Exception: an explicit PT/Pawel decision
+  (recorded in a session page) bypasses the ask.
+- **Preacher curl quirk.** Hevy shows 37 kg for what is physically 37.5 kg — always log 37.5.
+- **Bench 11/02/2026 dual entry** (two rows, same date) is a confirmed one-off historical
+  artifact — do not "fix" it, and do not repeat the pattern.
+- **Push via git CLI only.** Never move `index.html` content through MCP file-push tools —
+  large files get silently truncated in transit.
+
+## Running data (Running tab)
+
+Runs arrive two ways, dedup on date across both:
+- **Apple Fitness screenshots** pasted into the session → extract date, distance, duration,
+  avg/max HR, calories, type → append to the `runs` array AND write the Notion Running Log
+  entry (dedup first).
+- **Notion Running Log entries** already written by Chat → pull any not yet in `runs`.
+The validator enforces `avgPaceSec = durationSec / distance` (±2s). `elevation: null`
+doubles as the indoor marker — set it for outdoor runs when known.
+
+## InBody scans (Body Composition tab)
+
+Scan photo pasted into the session →
+1. Extract: Scan Date, Score, Weight, SMM, BFM, PBF, BMI, VFL, WHR (VFL/WHR may be absent → `null`).
+2. Write the Notion Scan Log row (**dedup on Scan Date**; properties listed in Notion IDs below).
+3. **Attach the scan image to that Notion row** — images live in Notion, NEVER in this
+   public repo.
+4. Append to `scans[]` in `index.html` (date format `DD/MM/YYYY`). Header, hero, KPIs,
+   charts, and table all derive from the array.
 
 ## Notion page IDs
 
@@ -84,17 +127,19 @@ with the heavier single still in `sets` — only when the session note explicitl
 - `EXERCISE_ORDER` (in the script) controls chart order; lifts absent from it get a NEW
   badge. When a lift stops being new, add it to `EXERCISE_ORDER`.
 
-### Other tabs
-- `runs`: `avgPaceSec` must equal `durationSec / distance` (±2s). `elevation: null`
-  currently doubles as the indoor marker — set it for outdoor runs when known.
-- `scans` (InBody): date format `DD/MM/YYYY`; `vfl`/`whr` may be `null` (UI falls back
-  to the last scan that has a reading).
+### Goals cards
 - Goals cards (`renderGoals`) are hand-edited HTML — monthly cadence, archive the old
-  month's card block rather than deleting (see `_JUNE_ARCHIVE` pattern).
+  month's card block rather than deleting (see `_JUNE_ARCHIVE` pattern). Update statuses
+  when targets are hit. (Run/scan data conventions: see their sections above.)
 
 ## Verification
 
-- `node scripts/validate.js` — data consistency + inline-script syntax. Must pass.
+- `node scripts/validate.js` — data consistency + inline-script syntax. Must pass (exit 0).
+- `node scripts/smoke.js` — renders the page in headless Chromium, clicks all three tabs,
+  fails on any console/page error or undrawn chart. Must pass. (First run in a fresh
+  container: `npm install` to get playwright-core; browsers are pre-installed at
+  `/opt/pw-browsers` — never run `playwright install`.)
+- Goals cards, `EXERCISE_ORDER`, and other hand-edited HTML: eyeball the rendered page.
 - After pushing, the live page updates within ~a minute:
   https://sldl145.github.io/training-dashboard/ — spot-check the tab you touched.
 
