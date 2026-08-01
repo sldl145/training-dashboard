@@ -48,6 +48,9 @@ pasted into the chat — do not guess numbers.
   - `GET /v1/workouts?page=1&pageSize=10` — newest workouts, paginated
   - `GET /v1/workouts/events?since=<ISO date>` — changes since a date
 - If the key is missing or the API unreachable, ask for a pasted export instead.
+- Note: `api.hevyapp.com` must be allowed in the Claude Code environment's network
+  policy — as of 01/08/2026 it was blocked (curl returned no response). Until Pawel
+  allowlists it (environment settings → network), use the pasted-export fallback.
 
 ## Data conventions (the important part)
 
