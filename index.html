@@ -152,6 +152,11 @@
     gap: 14px;
     margin-bottom: 28px;
   }
+  .goals-empty {
+    color: var(--muted);
+    font-size: 0.9em;
+    margin: 0 0 28px;
+  }
   .goal-card {
     background: var(--card);
     border: 1px solid var(--border);
@@ -1985,183 +1990,17 @@ function renderTables() {
 }
 
 // ========== RENDER GOALS ==========
+// Goals only. A card belongs here if it carries a target with a live status; the
+// narrative, program detail and open questions live in Notion, not on the dashboard.
+// When goals are agreed, replace the empty state with a .goals-grid of .goal-card blocks
+// and put the month back in the section label ("August 2026 Goals").
 function renderGoals() {
   const container = document.getElementById('goals');
   container.innerHTML = `
-    <div class="section-label">August 2026 Goals <span class="count">Targets to be agreed with the PT - baselines below</span></div>
-    <div class="goals-grid">
-      <div class="goal-card">
-        <h3><span class="goal-tag goal-tag-primary">Program</span> July-September block</h3>
-        <table>
-          <tr><th>Element</th><th>Detail</th><th>Status</th></tr>
-          <tr><td>Runs to</td><td>Half marathon 20/09/2026</td><td style="color:var(--muted);">Month 2 of 3</td></tr>
-          <tr><td>Strength anchors</td><td>Bench Press, Overhead Press, Romanian Deadlift</td><td style="color:var(--muted);">Holding - RDL replaced SLDL 13/07</td></tr>
-          <tr><td>Schedule</td><td>Wednesday + Friday 07:00, Sunday 09:00</td><td style="color:var(--muted);">Changed 29/07 (#120, Pawel's call) to clear evenings</td></tr>
-          <tr><td>Away</td><td>Greece 03/08-06/08</td><td style="color:var(--orange);">No gym access assumed - costs roughly one bench opportunity</td></tr>
-        </table>
-      </div>
-      <div class="goal-card">
-        <h3><span class="goal-tag goal-tag-primary">Primary watch</span> Bench 100 kg</h3>
-        <table>
-          <tr><th>Metric</th><th>Read</th><th>Status</th></tr>
-          <tr><td>True max estimate</td><td>~99-101 kg (uncertain)</td><td style="color:var(--green);font-weight:700;">Re-set 31/07 (#121) off 97.5 &times; 1 @ RPE 8.5 (weight + 1RM PR), anchored by 95 &times; 1 @ RPE 6 immediately before. Retires the 94-95 kg read from #117. Caution: RPE-to-1RM runs optimistic at the top for Pawel</td></tr>
-          <tr><td>P(100 kg &lt; 01/09)</td><td>~65%</td><td style="color:var(--orange);">Up from 30% (31/07). Binding constraint is now opportunity, not capacity: ~4-5 fresh-first bench days before 01/09, and the PT has to program a heavy single on one of them</td></tr>
-          <tr><td>P(100 kg &lt; 01/11)</td><td>~92%</td><td style="color:var(--orange);">Up from 80% (31/07). October bench-focus window off a 99-101 base</td></tr>
-          <tr><td>Open</td><td>Sunday 02/08 diagnostic</td><td style="color:var(--orange);">Contaminated by the 31/07 heavy bench (#120 flagged it) - repurposing is the PT's call</td></tr>
-        </table>
-      </div>
-      <div class="goal-card">
-        <h3><span class="goal-tag goal-tag-secondary">Baselines</span> Entering August</h3>
-        <table>
-          <tr><th>Anchor</th><th>Standing at 31/07</th><th>Read</th></tr>
-          <tr><td>Bench Press</td><td>97.5 &times; 1, backoff 80 &times; 5</td><td style="color:var(--green);font-weight:700;">Weight + 1RM PR (#121)</td></tr>
-          <tr><td>Overhead Press</td><td>50 &times; 5</td><td style="color:var(--muted);">Second-slot read; matches #120's fresh-first opener</td></tr>
-          <tr><td>Romanian Deadlift</td><td>140 &times; 5</td><td style="color:var(--green);font-weight:700;">Baseline confirmed twice (#115, #121)</td></tr>
-          <tr><td>Seated Row</td><td>100 &times; 7</td><td style="color:var(--green);font-weight:700;">Rep PR at the 100 kg level (#121)</td></tr>
-          <tr><td>Body composition</td><td>PBF 18.4%, SMM 42.9 kg</td><td style="color:var(--muted);">04/07 scan - next scan due</td></tr>
-        </table>
-      </div>
-    </div>
+    <div class="section-label">Goals</div>
+    <p class="goals-empty">Currently no goals are set up.</p>
   `;
 }
-
-// Superseded month blocks, kept verbatim (house rule: archive, never delete).
-// Rollover: move the current block in here under its month key, then write the new one above.
-const GOAL_ARCHIVE = {
-  "June 2026": `
-    <div class="goals-grid">
-      <div class="goal-card">
-        <h3><span class="goal-tag goal-tag-primary">Primary 1</span> Hack Squat</h3>
-        <table>
-          <tr><th>Tier</th><th>Target</th><th>Status</th></tr>
-          <tr><td>Primary</td><td>190 kg &times; 4</td><td style="color:var(--green); font-weight:700;">&#10003; DONE &middot; 190.1&times;4 on 08/06 (#101) - full rep target at goal weight delivered, the 4th rep that was 'commitment not strength' on 06/06 (190.1&times;3) came good &middot; 175.1&times;7 backoff</td></tr>
-          <tr><td>Stretch</td><td>195 kg &times; 3</td><td style="color:var(--muted);">Weight already touched as a single 01/06 - reps to follow</td></tr>
-        </table>
-      </div>
-      <div class="goal-card">
-        <h3><span class="goal-tag goal-tag-primary">Primary 2</span> Bench Press <span style="font-size:0.7em;color:var(--muted);">(fresh-first)</span></h3>
-        <table>
-          <tr><th>Tier</th><th>Target</th><th>Status</th></tr>
-          <tr><td>Primary</td><td>82.5 kg &times; 4 fresh</td><td style="color:var(--green); font-weight:700;">&#10003; DONE &middot; 29/06 (#109) 82.5&times;4 fresh-first - the literal rep target at goal weight, delivered as the deload-day top working set (85&times;1 opener, 80&times;5 @ RPE 9 backoff). Strength was already beyond it: 23/06 (#107) 95&times;1 fresh-first, strongest read of the year, e1RM 95. Deload rep block now underway (PT plan 23/06: pull the 80 kg base up, then a 97 kg attempt)</td></tr>
-          <tr><td>Stretch</td><td>85 kg &times; 3</td><td style="color:var(--muted);">In scope on a clean month &middot; chase under normal cadence</td></tr>
-        </table>
-      </div>
-      <div class="goal-card">
-        <h3><span class="goal-tag goal-tag-primary">Primary 3</span> Overhead Press</h3>
-        <table>
-          <tr><th>Tier</th><th>Target</th><th>Status</th></tr>
-          <tr><td>Primary</td><td>55 kg &times; 2</td><td style="color:var(--green); font-weight:700;">&#10003; DONE &middot; 55&times;2 @ RPE 7 on 03/06 (#99) - double-PR, OHP-first/order-valid. Hit on day 2 of the month</td></tr>
-          <tr><td>Stretch</td><td>55 kg &times; 3</td><td style="color:var(--green); font-weight:700;">&#10003; CLEARED on load &middot; 60&times;1 @ RPE 9 (06/06 #100) exceeds 55&times;3 on absolute load and e1RM, achieved pre-fatigued &middot; caveat: hard single, the 55&times;3 rep target as written was never performed &middot; 10/06 (#102) attempt missed (cold start + 36h post-bench) - rep target next tried fresh, OHP-first</td></tr>
-        </table>
-      </div>
-      <div class="goal-card">
-        <h3><span class="goal-tag goal-tag-secondary">Recovery 1</span> Machine Row (Serratus)</h3>
-        <table>
-          <tr><th>Stage</th><th>Target</th><th>Status</th></tr>
-          <tr><td>June target</td><td>100 kg &times; 6</td><td style="color:var(--green); font-weight:700;">&#10003; DONE &middot; 100&times;6 on 21/06 (#106) on the new-gym machine, now the row line of record (SATS cable retired with the gym move) &middot; full pre-injury-level recovery on the row</td></tr>
-          <tr><td>Stretch</td><td>100 kg &times; 7 (pre-injury peak, 16/03)</td><td style="color:var(--muted);">Full restoration of the pre-injury number</td></tr>
-        </table>
-      </div>
-      <div class="goal-card" style="border-color:#d97706;background:#fffbeb;">
-        <h3><span class="goal-tag goal-tag-secondary" style="background:#16a34a;color:#fff;">Recovery 2 - FULL CLIMB (closed)</span> SLDL (Serratus/Scapula)</h3>
-        <p style="font-size:0.85em;color:#166534;margin:0 0 8px 0;line-height:1.45;"><strong>Full climb complete and injury complex closed (23/06).</strong> Pawel took the full climb against Claude's recommended 130 cap (dissent recorded) and self-managed without booking physio - the call came good. Three clean loaded sessions (#105 140&times;6, #106, #107 145&times;5) all at 0/10, the last back at the pre-injury peak with a clean rack. The 03/06 stop-signal mechanism (extension-with-rotation on the rack) was not reproduced. Serratus and scapula treated as one complex, both now resolved. <strong>All lifts clean.</strong></p>
-        <table>
-          <tr><th>Stage</th><th>Target</th><th>Status</th></tr>
-          <tr><td>June target</td><td>140 kg &times; 5, zero scapula signal</td><td style="color:var(--green);font-weight:700;">&#10003; DONE - 18/06 (#105) 140&times;6 at 0/10 throughout (incl. rack/descent), +1 rep over target</td></tr>
-          <tr><td>Stretch</td><td>145 kg &times; 5 (pre-injury peak, 16/03)</td><td style="color:var(--green);font-weight:700;">&#10003; DONE - 23/06 (#107) 145&times;5 fully clean (0/10 rack + load), back at the pre-injury peak. Stop-signal protocol closed</td></tr>
-        </table>
-      </div>
-      <div class="goal-card">
-        <h3><span class="goal-tag goal-tag-cardio">Cardio - KEYSTONE</span> Running (HM prep)</h3>
-        <table>
-          <tr><th>Goal</th><th>Target</th><th>Status</th></tr>
-          <tr><td>Volume</td><td>4 runs in June</td><td style="color:var(--muted);">0/4 &middot; the goal that cannot slip again (May = 0 runs)</td></tr>
-          <tr><td>Build distance</td><td>~4 &rarr; 5 &rarr; 6 &rarr; 7 km</td><td style="color:var(--muted);">Establish base + logging habit &middot; limiter is physiological, not logistical</td></tr>
-          <tr><td>Race day</td><td>Half marathon 20/09/2026</td><td style="color:var(--muted);">~16 weeks runway from 01/06</td></tr>
-        </table>
-      </div>
-      <div class="goal-card">
-        <h3><span class="goal-tag goal-tag-body">Body Composition</span> Carried (unverified ~6 wk)</h3>
-        <table>
-          <tr><th>Metric</th><th>Target</th><th>Status</th></tr>
-          <tr><td>PBF</td><td>&lt; 18.0%</td><td style="color:var(--orange);">18.3% (06/06 scan) - 0.3pp above the line, up from 17.1% (18/04)</td></tr>
-          <tr><td>SMM</td><td>&gt; 42.0 kg</td><td style="color:var(--green); font-weight:700;">42.5 kg (06/06 scan) - condition holds, all-time high</td></tr>
-          <tr><td>Re-verify</td><td>&ge; 1 clean InBody in June</td><td style="color:var(--green); font-weight:700;">&#10003; DONE - scanned 06/06, ~10:00 pre-workout (machine clock wrong, showed 16:58). Same morning state as the 18/04 baseline - directly comparable. SMM holds, PBF missed by 0.3pp</td></tr>
-        </table>
-      </div>
-      <div class="goal-card" style="background:#f8fafc;border-color:#e2e8f0;">
-        <h3 style="color:var(--muted);">Goal Philosophy</h3>
-        <p style="font-size:0.85em;color:var(--muted);margin:0;line-height:1.5;">
-          Same trend-based calibration as May (log-linear on session-top e1RMs, P(hit) in the 'try hard, not an easy win' band), with two June-specific adjustments: a clean month - no work events, travel, or alcohol - justifies higher lift ambition (bench stretch 85&times;3, OHP 55&times;2); running held flat because its limiter is physiological (deconditioned running legs) not logistical. SLDL raised from the May hold to a full climb on Pawel's explicit call against the cautious 130 kg cap - dissent recorded. 7 goals; hitting 5/7 constitutes a strong June.
-        </p>
-      </div>
-    </div>
-  `,
-  "July 2026": `
-    <div class="section-label">July 2026 Goals <span class="count">New Jul-Sep program - targets deferred ~1 week (Pawel's call, 01/07)</span></div>
-    <div class="goals-grid">
-      <div class="goal-card" style="border-color:#d97706;background:#fffbeb;">
-        <h3><span class="goal-tag goal-tag-primary" style="background:#d97706;">Pending</span> July targets deferred</h3>
-        <table>
-          <tr><th>Item</th><th>Plan</th><th>Status</th></tr>
-          <tr><td>Goal-setting</td><td>Set once the full Pawel 1/2/3 rotation is seen at least once</td><td style="color:var(--orange);font-weight:700;">Deferred ~1 week - calibrate off the real new structure, not one session</td></tr>
-          <tr><td>Bench input</td><td>Deload-to-97 kg question folds into these goals</td><td style="color:var(--green);font-weight:700;">&#10003; RESOLVED - PT called the 97 kg attempt on 17/07 (#117); deload-to-97 plan is active, not maintenance</td></tr>
-        </table>
-      </div>
-      <div class="goal-card">
-        <h3><span class="goal-tag goal-tag-primary">New Program</span> July-September block</h3>
-        <table>
-          <tr><th>Element</th><th>Detail</th><th>Status</th></tr>
-          <tr><td>Duration</td><td>01/07 &rarr; half marathon 20/09</td><td style="color:var(--muted);">Week 1 underway (#110, 01/07)</td></tr>
-          <tr><td>Strength anchors</td><td>Bench, OHP, Romanian Deadlift (replaced SLDL)</td><td style="color:var(--muted);">RDL swapped in 13/07</td></tr>
-          <tr><td>Reallocation</td><td>Hack squat deloaded (~190 &rarr; ~162), lat pulldown + reverse curl added, machine/accessory shift</td><td style="color:var(--muted);">Recovery reserved for the running build</td></tr>
-          <tr><td>Schedule</td><td>Wednesday + Friday 07:00, Sunday 09:00 (Pawel's change, 29/07 #120 - deliberate, to clear evenings)</td><td style="color:var(--orange);">Away 03/08-06/08 (Greece), no gym access assumed</td></tr>
-        </table>
-      </div>
-      <div class="goal-card">
-        <h3><span class="goal-tag goal-tag-secondary">Open question</span> Bench 100 kg watch</h3>
-        <table>
-          <tr><th>Metric</th><th>Read</th><th>Status</th></tr>
-          <tr><td>True max estimate</td><td>~99-101 kg (31/07, uncertain)</td><td style="color:var(--green);font-weight:700;">Re-set 31/07 (#121) after 97.5 x 1 @ RPE 8.5 (weight + 1RM PR) with 95 x 1 @ RPE 6 immediately before (unlogged in Hevy, verbally reported - the anchoring datapoint). Retires the 94-95 kg estimate from 17/07. Caution: RPE-to-1RM conversion runs optimistic at the top for Pawel</td></tr>
-          <tr><td>P(100 kg &lt; 01/09)</td><td>~65%</td><td style="color:var(--orange);">Re-rated up from 30% on 31/07 (#121). Capacity is no longer the binding constraint - opportunity count is: ~4-5 fresh-first bench days left before 01/09 (Greece 03/08-06/08 removes a week), and PT has to program a heavy single on one of them</td></tr>
-          <tr><td>P(100 kg &lt; 01/11)</td><td>~92%</td><td style="color:var(--orange);">Re-rated up from 80% on 31/07 (#121). October bench-focus window off a 99-101 base</td></tr>
-          <tr><td>Re-rate trigger</td><td>02/08 trigger spent</td><td style="color:var(--muted);">Three of four conditions met 31/07 (bench first, home gym, PT present); day 9-10 post-return missed by two days but the session produced better evidence than the planned 85 x 5 diagnostic. Sunday 02/08 diagnostic contaminated by 31/07 heavy bench as #120 flagged - repurposing is PT's call</td></tr>
-          <tr><td>PT question</td><td>Does deload-to-97 stay active, or shift to maintenance as running climbs?</td><td style="color:var(--green);font-weight:700;">&#10003; RESOLVED 17/07 - PT called the 97 attempt, plan active</td></tr>
-        </table>
-      </div>
-      <div class="goal-card">
-        <h3><span class="goal-tag goal-tag-cardio">Cardio - KEYSTONE</span> Running (HM prep)</h3>
-        <table>
-          <tr><th>Goal</th><th>Target</th><th>Status</th></tr>
-          <tr><td>Race day</td><td>Half marathon 20/09/2026</td><td style="color:var(--muted);">~11.5 weeks out from 01/07</td></tr>
-          <tr><td>Build</td><td>Volume target to be set with July goals</td><td style="color:var(--muted);">Pending - the program is built around this</td></tr>
-        </table>
-      </div>
-      <div class="goal-card">
-        <h3><span class="goal-tag goal-tag-body">Body Composition</span> Carried</h3>
-        <table>
-          <tr><th>Metric</th><th>Last</th><th>Status</th></tr>
-          <tr><td>PBF</td><td>18.3% (06/06 scan)</td><td style="color:var(--muted);">Target to be reset with July goals</td></tr>
-          <tr><td>SMM</td><td>42.5 kg (06/06 scan)</td><td style="color:var(--muted);">All-time high - hold through the running build</td></tr>
-        </table>
-      </div>
-      <div class="goal-card" style="border-color:#16a34a;background:#f0fdf4;">
-        <h3><span class="goal-tag goal-tag-secondary" style="background:#16a34a;color:#fff;">Injury status</span> Start of July</h3>
-        <table>
-          <tr><th>Site</th><th>State</th><th>Status</th></tr>
-          <tr><td>Right scapula</td><td>Mild, self-managing (onset 16/05)</td><td style="color:var(--orange);">SLDL retired (replaced by RDL); stop-signal protocol closed (23/06), self-managing</td></tr>
-          <tr><td>Right serratus</td><td>Level 1 strain, prior</td><td style="color:var(--green);font-weight:700;">Mild, not affecting training</td></tr>
-        </table>
-      </div>
-      <div class="goal-card" style="background:#f8fafc;border-color:#e2e8f0;">
-        <h3 style="color:var(--muted);">Goal Philosophy</h3>
-        <p style="font-size:0.85em;color:var(--muted);margin:0;line-height:1.5;">
-          First month of the new July-September program (01/07 &rarr; half marathon 20/09). July targets are deliberately deferred ~1 week (Pawel's call, 01/07) so they are calibrated off the full new structure - all of Pawel 1/2/3 seen at least once - not a single session. Bench/OHP/Romanian Deadlift stay the strength anchors (RDL replaced SLDL 13/07); lower-body machine load is reallocated downward to reserve recovery for the running build. Goals will be set with the PT bench deload-to-97 question - resolved 17/07 (PT called the 97 kg attempt; plan active, not shifted to maintenance) - as an input.
-        </p>
-      </div>
-    </div>
-  `,
-};
 
 // ========== RENDER GRAVEYARD ==========
 function renderGraveyard() {

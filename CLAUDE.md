@@ -149,14 +149,20 @@ with the heavier single still in `sets` — only when the session note explicitl
   badge. When a lift stops being new, add it to `EXERCISE_ORDER`.
 
 ### Goals cards
-- Goals cards (`renderGoals`) are hand-edited HTML — monthly cadence, archive the old
-  month's card block rather than deleting: move it into the `GOAL_ARCHIVE` object under
-  its month key (`"July 2026": \`...\``), then write the new month's block in
-  `renderGoals`. Update statuses when targets are hit.
-  (Run/scan data conventions: see their sections above.)
-- Keep the live block lean. A goal card earns its place by holding a target with a live
-  status; drop cards that only restate another tab (Running, Body Composition) or that
-  have gone all-resolved — the archive is where that history lives.
+- **The Goals section shows goals and nothing else** (Pawel's call, 01/08). A card earns
+  its place only by carrying a target with a live status. Program descriptions, open
+  questions, PT decisions, probability watches, philosophy and month narrative do **not**
+  go here — they live in Notion.
+- Do not restate another tab. Running targets are computed live by `renderRunningGoals`
+  on the Running tab; body composition lives on its own tab; injury state is the Injury
+  Log section further down the Training tab.
+- When no goals are agreed for the current month, `renderGoals` renders the empty state
+  (`Currently no goals are set up.`) — do not backfill it with context to look full.
+- Goals cards (`renderGoals`) are hand-edited HTML, monthly cadence. On rollover: delete
+  the old month's cards and write the new month's; put the month back in the section
+  label (`August 2026 Goals`). Superseded months are **not** archived in `index.html` —
+  git history and the Notion session pages are the record. Update statuses when targets
+  are hit. (Run/scan data conventions: see their sections above.)
 
 ## Verification
 
