@@ -150,8 +150,13 @@ with the heavier single still in `sets` — only when the session note explicitl
 
 ### Goals cards
 - Goals cards (`renderGoals`) are hand-edited HTML — monthly cadence, archive the old
-  month's card block rather than deleting (see `_JUNE_ARCHIVE` pattern). Update statuses
-  when targets are hit. (Run/scan data conventions: see their sections above.)
+  month's card block rather than deleting: move it into the `GOAL_ARCHIVE` object under
+  its month key (`"July 2026": \`...\``), then write the new month's block in
+  `renderGoals`. Update statuses when targets are hit.
+  (Run/scan data conventions: see their sections above.)
+- Keep the live block lean. A goal card earns its place by holding a target with a live
+  status; drop cards that only restate another tab (Running, Body Composition) or that
+  have gone all-resolved — the archive is where that history lives.
 
 ## Verification
 
