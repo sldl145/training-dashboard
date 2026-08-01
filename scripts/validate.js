@@ -84,9 +84,32 @@ scans.forEach(s => {
     warnings.push(`scan ${s.date}: pbf ${s.pbf}% inconsistent with bfm/weight = ${(s.bfm / s.weight * 100).toFixed(1)}%`);
 });
 
-// TODAY must not be stale vs the newest data point
+// ---- Numeric sanity: NaN/non-numeric values would silently break charts ----
+const isNum = v => typeof v === 'number' && !Number.isNaN(v);
+for (const [name, ex] of Object.entries(exercises)) {
+  ex.data.forEach(d => {
+    if (!isNum(d.weight) || !isNum(d.bestReps)) errors.push(`${name} ${d.date}: non-numeric weight/bestReps`);
+    (d.sets || []).forEach((s, i) => { if (!isNum(s.w) || !isNum(s.r)) errors.push(`${name} ${d.date}: non-numeric set ${i + 1}`); });
+  });
+}
+runs.forEach(r => { if (!isNum(r.distance) || !isNum(r.durationSec) || !isNum(r.avgPaceSec)) errors.push(`run ${r.date}: non-numeric distance/duration/pace`); });
+scans.forEach(s => { ['score', 'weight', 'smm', 'bfm', 'pbf', 'bmi'].forEach(k => { if (!isNum(s[k])) errors.push(`scan ${s.date}: non-numeric ${k}`); }); });
+
+// ---- Button wiring: every onclick must reach a real global function ----
+// (ported from the legacy validator - this is the check that would have caught a broken PDF export)
+const onclickFns = [...new Set([...src.matchAll(/onclick="([a-zA-Z_$][\w$]*)\s*\(/g)].map(m => m[1]))];
+onclickFns.forEach(fn => {
+  const topLevel = new RegExp('^function ' + fn + '\\b', 'm').test(script);
+  const onWindow = new RegExp('window\\.' + fn + '\\s*=').test(script);
+  if (!topLevel && !onWindow) errors.push(`button "${fn}" points at a function the page cannot reach`);
+});
+
+// TODAY must not be stale vs the newest data point (lifts or runs)
 const today = (src.match(/const TODAY = "(\d{4}-\d{2}-\d{2})"/) || [])[1];
-const newest = Object.values(exercises).flatMap(e => e.data.map(d => d.date)).sort().pop();
+const newest = [
+  ...Object.values(exercises).flatMap(e => e.data.map(d => d.date)),
+  ...runs.map(r => r.date),
+].sort().pop();
 if (today && newest > today) errors.push(`TODAY (${today}) is older than the newest data point (${newest}) - bump it`);
 
 warnings.forEach(w => console.log('warn: ' + w));

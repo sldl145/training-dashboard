@@ -6,14 +6,26 @@ Live at: https://sldl145.github.io/training-dashboard/ (GitHub Pages, serves `ma
 This repo is updated **directly by Claude Code sessions** — there is no local working copy
 anywhere else. Pushing `main` is publishing.
 
+## When to read which doc
+
+| Trigger | Read first |
+|---------|-----------|
+| "update dashboard" after a gym session | This file (workflow below) + `docs/DEBRIEF.md` for the debrief |
+| Detailed data rules, Hevy name mapping, goals/graveyard mechanics | `docs/GYM_DASHBOARD_INSTRUCTIONS.md` |
+| New run data / Running tab changes | `docs/RUNNING_TAB_SPEC.md` |
+| New InBody scan | `docs/GYM_DASHBOARD_INSTRUCTIONS.md` (InBody section) |
+| Publishing questions, live-site issues | `docs/DEPLOYMENT.md` |
+| Monthly rollover | `docs/GYM_DASHBOARD_INSTRUCTIONS.md` (End-of-Month Checklist) |
+| How the whole system fits together | `README.md` (diagram — update it whenever the workflow changes) |
+
 ## The update workflow (single session, post-gym)
 
 When Pawel opens a session after training ("update dashboard", "gym session done", etc.),
 one conversation does the whole pipeline — debrief, Notion journal, dashboard, publish:
 
 1. **Debrief.** Ask the post-session questions (how it went, what the PT said, any pain
-   signals, anything unusual) — see `docs/DEBRIEF.md` once ported; until then follow the
-   session template on the Gym Hub page. Write the **Notion session page** as a child of
+   signals, anything unusual) — conversation guide and journal formats in
+   `docs/DEBRIEF.md`. Write the **Notion session page** as a child of
    the current month's Training Log: title `Session #NNN - DD/MM/YYYY` (next number in
    sequence), sections Journal / Flags / Decisions / Context. Journal is written in
    Pawel's voice from what he shared. Decisions are the literal dashboard work orders.
