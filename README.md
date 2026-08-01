@@ -58,7 +58,7 @@ flowchart TD
 | Path | Purpose |
 |------|---------|
 | `index.html` | The dashboard (Training / Body Composition / Running tabs) |
-| `workflows.html` | Visual "how to update" guide for the three flows — live at [/workflows.html](https://sldl145.github.io/training-dashboard/workflows.html) |
+| `workflows.html` | Visual "how to update" guide — gym session, scan, run, month rollover — live at [/workflows.html](https://sldl145.github.io/training-dashboard/workflows.html) |
 | `CLAUDE.md` | Session contract: workflow, house rules, conventions |
 | `docs/GYM_DASHBOARD_INSTRUCTIONS.md` | Full operating manual (Hevy mapping, data rules, goals, graveyard) |
 | `docs/DEBRIEF.md` | Post-session conversation guide + Notion journal formats |
