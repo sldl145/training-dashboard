@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/scripts/hevy-preflight.sh\" --hook",
+            "timeout": 20,
+            "statusMessage": "Checking Hevy API reachability"
+          }
+        ]
+      }
+    ]
+  }
+}

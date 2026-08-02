@@ -37,9 +37,12 @@ attach to their Notion Scan Log rows; they are never committed to this public re
 
 The primary lifting data source is the Hevy workout tracking app.
 
-- REST API, base `https://api.hevyapp.com`, header `api-key: $HEVY_API_KEY`
-  (see CLAUDE.md - key + network allowlist may still be pending; until then ask
-  Pawel to paste the workout and parse that instead).
+- REST API, base `https://api.hevyapp.com`, header `api-key: $HEVY_API_KEY`.
+  **If a call fails, follow the triage in CLAUDE.md (`## Hevy API` → "If a Hevy call
+  fails") before doing anything else** — a 401 and an egress denial have different causes
+  and different fixes, and neither justifies silently switching to a pasted export.
+  CLAUDE.md is the single source of truth for Hevy access; do not duplicate its status
+  claims here.
 - Equivalent of the old MCP calls: `GET /v1/workouts?page=1&pageSize=10` (newest
   first, max pageSize 10); a workout-count endpoint can detect new sessions.
 

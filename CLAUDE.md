@@ -53,7 +53,9 @@ one conversation does the whole pipeline — debrief, Notion journal, dashboard,
 
 This workflow assumes an interactive session (the Notion connector is not available in
 headless/scheduled runs). If Hevy or Notion is unreachable, say so and fall back to data
-pasted into the chat — do not guess numbers.
+pasted into the chat — do not guess numbers. For Hevy specifically, work through
+"If a Hevy call fails" below **before** falling back; an unexplained "it's blocked" is not
+an acceptable diagnosis.
 
 ## Month-end closeout (first session on or after the 1st)
 
@@ -124,11 +126,44 @@ Scan photo pasted into the session →
   - `GET /v1/workouts/events?since=<ISO datetime>&page=1&pageSize=10` — changes since
     a date. Returns `{page, page_count, events: [{type: "updated"|..., workout: {...}}]}`.
   - `GET /v1/workouts/count` — returns `{workout_count}`.
-- If the key is missing or the API unreachable, ask for a pasted export instead.
-- Network policy: `api.hevyapp.com` was initially blocked, but as of 01/08/2026 the
-  allowlist is in place and the connection is confirmed working (HTTP 200 with the
-  session key). If it ever fails again, check the environment's network policy before
-  falling back to pasted exports.
+- **Environment requirement.** Hevy works only in a cloud environment that both defines
+  `HEVY_API_KEY` and allowlists `api.hevyapp.com` for egress. That is a property of the
+  environment, not of this repo or of the system — do not assume it holds in the session
+  you are in, and do not record "it works" as a general fact.
+
+### If a Hevy call fails — diagnose, never guess
+
+A SessionStart hook (`scripts/hevy-preflight.sh`) probes Hevy at session start and its
+verdict is already in your context. Re-run it any time with `npm run preflight`.
+
+**Never call Hevy "blocked", "denied by network policy" or "unreachable" without a probe
+result behind it, and never fall back to a pasted export before telling Pawel which row
+below applies.** These three failures look nothing alike:
+
+| Symptom | Meaning | Fix |
+|---|---|---|
+| HTTP `401`, body `InvalidApiKey` | Host reached fine; key missing/expired/revoked. **Not a network problem** — a 401 *proves* the host is allowlisted | Pawel: regenerate at hevy.com → Settings → Developer, set `HEVY_API_KEY` in the environment, start a **new** session |
+| curl exit `56`, `CONNECT tunnel failed, response 403`, `%{http_code}` = `000` | Egress proxy refused the connection. **Not a key problem** | Pawel: claude.ai/code → environment selector → Custom network access → add `api.hevyapp.com` → **new** session. You cannot fix or route around this |
+| any other curl exit (6/7/28/35) | Inconclusive / transient | Re-run `npm run preflight` and retry. Do **not** call it a policy block |
+
+An egress denial never produces an HTTP 403 — the "403" appears only in curl's stderr.
+Confirm with the proxy's own record before using the "blocked" wording:
+
+    curl -sS "http://127.0.0.1:${HTTPS_PROXY##*:}/__agentproxy/status" | jq '.recentRelayFailures'
+
+An entry with `"host": "api.hevyapp.com:443"` and `"kind": "connect_rejected"` is the only
+evidence that justifies it — and even then the proxy classes that as *"policy denial **or
+upstream failure**"*, so never claim it is permanent. Do not retry a denial in a loop;
+report it (`/root/.ccr/README.md`).
+
+**The failure mode that has actually happened** (02/08/2026): the environment selector is
+per-surface, and on the phone it was left on `Default`, which has neither the key nor the
+allowlist entry. Both symptoms appeared at once and looked like one mysterious outage.
+Check the selector at the top of the app before concluding anything is broken.
+
+A pasted export remains a legitimate fallback — but only **after** the matching row above
+has been said out loud to Pawel, and every number written from it must be flagged as not
+API-verified.
 
 ## Data conventions (the important part)
 
@@ -188,6 +223,11 @@ with the heavier single still in `sets` — only when the session note explicitl
 - Goals cards, `EXERCISE_ORDER`, and other hand-edited HTML: eyeball the rendered page.
 - After pushing, the live page updates within ~a minute:
   https://sldl145.github.io/training-dashboard/ — spot-check the tab you touched.
+  **This step needs Pawel's browser.** `sldl145.github.io` is not on the environment's
+  egress allowlist, so a cloud session cannot fetch it (curl exit 56). Say the push is
+  verified and the live render is not — do not claim to have checked it, and do not read
+  the failure as the site being down. Adding `sldl145.github.io` alongside
+  `api.hevyapp.com` in the environment's allowed domains would make this step runnable.
 
 ## History / provenance
 
