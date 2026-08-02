@@ -46,8 +46,9 @@ one conversation does the whole pipeline — debrief, Notion journal, dashboard,
    constant to update; everything else derives from it).
 5. **Validate:** `node scripts/validate.js` AND `node scripts/smoke.js` must both pass
    (validate: warnings OK, errors are not; smoke: real-browser render check).
-6. **Commit and push `main` directly** (no PRs, no side branches). Commit message
-   convention: `Deploy YYYY-MM-DD HH:MM` with a body summarizing what changed.
+6. **Commit and push `main` directly** — this is a data update, see Two-track publishing
+   below. Commit message convention: `Deploy YYYY-MM-DD HH:MM` with a body summarizing
+   what changed.
 7. **Check off the executed Decisions** in the Notion session pages (on the same page
    where each was found).
 
@@ -69,6 +70,54 @@ flip the Gym Hub index. A month is only `Closed` once its summary is written.
 
 Do not leave the summary for "Chat at month end" — that split is retired, and it is why
 July 2026 reached the 1st with an unwritten summary.
+
+## Two-track publishing
+
+`main` is the published artifact — GitHub Pages serves it, so a push is a publish. What
+route a change takes depends on whether it can only change what the dashboard *says* or
+also how it *behaves*.
+
+**Track 1 — data. Straight to `main`, no branch, no PR.**
+Adding rows and values. The page's behaviour is untouched; only its contents move.
+
+- session rows in `exercises` / `graveyard` `data` arrays, and their `sets`
+- `runs[]` entries, `scans[]` entries
+- the `TODAY` constant
+- note text, correction annotations, `**NOT trend-valid**` markers
+- monthly hand-edits that follow directly from new data: Goals cards on rollover,
+  adding a lift to `EXERCISE_ORDER`, moving a lift to the graveyard with its `reason`
+
+**Track 2 — development. Branch + PR, Pawel merges.**
+Anything that changes how the page works, or how this system works.
+
+- renderers, chart config, tab structure, layout, CSS, event handlers
+- new features, new data fields, new sections
+- `scripts/` (validator, smoke, preflight), `package.json`, `.claude/`
+- `CLAUDE.md`, `docs/`, `README.md`, `workflows.html` — including this file
+
+Branch from current `main`, push the branch, open the PR with a summary of the diff, and
+**stop there**. Pawel merges. Do not merge on his behalf, and do not merge because checks
+are green — validate + smoke passing is the entry condition for a PR, not approval.
+
+**The test, when a change sits between the two:** if the only thing a reader would notice
+is different numbers or words, it is data. If a renderer, a script, or a doc changed, it is
+development — even a one-line fix, even an obvious one. When genuinely unsure, ask Pawel
+rather than guessing; a wrong call in the data direction publishes unreviewed code.
+
+A single session may do both. Land the data on `main` first so the dashboard is current,
+then branch for the structural part — never hold a gym session's data hostage to a PR.
+
+**Branch hygiene.** The harness assigns each session a working branch. On the data track
+that branch is bookkeeping only: commit on it, `git merge --ff-only` into `main`, push
+**`main` alone**. Never push the working branch on a data update — a pushed branch that
+fast-forwarded into `main` is dead the moment it lands, and one per gym session accumulates
+(five had by 02/08/2026). Fast-forward means `main`'s history is identical to committing
+there directly. On the development track the branch is the deliverable, so it does get
+pushed — and is deleted when the PR merges.
+
+Note: a cloud session **cannot delete remote branches** — the git proxy returns HTTP 403
+on a ref delete (pushing `main` is unaffected). Cleanup of a stale branch is Pawel's, from
+GitHub's branches page. Hence: don't create the litter.
 
 ## House rules
 
