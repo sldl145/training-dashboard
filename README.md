@@ -24,12 +24,22 @@ flowchart TD
         D2 --> D3["Fetch ground truth<br/>Hevy API or pasted export<br/>(Hevy always wins)"]
         D3 --> D4["Targeted edits to index.html<br/>(TODAY bump, data appends, goals)"]
         D4 --> D5["Checks: scripts/validate.js<br/>+ scripts/smoke.js (real browser)"]
-        D5 --> D6["git push main<br/>+ check off Decisions in Notion"]
+        D5 --> D6["git push main — data track<br/>+ check off Decisions in Notion"]
     end
 
     CHAT["💬 Claude Chat (optional fallback)<br/>debrief on the go → writes Notion journal<br/>+ unchecked Decisions"] -.-> D3
 
     D6 --> LIVE["🌐 Live dashboard<br/>sldl145.github.io/training-dashboard"]
+
+    DEV["🛠️ Structure, feature, script or doc change<br/>(not data)"] --> DEVTRACK
+
+    subgraph DEVTRACK["Development track — never straight to main"]
+        V1["Branch from current main<br/>+ targeted edits"] --> V2["Checks: validate.js<br/>+ smoke.js"]
+        V2 --> V3["Push branch, open PR<br/>with diff summary — session stops here"]
+    end
+
+    V3 --> MERGE{"Pawel reviews<br/>and merges"}
+    MERGE --> LIVE
 
     NOTION[("Notion — Gym Hub<br/>Training Logs / Running Log / InBody DB<br/>(the narrative record)")] <--> D2
 
@@ -52,6 +62,10 @@ flowchart TD
 - **Hevy** is ground truth for lifting numbers; any conflicting verbal/PT number is
   corrected to the Hevy sets with an annotation.
 - **This repo** is the rendered dashboard and the system of record for how updates work.
+- **Two tracks.** Data (session rows, runs, scans, `TODAY`, monthly goals cards) goes
+  straight to `main` — a gym session is never held up by a review. Anything touching
+  renderers, scripts, or docs goes via a branch and a PR that Pawel merges. Full boundary
+  in [`CLAUDE.md`](CLAUDE.md) → Two-track publishing.
 
 ## Repo map
 
