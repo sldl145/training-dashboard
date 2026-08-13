@@ -32,6 +32,8 @@ flowchart TD
     D6 --> LIVE["🌐 Live dashboard<br/>sldl145.github.io/training-dashboard"]
 
     DEV["🛠️ Structure, feature, script or doc change<br/>(not data)"] --> DEVTRACK
+    RECALC["🧮 Recalculation<br/>add/drop a computed field, change a formula,<br/>change what a chart plots"] --> ASK{"Say it is not a data change<br/>explain options, ask Pawel"}
+    ASK --> DEVTRACK
 
     subgraph DEVTRACK["Development track — never straight to main"]
         V1["Branch from current main<br/>+ targeted edits"] --> V2["Checks: validate.js<br/>+ smoke.js"]
@@ -66,6 +68,14 @@ flowchart TD
   straight to `main` — a gym session is never held up by a review. Anything touching
   renderers, scripts, or docs goes via a branch and a PR that Pawel merges. Full boundary
   in [`CLAUDE.md`](CLAUDE.md) → Two-track publishing.
+- **Recalculation is never data**, even when the only visible change is different digits.
+  Adding or dropping a computed field, changing a formula, or changing what a chart plots
+  gets flagged as *not* a data change, explained with its options, and asked about before
+  anything is published.
+- **Sessions explain as they go.** Pawel is learning git and the modelling alongside using
+  the dashboard, so work is described in plain terms before it happens, decisions are stated
+  as decisions, and each session says what he should check — including the live render,
+  which a cloud session cannot reach.
 
 ## Repo map
 

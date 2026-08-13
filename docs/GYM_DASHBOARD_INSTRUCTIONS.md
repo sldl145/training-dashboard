@@ -364,8 +364,18 @@ for August 2026:
 - **The target must be a genuinely new achievement** - reject any candidate where a past
   set had both weight >= and reps >= the candidate. Without this the model will happily
   propose something already lifted.
-- **Aim for P(hit) ~40-55%** - "try hard, not an easy win". Record the probability
-  alongside each target so the difficulty is visible rather than asserted.
+- **Aim for P(hit) ~40-55%** - "try hard, not an easy win". Use the probability to *choose*
+  the target, then stop. **Do not publish it on the dashboard** (retired 13/08/2026, Pawel's
+  call) - keep the working figure in the Notion month page alongside the basis, where it
+  belongs to the calibration record rather than to the live page.
+- **Why the percentages were retired.** They were a start-of-month snapshot that nothing in
+  the repo could refresh, so they went stale the moment a session was logged. Scored against
+  the three August 2026 goals that were actually hit, the published figures gave a Brier of
+  0.247 and a faithful re-implementation of this method gave 0.305 - both **worse than the
+  0.235 you get by assigning a flat 40% to every goal.** A number that loses to a constant is
+  decoration. Say where a lift stands instead: what was lifted, when, and how far off the
+  target it is in e1RM. Do not rebuild the calibrator to "make the percentages live" without
+  reading this paragraph first - that was tried on 13/08/2026 and the model was abandoned.
 - **Respect the equipment.** Check the target weight exists on that machine; where a
   stack is maxed out, the target is a rep, not a plate.
 - **Pawel's calls override the calibration** - record them as deliberate, with the
