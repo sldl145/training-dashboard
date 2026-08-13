@@ -104,6 +104,21 @@ is different numbers or words, it is data. If a renderer, a script, or a doc cha
 development — even a one-line fix, even an obvious one. When genuinely unsure, ask Pawel
 rather than guessing; a wrong call in the data direction publishes unreviewed code.
 
+**Hevy data goes straight to `main`.** Session rows and their sets, the `TODAY` bump, notes,
+correction annotations, goal card statuses that follow from the sets just logged. No branch,
+no asking, no waiting — a gym session is never held up by a review.
+
+**Recalculation is never data.** Anything that changes how a number is *derived* — adding or
+removing a computed field, changing a formula, changing what a chart plots or how it is
+structured — is not a data update, even when the only visible difference is different digits.
+Say plainly that this is not a data change, explain the options and what each costs, and ask.
+Never publish it to `main` on your own judgement.
+
+Worked example (13/08/2026): removing the P(hit) percentages from the Goals cards changed
+only text inside `renderGoals`, which passes the letter of the data test — but it was a
+decision about what the section *shows*, reached by recalculation, and it belonged in a PR.
+The digits-only test is necessary, not sufficient; apply the recalculation rule first.
+
 A single session may do both. Land the data on `main` first so the dashboard is current,
 then branch for the structural part — never hold a gym session's data hostage to a PR.
 
@@ -118,6 +133,25 @@ pushed — and is deleted when the PR merges.
 Note: a cloud session **cannot delete remote branches** — the git proxy returns HTTP 403
 on a ref delete (pushing `main` is unaffected). Cleanup of a stale branch is Pawel's, from
 GitHub's branches page. Hence: don't create the litter.
+
+## Explaining the work
+
+**Explain as if Pawel is new to the tooling — he is, and learning it is part of the point.**
+He knows his training inside out; git, repos, branches, PRs and the modelling are what he is
+picking up as this system runs. Name the concepts rather than assuming them. Say what each
+step does and why, *before* doing it, not as a summary afterwards.
+
+When a decision is his, state explicitly what he is deciding and what each option costs.
+"Which of these do you want" beats a paragraph he has to reverse-engineer a question out of.
+
+**Tell him what he can usefully check.** He is the human in the loop, and a checkpoint only
+works if the person at it can see what is passing through. Be concrete: what to look at, what
+would count as wrong, and what you could not verify yourself. The live render is the standing
+example — `sldl145.github.io` is not reachable from a cloud session, so confirming a change
+actually appeared is his job and nobody else's.
+
+Being a teacher here is not decoration. It is what makes the recalculation rule above
+function: he cannot approve what he cannot follow.
 
 ## House rules
 
