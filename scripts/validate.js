@@ -95,6 +95,35 @@ for (const [name, ex] of Object.entries(exercises)) {
 runs.forEach(r => { if (!isNum(r.distance) || !isNum(r.durationSec) || !isNum(r.avgPaceSec)) errors.push(`run ${r.date}: non-numeric distance/duration/pace`); });
 scans.forEach(s => { ['score', 'weight', 'smm', 'bfm', 'pbf', 'bmi'].forEach(k => { if (!isNum(s[k])) errors.push(`scan ${s.date}: non-numeric ${k}`); }); });
 
+// ---- e1RM figures quoted in notes must match the dashboard's own formula ----
+// The page computes Brzycki, w * 36/(37 - r). Epley, w * (1 + r/30), was retired on
+// 01/08/2026 after Session #117 found it overestimating by 4-5 kg. Epley figures had
+// nevertheless survived in note prose, where they contradicted the Est. 1RM column on
+// the very same row - corrected on one RDL row 13/08/2026 and across 11 rows 15/08/2026.
+// This check is what stops it coming back a third time.
+//
+// Bracketed spans are skipped on purpose: [Corrected ...] annotations quote the old
+// figures by design, and so does any note discussing a formula artifact.
+const brzycki = (w, r) => (r <= 1 ? w : w * 36 / (37 - r));
+const epley = (w, r) => w * (1 + r / 30);
+const nearTo = (a, b) => Math.abs(a - b) < 0.15;
+for (const [label, group] of [['', exercises], ['graveyard ', graveyard]]) {
+  for (const [name, ex] of Object.entries(group)) {
+    (ex.data || []).forEach(d => {
+      if (!d.note || !d.sets || !d.sets.length) return;
+      const prose = d.note.replace(/\[[^\]]*\]/g, ' ');
+      [...prose.matchAll(/e1RM\s+~?(\d+\.\d)/g)].map(m => +m[1]).forEach(q => {
+        if (d.sets.some(s => nearTo(brzycki(s.w, s.r), q))) return;
+        if (d.sets.some(s => nearTo(epley(s.w, s.r), q))) {
+          errors.push(`${label}${name} ${d.date}: note quotes e1RM ${q}, which is Epley for a set on this row - the dashboard uses Brzycki, w*36/(37-r)`);
+        } else {
+          warnings.push(`${label}${name} ${d.date}: note quotes e1RM ${q}, not derivable from this row's sets (fine when it cites another session or a target - check it)`);
+        }
+      });
+    });
+  }
+}
+
 // ---- Button wiring: every onclick must reach a real global function ----
 // (ported from the legacy validator - this is the check that would have caught a broken PDF export)
 const onclickFns = [...new Set([...src.matchAll(/onclick="([a-zA-Z_$][\w$]*)\s*\(/g)].map(m => m[1]))];
