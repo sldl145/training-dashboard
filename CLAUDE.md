@@ -270,8 +270,18 @@ with the heavier single still in `sets` — only when the session note explicitl
 - `**bold**` for PRs and headline findings.
 - `**NOT trend-valid**` marker for readings contaminated by travel/illness/post-fail
   fatigue — plotted but excluded from trend interpretation.
+- **e1RM figures are always Brzycki, `w x 36/(37-r)`** — the formula the page's own
+  `e1rm()` and Est. 1RM column use. Epley (`w x (1 + r/30)`) was retired 01/08/2026 after
+  Session #117 found it overestimating by 4-5 kg. The validator errors on any `e1RM N.N`
+  in a note that matches Epley for a set on that row, and warns on one it cannot derive
+  from the row's sets at all (legitimate for cross-references and targets — check, don't
+  ignore). Figures inside `[...]` are skipped, so correction annotations may quote the
+  old numbers.
 - Corrections: never silently rewrite history. Append
   `[Corrected DD/MM/YYYY from Hevy sets: was X x Y - value not found in any logged set. Heaviest-weight rule applied.]`
+  A formula correction takes the same form but says what was restated and, if a claim
+  rested on the wrong figure, **retires the claim explicitly rather than renumbering it**
+  (precedents: RDL 10/08 fixed 13/08; the 14-row pass of 15/08/2026).
 
 ### Exercise lifecycle
 - New movement appears once → **graveyard** with a `reason`, not the main charts
