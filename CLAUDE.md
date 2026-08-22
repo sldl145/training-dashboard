@@ -30,7 +30,10 @@ one conversation does the whole pipeline — debrief, Notion journal, dashboard,
 
 1. **Debrief.** Ask the post-session questions (how it went, what the PT said, any pain
    signals, anything unusual) — conversation guide and journal formats in
-   `docs/DEBRIEF.md`. Write the **Notion session page** as a child of
+   `docs/DEBRIEF.md`. **One question per message, always.** Never a numbered list of
+   questions, never two bundled into one message. Wait for the answer before asking the
+   next. Standing instruction from Pawel (22/08/2026); having to restate it every session
+   is the most common friction in this flow. Write the **Notion session page** as a child of
    the current month's Training Log: title `Session #NNN - DD/MM/YYYY` (next number in
    sequence), sections Journal / Flags / Decisions / Context. Journal is written in
    Pawel's voice from what he shared. Decisions are the literal dashboard work orders.
