@@ -63,7 +63,7 @@ function findChromium() {
   // Tab 2: Running
   await page.click('button.tab-button:has-text("Running")');
   await settle();
-  failures.push(...await checkActiveTab('Running', 5));
+  failures.push(...await checkActiveTab('Running', 4));
 
   // Tab 3: Body Composition (also wires window.exportPDF on first open)
   await page.click('button.tab-button:has-text("Body Composition")');

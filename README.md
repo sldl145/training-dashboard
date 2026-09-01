@@ -86,7 +86,7 @@ flowchart TD
 | `CLAUDE.md` | Session contract: workflow, house rules, conventions |
 | `docs/GYM_DASHBOARD_INSTRUCTIONS.md` | Full operating manual (Hevy mapping, data rules, goals, graveyard) |
 | `docs/DEBRIEF.md` | Post-session conversation guide + Notion journal formats |
-| `docs/RUNNING_TAB_SPEC.md` | Running tab spec (data model, plan curve, readiness) |
+| `docs/RUNNING_TAB_SPEC.md` | Running tab spec (data model, layout, charts) |
 | `docs/DEPLOYMENT.md` | Hosting, publishing rules, troubleshooting |
 | `scripts/validate.js` | Data consistency + syntax + button wiring + TODAY freshness — must exit 0 |
 | `scripts/smoke.js` | Headless-Chromium render check of all three tabs — must pass |

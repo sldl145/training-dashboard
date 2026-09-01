@@ -180,6 +180,13 @@ Runs arrive two ways, dedup on date across both:
 The validator enforces `avgPaceSec = durationSec / distance` (±2s). `elevation: null`
 doubles as the indoor marker — set it for outdoor runs when known.
 
+**There is no race.** The 20/09/2026 half marathon was cancelled on 01/09/2026 (Pawel's
+call) and the tab's race machinery - countdown, readiness score, plan curve, race pace
+band, computed running goals - was removed with it. The tab is a log: KPI cards, charts,
+table, all computed from `runs[]`. Adding a run stays on the data track. Reinstating a
+race is a development-track change and `docs/RUNNING_TAB_SPEC.md` records what was removed
+and how to recover it from git history rather than rewriting it.
+
 ## InBody scans (Body Composition tab)
 
 Scan photo pasted into the session →
@@ -298,6 +305,16 @@ with the heavier single still in `sets` — only when the session note explicitl
   its place only by carrying a target with a live status. Program descriptions, open
   questions, PT decisions, probability watches, philosophy and month narrative do **not**
   go here — they live in Notion.
+- **A card carries lift, target, starting point and status. Nothing else** (Pawel's call,
+  01/09). **Per-target status prose is not a status** - "Pending" and "DONE" are, plus the
+  set that hit it. Do not write the evidence, the gap in e1RM, the equipment caveat or the
+  reason a lift has no target into the card; all of that belongs on the Notion month page,
+  and writing it twice puts it on a public page as well. This rule exists because the
+  September 2026 rollover shipped exactly that and had to be stripped the same evening -
+  the original exclusion list above named the categories but not the per-target commentary,
+  which is the form the mistake actually takes.
+- Rows explaining why a lift has **no** target are commentary, not goals. Record the reason
+  on the month page and leave the lift off the cards entirely.
 - Do not restate another tab. Running targets are computed live by `renderRunningGoals`
   on the Running tab; body composition lives on its own tab; injury state is the Injury
   Log section further down the Training tab.
