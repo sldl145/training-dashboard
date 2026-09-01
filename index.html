@@ -716,12 +716,7 @@
 
 <!-- Running Tab -->
 <div id="running" class="tab-content">
-  <div id="running-countdown"></div>
-  <div id="running-readiness"></div>
-  <div id="running-alerts"></div>
-  <div id="running-weekly-suggestion"></div>
   <div class="summary-row" id="running-summary"></div>
-  <div id="running-goals"></div>
   <div class="chart-grid" id="running-charts"></div>
   <div class="table-section" id="running-table"></div>
 </div>
@@ -2342,8 +2337,6 @@ renderInjuryLog();
 
 
 // ========== RUNNING TAB ==========
-const RACE_DATE = "2026-09-20";
-const TRAINING_START = "2026-01-11";
 
 const runs = [
   { date: "2026-01-11", distance: 5.56, durationSec: 2245, avgPaceSec: 403, avgHR: 156, maxHR: 180, elevation: null, calories: 502, type: "easy", notes: "First tracked run. Treadmill at SATS." },
@@ -2382,328 +2375,10 @@ function getWeekNumber(dateStr) {
   return Math.round(((d - week1) / 86400000 + (week1.getDay() + 6) % 7 - 3) / 7) + 1;
 }
 
-// ===== Race pace targets (derived from finish-time goal, not hardcoded) =====
-const TARGET_FINISH_MIN = 120;  // minutes - ambitious end (2:00)
-const TARGET_FINISH_MAX = 130;  // minutes - comfortable end (2:10)
-function getRacePaceBand() {
-  const dist = 21.0975;
-  const fast = Math.round(TARGET_FINISH_MIN * 60 / dist);   // sec/km at 2:00
-  const slow = Math.round(TARGET_FINISH_MAX * 60 / dist);   // sec/km at 2:10
-  return { fast, slow, mid: Math.round((fast + slow) / 2) };
-}
-// Easy-run pace: roughly 60-90 sec/km SLOWER than race pace (standard endurance guidance)
-function getEasyPaceBand() {
-  const race = getRacePaceBand();
-  return { from: race.mid + 60, to: race.mid + 90 };
-}
-
-// ===== Reference HM training curve - anchored to the REAL race date =====
-// Total length = actual weeks from TRAINING_START to RACE_DATE (recalculated automatically).
-// Phases are counted backwards from race day: race week, 4-week taper, 8-week peak,
-// 8-week build, and base building fills whatever time remains at the start.
-function getTotalPlanWeeks() {
-  return Math.round((new Date(RACE_DATE) - new Date(TRAINING_START)) / (7 * 86400000));
-}
-
-function getTrainingPlan() {
-  const total = getTotalPlanWeeks();
-  const taperStart = total - 4;
-  const peakStart = taperStart - 8;
-  const buildStart = peakStart - 8;
-  const lerp = (a, b, t) => a + (b - a) * Math.max(0, Math.min(1, t));
-  const plan = [];
-  for (let w = 0; w <= total; w++) {
-    let longRun, weeklyKm, runsPerWeek, phase;
-    if (w < buildStart) {                 // Base building
-      const t = buildStart > 1 ? w / (buildStart - 1) : 1;
-      longRun = lerp(5, 9, t); weeklyKm = lerp(10, 18, t); runsPerWeek = 2; phase = "Base Building";
-    } else if (w < peakStart) {           // Building
-      const t = (w - buildStart) / Math.max(1, peakStart - buildStart - 1);
-      longRun = lerp(9, 18.6, t); weeklyKm = lerp(18, 42, t); runsPerWeek = 3; phase = "Building";
-    } else if (w < taperStart) {          // Peak
-      const t = (w - peakStart) / Math.max(1, taperStart - peakStart - 1);
-      longRun = Math.min(lerp(19, 21.1, t), 21.1); weeklyKm = lerp(35, 47, t); runsPerWeek = 3; phase = "Peak";
-    } else if (w < total) {               // Taper
-      const t = (w - taperStart) / Math.max(1, total - taperStart - 1);
-      longRun = lerp(18, 8, t); weeklyKm = lerp(40, 19, t); runsPerWeek = 3; phase = "Taper";
-    } else {                              // Race week
-      longRun = 5; weeklyKm = 15; runsPerWeek = 2; phase = "Race Week";
-    }
-    plan.push({ week: w, longRun: +longRun.toFixed(1), weeklyKm: +weeklyKm.toFixed(1), runsPerWeek, phase });
-  }
-  return plan;
-}
-
-function getCurrentWeek() {
-  const start = new Date(TRAINING_START);
-  const today = new Date(TODAY);
-  return Math.max(0, Math.floor((today - start) / (7 * 86400000)));
-}
-
-function getWeeksToRace() {
-  return Math.ceil((new Date(RACE_DATE) - new Date(TODAY)) / (7 * 86400000));
-}
-
-// ===== Readiness Score Engine =====
-function calculateReadiness() {
-  const weeksToRace = getWeeksToRace();
-  const currentWeek = getCurrentWeek();
-  const plan = getTrainingPlan();
-  const target = plan[Math.min(currentWeek, plan.length - 1)];
-
-  // Component 1: Longest run vs where it should be (40% weight)
-  const longestRun = runs.length > 0 ? Math.max(...runs.map(r => r.distance)) : 0;
-  const longRunScore = Math.min(100, (longestRun / target.longRun) * 100);
-
-  // Component 2: Weekly volume last 4 weeks vs target (25% weight)
-  const fourWeeksAgo = new Date(TODAY);
-  fourWeeksAgo.setDate(fourWeeksAgo.getDate() - 28);
-  const recentRuns = runs.filter(r => new Date(r.date) >= fourWeeksAgo);
-  const recentWeeklyKm = recentRuns.reduce((s, r) => s + r.distance, 0) / 4;
-  const volumeScore = Math.min(100, (recentWeeklyKm / target.weeklyKm) * 100);
-
-  // Component 3: Pace vs race target band (derived from finish-time goal) (20% weight)
-  const paceBand = getRacePaceBand();
-  const targetPaceMax = paceBand.slow;
-  const recentPace = recentRuns.length > 0
-    ? recentRuns.reduce((s, r) => s + r.avgPaceSec * r.distance, 0) / recentRuns.reduce((s, r) => s + r.distance, 0)
-    : null;
-  // If faster than target, score 100. If slower, scale down. No runs in the window = no pace data = 0.
-  const paceScore = recentPace === null ? 0
-    : recentPace <= targetPaceMax ? 100 : Math.max(0, 100 - ((recentPace - targetPaceMax) / 60) * 100);
-
-  // Component 4: Frequency last 4 weeks vs target (15% weight)
-  const recentRunsPerWeek = recentRuns.length / 4;
-  const freqScore = Math.min(100, (recentRunsPerWeek / target.runsPerWeek) * 100);
-
-  // Weighted composite
-  const score = Math.round(longRunScore * 0.40 + volumeScore * 0.25 + paceScore * 0.20 + freqScore * 0.15);
-
-  // Confidence based on data quantity
-  const totalRuns = runs.length;
-  let confidence, confidenceLabel, confidenceColor;
-  if (totalRuns >= 20) { confidence = "high"; confidenceLabel = "High confidence"; confidenceColor = "#16a34a"; }
-  else if (totalRuns >= 10) { confidence = "medium"; confidenceLabel = "Medium confidence"; confidenceColor = "#ea580c"; }
-  else { confidence = "low"; confidenceLabel = "Low confidence (" + totalRuns + " runs)"; confidenceColor = "#dc2626"; }
-
-  return {
-    score, confidence, confidenceLabel, confidenceColor,
-    components: [
-      { label: "Long Run", value: longRunScore, detail: longestRun.toFixed(1) + " / " + target.longRun + " km", weight: "40%", color: "#2563eb" },
-      { label: "Weekly Volume", value: volumeScore, detail: recentWeeklyKm.toFixed(1) + " / " + target.weeklyKm + " km/wk", weight: "25%", color: "#0d9488" },
-      { label: "Pace", value: paceScore, detail: recentPace === null ? "No runs in last 4 weeks" : formatPace(Math.round(recentPace)) + " / " + formatPace(targetPaceMax) + " target", weight: "20%", color: "#7c3aed" },
-      { label: "Frequency", value: freqScore, detail: recentRunsPerWeek.toFixed(1) + " / " + target.runsPerWeek + "x/wk", weight: "15%", color: "#ea580c" }
-    ],
-    longestRun, recentWeeklyKm, recentPace: recentPace === null ? null : Math.round(recentPace), recentRunsPerWeek,
-    target, currentWeek, weeksToRace,
-    // Expected score: what 100% plan adherence would look like at this week
-    expectedScore: 100,
-    // Gap analysis: what would move the score most
-    gaps: calculateGaps(longRunScore, volumeScore, paceScore, freqScore, {
-      longestRun, targetLong: target.longRun,
-      recentWeeklyKm, targetWeeklyKm: target.weeklyKm,
-      recentRunsPerWeek, targetRuns: target.runsPerWeek,
-      recentPace, targetPaceMax
-    })
-  };
-}
-
-function calculateGaps(longRunScore, volumeScore, paceScore, freqScore, d) {
-  const gaps = [];
-
-  // Calculate how many points each component is costing
-  const longRunLost = (100 - longRunScore) * 0.40;
-  const volumeLost = (100 - volumeScore) * 0.25;
-  const paceLost = (100 - paceScore) * 0.20;
-  const freqLost = (100 - freqScore) * 0.15;
-
-  if (longRunLost > 2) {
-    const needed = d.targetLong - d.longestRun;
-    gaps.push({
-      points: Math.round(longRunLost),
-      action: `Extend longest run by ${needed.toFixed(1)} km (${d.longestRun.toFixed(1)} -> ${d.targetLong} km)`,
-      priority: longRunLost,
-      tip: needed > 4 ? "Build gradually: add 1-2 km per week to your longest run" : "One strong long run this week closes the gap"
-    });
-  }
-  if (volumeLost > 2) {
-    const needed = d.targetWeeklyKm - d.recentWeeklyKm;
-    gaps.push({
-      points: Math.round(volumeLost),
-      action: `Add ${needed.toFixed(0)} km/week to weekly volume (${d.recentWeeklyKm.toFixed(1)} -> ${d.targetWeeklyKm} km)`,
-      priority: volumeLost,
-      tip: "Add one easy 5 km run per week to boost volume safely"
-    });
-  }
-  if (freqLost > 2) {
-    const needed = d.targetRuns - d.recentRunsPerWeek;
-    gaps.push({
-      points: Math.round(freqLost),
-      action: `Run ${needed.toFixed(1)} more times per week (${d.recentRunsPerWeek.toFixed(1)} -> ${d.targetRuns}x)`,
-      priority: freqLost,
-      tip: "Even a short 3 km easy run counts toward frequency"
-    });
-  }
-  if (paceLost > 2) {
-    gaps.push({
-      points: Math.round(paceLost),
-      action: d.recentPace === null ? "Log a run to establish a recent pace" : "Improve easy pace toward target range",
-      priority: paceLost,
-      tip: d.recentPace === null ? "Any run in the last 4 weeks gives this component real data" : "Pace usually improves naturally as volume increases - don't force it"
-    });
-  }
-
-  // Sort by most impactful first
-  gaps.sort((a, b) => b.priority - a.priority);
-  return gaps;
-}
-
 function initRunningTab() {
-  const readiness = calculateReadiness();
-  renderRunningCountdown();
-  renderRunningReadiness(readiness);
-  renderRunningAlerts(readiness);
-  renderWeeklySuggestion(readiness);
   renderRunningSummary();
-  renderRunningGoals();
-  renderRunningCharts(readiness);
+  renderRunningCharts();
   renderRunningTable();
-}
-
-function renderRunningCountdown() {
-  const today = new Date(TODAY);
-  const race = new Date(RACE_DATE);
-  const start = new Date(TRAINING_START);
-  const weeksLeft = Math.ceil((race - today) / (7 * 86400000));
-  const totalWeeks = Math.ceil((race - start) / (7 * 86400000));
-  const elapsed = totalWeeks - weeksLeft;
-  const pct = Math.min(100, Math.round((elapsed / totalWeeks) * 100));
-  const totalKm = runs.reduce((s, r) => s + r.distance, 0);
-
-  document.getElementById("running-countdown").innerHTML = `
-    <div class="countdown-hero">
-      <h2>Half Marathon Countdown</h2>
-      <div class="weeks">${weeksLeft} weeks remaining</div>
-      <div class="race-info">Race day: 20/09/2026 - Half marathon (21.1 km) - ${totalKm.toFixed(1)} km logged across ${runs.length} runs</div>
-      <div class="countdown-progress"><div class="countdown-progress-bar" style="width:${pct}%"></div></div>
-    </div>`;
-}
-
-function renderRunningReadiness(r) {
-  const scoreColor = r.score >= 70 ? "var(--green)" : r.score >= 40 ? "var(--orange)" : "var(--red)";
-  const deficit = 100 - r.score;
-  const statusText = r.score >= 80 ? "On track" : r.score >= 60 ? "Slightly behind" : r.score >= 40 ? "Behind plan" : "Significantly behind";
-  const statusColor = r.score >= 80 ? "var(--green)" : r.score >= 60 ? "var(--orange)" : r.score >= 40 ? "var(--orange)" : "var(--red)";
-
-  // Gap actions HTML
-  const gapHTML = r.gaps.length > 0 ? `
-    <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--border);">
-      <div style="font-size:0.78em; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--muted); margin-bottom:10px;">How to reach 100 - biggest gains first</div>
-      ${r.gaps.map(g => `
-        <div style="display:flex; gap:12px; align-items:flex-start; margin-bottom:10px; font-size:0.85em;">
-          <div style="background:var(--accent); color:white; font-weight:800; font-size:0.78em; padding:3px 8px; border-radius:6px; white-space:nowrap; min-width:42px; text-align:center;">+${g.points}</div>
-          <div>
-            <div style="font-weight:600;">${g.action}</div>
-            <div style="color:var(--muted); font-size:0.9em;">${g.tip}</div>
-          </div>
-        </div>`).join("")}
-    </div>` : `<div style="margin-top:16px; font-size:0.85em; color:var(--green); font-weight:600;">All components at target - keep it up!</div>`;
-
-  document.getElementById("running-readiness").innerHTML = `
-    <div class="readiness-panel" style="grid-template-columns:220px 1fr;">
-      <div class="readiness-gauge">
-        <div class="score" style="color:${scoreColor}">${r.score}<span style="font-size:0.35em; color:var(--muted); font-weight:600;"> / 100</span></div>
-        <div class="score-label">Readiness Score</div>
-        <div style="font-size:0.82em; font-weight:600; color:${statusColor}; margin-top:6px;">${statusText}</div>
-        <div style="font-size:0.72em; color:var(--muted); margin-top:4px;">Week ${r.currentWeek} of ${getTotalPlanWeeks()} &middot; ${r.target.phase} phase</div>
-        <div class="confidence" style="background:${r.confidenceColor}20; color:${r.confidenceColor}; margin-top:8px;">${r.confidenceLabel}</div>
-      </div>
-      <div>
-        <div class="readiness-components">
-          ${r.components.map(c => `
-            <div class="readiness-bar-card">
-              <div class="bar-label"><span>${c.label} (${c.weight})</span><span>${Math.round(c.value)}%</span></div>
-              <div class="readiness-bar-track"><div class="readiness-bar-fill" style="width:${Math.min(100, c.value)}%; background:${c.color}"></div></div>
-              <div style="font-size:0.72em; color:var(--muted); margin-top:4px;">${c.detail}</div>
-            </div>`).join("")}
-        </div>
-        ${gapHTML}
-      </div>
-    </div>`;
-}
-
-function renderRunningAlerts(r) {
-  const alerts = [];
-  const weeksToRace = r.weeksToRace;
-
-  // Training deficit check
-  if (r.recentRunsPerWeek < 1 && weeksToRace < 20) {
-    alerts.push({ type: "red", icon: "&#9888;", title: "Training deficit",
-      body: `Running ${r.recentRunsPerWeek.toFixed(1)}x/week. At this frequency, you won't build sufficient base before the half marathon. Target: ${r.target.runsPerWeek}x/week for the current phase.` });
-  } else if (r.recentRunsPerWeek < r.target.runsPerWeek * 0.6) {
-    alerts.push({ type: "yellow", icon: "&#9888;", title: "Below target frequency",
-      body: `Running ${r.recentRunsPerWeek.toFixed(1)}x/week vs target ${r.target.runsPerWeek}x/week. Consider adding one more run this week.` });
-  }
-
-  // Volume check
-  if (r.recentWeeklyKm < r.target.weeklyKm * 0.5 && weeksToRace < 22) {
-    alerts.push({ type: "yellow", icon: "&#128200;", title: "Volume below plan",
-      body: `Weekly avg ${r.recentWeeklyKm.toFixed(1)} km vs plan target ${r.target.weeklyKm} km. You have ${weeksToRace} weeks to close the gap - manageable if frequency increases.` });
-  }
-
-  // Long run progression check
-  const longRunTarget = r.target.longRun;
-  if (r.longestRun < longRunTarget * 0.6 && weeksToRace < 20) {
-    alerts.push({ type: "yellow", icon: "&#128099;", title: "Long run needs attention",
-      body: `Longest run ${r.longestRun.toFixed(1)} km vs current target ${longRunTarget} km. Focus next 4 weeks on extending your longest run by 1-2 km each week.` });
-  }
-
-  // Pace - positive signal
-  if (r.components[2].value >= 100) {
-    const band = getRacePaceBand();
-    alerts.push({ type: "green", icon: "&#9889;", title: "Pace ahead of target",
-      body: `Current pace ${formatPace(r.recentPace)} /km is already within your race target range (${formatPace(band.fast)}-${formatPace(band.slow)}). Your speed is not the bottleneck - focus on distance and consistency.` });
-  }
-
-  // Good progress
-  if (r.score >= 60 && alerts.filter(a => a.type !== "green").length === 0) {
-    alerts.push({ type: "green", icon: "&#10003;", title: "On track",
-      body: `Readiness score ${r.score}/100 with ${weeksToRace} weeks remaining. Current trajectory supports your half marathon goal.` });
-  }
-
-  const container = document.getElementById("running-alerts");
-  if (alerts.length === 0) { container.innerHTML = ""; return; }
-  container.innerHTML = alerts.map(a => `
-    <div class="alert-card alert-${a.type}">
-      <div class="alert-icon">${a.icon}</div>
-      <div><div class="alert-title">${a.title}</div><div class="alert-body">${a.body}</div></div>
-    </div>`).join("");
-}
-
-function renderWeeklySuggestion(r) {
-  const plan = getTrainingPlan();
-  const nextWeek = plan[Math.min(r.currentWeek + 1, plan.length - 1)];
-  const currentLongest = r.longestRun;
-
-  // Suggest next long run: +1-2 km from current longest, max 10% jump
-  const suggestedLongRun = Math.min(currentLongest + 2, currentLongest * 1.1, nextWeek.longRun);
-  const suggestedWeeklyKm = nextWeek.weeklyKm;
-  const suggestedRuns = nextWeek.runsPerWeek;
-  // Easy pace derived from the race-pace goal: easy runs should be SLOWER than race pace
-  const easy = getEasyPaceBand();
-  const suggestedEasyPace = formatPace(easy.from) + " - " + formatPace(easy.to);
-  const phase = nextWeek.phase;
-
-  document.getElementById("running-weekly-suggestion").innerHTML = `
-    <div class="weekly-suggestion">
-      <h3>Next Week's Targets - Week ${r.currentWeek + 1} (${phase} Phase)</h3>
-      <div class="weekly-targets">
-        <div class="weekly-target-item"><span class="target-label">Runs</span><span class="target-value">${suggestedRuns}x</span></div>
-        <div class="weekly-target-item"><span class="target-label">Total volume</span><span class="target-value">${suggestedWeeklyKm.toFixed(0)} km</span></div>
-        <div class="weekly-target-item"><span class="target-label">Longest run</span><span class="target-value">${suggestedLongRun.toFixed(1)} km</span></div>
-        <div class="weekly-target-item"><span class="target-label">Easy run pace</span><span class="target-value">${suggestedEasyPace} /km</span></div>
-      </div>
-    </div>`;
 }
 
 function renderRunningSummary() {
@@ -2744,84 +2419,7 @@ function renderRunningSummary() {
     </div>`).join("");
 }
 
-function renderRunningGoals() {
-  // Everything below is computed from the runs data and the plan - no manual updates needed.
-  const plan = getTrainingPlan();
-  const weeksOut = getWeeksToRace();
-  const band = getRacePaceBand();
-
-  // Milestone rows: achieved date from actual runs, target month from the plan curve
-  const milestones = [10, 15, 18, 21.1];
-  const planDateFor = km => {
-    const hit = plan.find(p => p.longRun >= km - 0.05);
-    if (!hit) return "Race day";
-    const d = new Date(TRAINING_START);
-    d.setDate(d.getDate() + hit.week * 7);
-    return d.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
-  };
-  const milestoneRows = milestones.map(m => {
-    const achieved = runs.find(r => r.distance >= m - 0.05);
-    const label = m === 21.1 ? "21.1 km" : m + " km";
-    const target = m === 21.1 ? "20/09/2026 (race day)" : "plan: " + planDateFor(m);
-    const status = achieved
-      ? `<td style="color:var(--green); font-weight:700;">&#10003; DONE (${formatDateDDMM(achieved.date)})</td>`
-      : `<td style="color:var(--muted);">Pending</td>`;
-    return `<tr><td>${label}</td><td>${target}</td>${status}</tr>`;
-  }).join("");
-
-  // Current 4-week volume / frequency / pace vs the current phase target
-  const currentWeek = Math.min(getCurrentWeek(), plan.length - 1);
-  const target = plan[currentWeek];
-  const fourWeeksAgo = new Date(TODAY);
-  fourWeeksAgo.setDate(fourWeeksAgo.getDate() - 28);
-  const recent = runs.filter(r => new Date(r.date) >= fourWeeksAgo);
-  const recentKm = recent.reduce((s, r) => s + r.distance, 0) / 4;
-  const recentFreq = recent.length / 4;
-  const recentPace = recent.length > 0
-    ? Math.round(recent.reduce((s, r) => s + r.avgPaceSec * r.distance, 0) / recent.reduce((s, r) => s + r.distance, 0))
-    : null;
-  const paceStatus = recentPace === null
-    ? `<td style="color:var(--muted);">No runs in last 4 weeks</td>`
-    : recentPace <= band.slow
-      ? `<td style="color:var(--green); font-weight:700;">Current: ~${formatPace(recentPace)} - within range</td>`
-      : `<td style="color:var(--orange);">Current: ~${formatPace(recentPace)}</td>`;
-
-  document.getElementById("running-goals").innerHTML = `
-    <div class="section-label">RUNNING GOALS <span class="count">Half Marathon Prep</span></div>
-    <div class="goals-grid">
-      <div class="goal-card">
-        <h3><span class="goal-tag goal-tag-primary">Race Readiness</span> Longest Run Progression</h3>
-        <table>
-          <tr><th>Milestone</th><th>Target</th><th>Status</th></tr>
-          ${milestoneRows}
-        </table>
-      </div>
-      <div class="goal-card">
-        <h3><span class="goal-tag goal-tag-secondary">Volume</span> Weekly Distance</h3>
-        <table>
-          <tr><th>Phase</th><th>Target</th><th>Status</th></tr>
-          <tr><td>${target.phase} (now)</td><td>${target.weeklyKm} km/week</td><td style="color:var(--orange);">Current 4-wk avg: ${recentKm.toFixed(1)} km/week</td></tr>
-        </table>
-      </div>
-      <div class="goal-card">
-        <h3><span class="goal-tag goal-tag-nice">Frequency</span> Runs Per Week</h3>
-        <table>
-          <tr><th>Phase</th><th>Target</th><th>Status</th></tr>
-          <tr><td>${target.phase} (now)</td><td>${target.runsPerWeek}x/week</td><td style="color:var(--orange);">Current 4-wk avg: ${recentFreq.toFixed(1)}x/week</td></tr>
-        </table>
-      </div>
-      <div class="goal-card">
-        <h3><span class="goal-tag goal-tag-cardio">Pace</span> Race Pace Target</h3>
-        <table>
-          <tr><th>Metric</th><th>Value</th><th>Status</th></tr>
-          <tr><td>Target finish</td><td>2:00 - 2:10</td><td style="color:var(--muted);">${weeksOut} weeks out</td></tr>
-          <tr><td>Required pace</td><td>${formatPace(band.fast)} - ${formatPace(band.slow)} /km</td>${paceStatus}</tr>
-        </table>
-      </div>
-    </div>`;
-}
-
-function renderRunningCharts(readiness) {
+function renderRunningCharts() {
   const container = document.getElementById("running-charts");
   const chartColors = { easy: "#16a34a", tempo: "#ea580c", long: "#2563eb", interval: "#7c3aed", race: "#dc2626" };
 
@@ -2912,7 +2510,7 @@ function renderRunningCharts(readiness) {
   // Long run progression
   const longCard = document.createElement("div");
   longCard.className = "chart-card";
-  longCard.innerHTML = `<h3>Long Run Progression</h3><div class="meta">Longest run distance over time</div><canvas id="longRunChart"></canvas>`;
+  longCard.innerHTML = `<h3>Long Run Progression</h3><div class="meta">Best distance to date</div><canvas id="longRunChart"></canvas>`;
   container.appendChild(longCard);
 
   // Build cumulative max distance series
@@ -2944,22 +2542,10 @@ function renderRunningCharts(readiness) {
       },
       scales: {
         y: {
-          min: 0, max: 22,
+          min: 0,
+          suggestedMax: Math.ceil(maxDist) + 2,
           title: { display: true, text: "km" },
-          ticks: {
-            font: function(ctx) {
-              if (ctx.tick && (ctx.tick.value === 10 || ctx.tick.value === 15 || ctx.tick.value === 21)) {
-                return { size: 11, weight: "bold" };
-              }
-              return { size: 10 };
-            },
-            callback: function(v) {
-              if (v === 10) return "10K";
-              if (v === 15) return "15K";
-              if (v === 21) return "21.1K";
-              return v;
-            }
-          }
+          ticks: { font: { size: 10 } }
         },
         x: { grid: { display: false }, ticks: { maxRotation: 45, font: { size: 10 } } }
       }
@@ -2969,20 +2555,17 @@ function renderRunningCharts(readiness) {
   // Heart rate vs pace scatter
   const hrCard = document.createElement("div");
   hrCard.className = "chart-card";
-  hrCard.innerHTML = `<h3>Heart Rate vs Pace</h3><div class="meta">Easy runs only - aerobic efficiency</div><canvas id="hrPaceChart"></canvas>`;
+  hrCard.innerHTML = `<h3>Heart Rate vs Pace</h3><div class="meta">All runs with HR - coloured by type</div><canvas id="hrPaceChart"></canvas>`;
   container.appendChild(hrCard);
 
-  const easyWithHR = runs.filter(r => r.type === "easy" && r.avgHR);
+  const withHR = runs.filter(r => r.avgHR);
   new Chart(document.getElementById("hrPaceChart"), {
     type: "scatter",
     data: {
       datasets: [{
-        label: "Easy runs",
-        data: easyWithHR.map(r => ({ x: r.avgPaceSec, y: r.avgHR })),
-        backgroundColor: easyWithHR.map(r => {
-          // Colour by whether indoor (no elevation) or outdoor
-          return r.elevation === null ? "rgba(37, 99, 235, 0.7)" : "rgba(22, 163, 74, 0.7)";
-        }),
+        label: "Runs",
+        data: withHR.map(r => ({ x: r.avgPaceSec, y: r.avgHR })),
+        backgroundColor: withHR.map(r => chartColors[r.type] || "#2563eb"),
         pointRadius: 8,
         pointHoverRadius: 10
       }]
@@ -2994,8 +2577,8 @@ function renderRunningCharts(readiness) {
         tooltip: {
           callbacks: {
             label: function(ctx) {
-              const r = easyWithHR[ctx.dataIndex];
-              return formatPace(r.avgPaceSec) + " /km - " + r.avgHR + " bpm - " + r.distance + " km (" + formatDateDDMM(r.date) + ")";
+              const r = withHR[ctx.dataIndex];
+              return formatPace(r.avgPaceSec) + " /km - " + r.avgHR + " bpm - " + r.distance + " km " + r.type + " (" + formatDateDDMM(r.date) + ")";
             }
           }
         }
@@ -3014,121 +2597,6 @@ function renderRunningCharts(readiness) {
     }
   });
 
-  // ===== Progress vs Plan - Long Run =====
-  const planCard = document.createElement("div");
-  planCard.className = "chart-card";
-  planCard.innerHTML = `<h3>Progress vs Plan - Long Run</h3><div class="meta">Actual longest run vs reference training plan</div><canvas id="progressPlanChart"></canvas>`;
-  container.appendChild(planCard);
-
-  const plan = getTrainingPlan();
-  const currentWeek = getCurrentWeek();
-  const planWeeks = plan.map(p => "W" + p.week);
-  const planLongRuns = plan.map(p => p.longRun);
-
-  // Build actual data points mapped to weeks
-  const actualByWeek = {};
-  let runningMax = 0;
-  runs.forEach(r => {
-    const start = new Date(TRAINING_START);
-    const runDate = new Date(r.date);
-    const wk = Math.max(0, Math.floor((runDate - start) / (7 * 86400000)));
-    if (r.distance > runningMax) runningMax = r.distance;
-    actualByWeek[wk] = Math.max(actualByWeek[wk] || 0, runningMax);
-  });
-
-  const actualData = plan.map((p, i) => {
-    if (i > currentWeek) return null;
-    // Find the closest actual data at or before this week
-    let val = null;
-    for (let w = i; w >= 0; w--) {
-      if (actualByWeek[w] !== undefined) { val = actualByWeek[w]; break; }
-    }
-    return val;
-  });
-
-  // Projected trajectory (linear extrapolation from first to latest)
-  const firstRun = runs[0];
-  const lastRun = runs[runs.length - 1];
-  const firstWeek = Math.floor((new Date(firstRun.date) - new Date(TRAINING_START)) / (7 * 86400000));
-  const lastWeek = Math.floor((new Date(lastRun.date) - new Date(TRAINING_START)) / (7 * 86400000));
-  const growthRate = lastWeek > firstWeek ? (runningMax - firstRun.distance) / (lastWeek - firstWeek) : 0.5;
-
-  const projectedData = plan.map((p, i) => {
-    if (i <= currentWeek) return null;
-    const projected = runningMax + growthRate * (i - currentWeek);
-    return Math.min(projected, 22);
-  });
-  // Connect projection to current
-  if (currentWeek < plan.length) projectedData[currentWeek] = runningMax;
-
-  new Chart(document.getElementById("progressPlanChart"), {
-    type: "line",
-    data: {
-      labels: planWeeks,
-      datasets: [
-        {
-          label: "Plan target",
-          data: planLongRuns,
-          borderColor: "#94a3b8",
-          borderDash: [6, 4],
-          backgroundColor: "rgba(148, 163, 184, 0.05)",
-          fill: true,
-          tension: 0.3,
-          pointRadius: 0
-        },
-        {
-          label: "Actual (longest run)",
-          data: actualData,
-          borderColor: "#2563eb",
-          backgroundColor: "rgba(37, 99, 235, 0.1)",
-          fill: false,
-          tension: 0.3,
-          pointRadius: 4,
-          spanGaps: true
-        },
-        {
-          label: "Projected",
-          data: projectedData,
-          borderColor: "#2563eb",
-          borderDash: [4, 4],
-          backgroundColor: "rgba(37, 99, 235, 0.05)",
-          fill: false,
-          tension: 0.3,
-          pointRadius: 0,
-          spanGaps: true
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { position: "bottom", labels: { font: { size: 10 }, usePointStyle: true } },
-        tooltip: {
-          callbacks: {
-            label: function(ctx) {
-              return ctx.dataset.label + ": " + (ctx.raw !== null ? ctx.raw.toFixed(1) + " km" : "-");
-            }
-          }
-        }
-      },
-      scales: {
-        y: {
-          min: 0, max: 22,
-          title: { display: true, text: "Longest run (km)" },
-          ticks: {
-            callback: function(v) {
-              if (v === 10) return "10K";
-              if (v === 15) return "15K";
-              if (v === 21) return "21.1K";
-              return v;
-            },
-            font: { size: 10 }
-          }
-        },
-        x: { grid: { display: false }, ticks: { maxRotation: 0, font: { size: 9 }, maxTicksLimit: 14 } }
-      }
-    }
-  });
 }
 
 function renderRunningTable() {
