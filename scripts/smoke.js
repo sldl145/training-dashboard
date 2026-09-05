@@ -91,6 +91,44 @@ function findChromium() {
         out.push(`Withings: chart #${id} has no plotted points`);
     });
 
+    // Every raw series must carry one point per weigh-in. A metric silently dropping
+    // rows, or points hidden under their own mean line, both show up here.
+    const n = +(document.getElementById('withings-subtitle').textContent.match(/(\d+) weigh-in/) || [])[1];
+    if (!n) out.push('Withings: could not read the weigh-in count from the subtitle');
+    else ['wgWeightChart', 'wgFatChart', 'wgMuscleChart', 'wgWaterChart', 'wgVfiChart'].forEach(id => {
+      const chart = Chart.getChart(document.getElementById(id));
+      if (!chart) return;
+      chart.data.datasets
+        .filter(d => d.showLine === false && d.label !== 'InBody (SATS)')
+        .forEach(d => {
+          const drawn = (d.data || []).filter(pt => pt && pt.y != null).length;
+          if (drawn !== n) out.push(`Withings: ${id} series "${d.label}" draws ${drawn} points, expected ${n}`);
+          if (!(d.pointRadius > 0)) out.push(`Withings: ${id} series "${d.label}" has no visible points`);
+        });
+      // Two metrics sharing a chart must stay visually separable. Near-collinear pairs
+      // (fat % and fat kg) can otherwise land on the same pixels once each axis
+      // auto-scales to its own range, which hides one series completely.
+      const raws = chart.data.datasets
+        .map((d, i) => ({ d, i }))
+        .filter(x => x.d.showLine === false && x.d.label !== 'InBody (SATS)');
+      for (let a = 0; a < raws.length; a++) for (let b2 = a + 1; b2 < raws.length; b2++) {
+        const A = chart.getDatasetMeta(raws[a].i).data, B = chart.getDatasetMeta(raws[b2].i).data;
+        A.forEach((pt, k) => {
+          if (!B[k]) return;
+          const gap = Math.hypot(pt.x - B[k].x, pt.y - B[k].y);
+          if (gap < 8) out.push(
+            `Withings: ${id} "${raws[a].d.label}" and "${raws[b2].d.label}" overlap at point ${k + 1} (${gap.toFixed(1)} px apart)`);
+        });
+      }
+
+      // Axis labels are dates, so every tick must be a real calendar midnight.
+      chart.scales.x.ticks.forEach(t => {
+        const d = new Date(t.value);
+        if (d.getHours() || d.getMinutes() || d.getSeconds())
+          out.push(`Withings: ${id} has an x tick at ${d.toTimeString().slice(0, 8)}, not midnight`);
+      });
+    });
+
     const kpis = block.querySelectorAll('#withings-kpi-grid .inbody-kpi-card');
     if (kpis.length !== 6) out.push(`Withings: expected 6 KPI cards, found ${kpis.length}`);
 

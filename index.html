@@ -3214,8 +3214,6 @@ function renderWithings() {
   const wgTs = w => new Date(w.dt).getTime();                 // local, no timezone suffix
   const wgDay = ts => { const d = new Date(ts);
     return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0'); };
-  const wgClock = ts => { const d = new Date(ts);
-    return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); };
   const wgStamp = dt => { const [day, time] = dt.split('T'); const [y, m, d] = day.split('-');
     return `${d}/${m}/${y} ${time.slice(0, 5)}`; };
   const wgNum = (v, dp) => v == null ? '-' : v.toFixed(dp);
@@ -3274,12 +3272,28 @@ function renderWithings() {
   };
   const wgPoints = key => weighins.filter(w => w[key] != null).map(w => ({ x: wgTs(w), y: w[key] }));
 
+  // Explicit, deliberately UNEQUAL padding for the two axes of a dual-metric chart.
+  // Left to itself, Chart.js pads each axis to its own data range, which makes two
+  // near-collinear series land on top of each other: fat kg IS weight x fat %, and
+  // weight barely moves day to day, so both curves have the same shape and auto-scaling
+  // maps them to the same pixels (measured: 0-1 px apart). Padding the secondary axis
+  // harder at the bottom slides its series clear without touching either series' shape.
+  // A flat metric (visceral fat index sits on 3.3) has zero range, hence the floor.
+  const wgBounds = (key, padLo, padHi) => {
+    const vals = weighins.map(w => w[key]).filter(v => v != null);
+    if (!vals.length) return {};
+    const lo = Math.min(...vals), hi = Math.max(...vals);
+    const range = hi - lo || Math.max(Math.abs(hi) * 0.05, 0.5);
+    return { min: +(lo - range * padLo).toFixed(2), max: +(hi + range * padHi).toFixed(2) };
+  };
+
   // ---- x-axis window: the weigh-in span. InBody scans outside it are not plotted; the
   // daily series is the point of this block and a year-long axis would flatten it.
-  const wgFirstTs = wgTs(weighins[0]), wgLastTs = wgTs(wgLast);
-  const wgSpan = Math.max(wgLastTs - wgFirstTs, 36e5);
-  const wgXMin = wgFirstTs - wgSpan * 0.06, wgXMax = wgLastTs + wgSpan * 0.06;
-  const wgShortWindow = wgSpan < 5 * 864e5;   // under 5 days: ticks need the clock too
+  // Bounds are the midnight before the first reading and the midnight after the last, so
+  // every tick is a real calendar boundary and every reading sits inside a labelled day.
+  const wgMidnight = ts => { const d = new Date(ts); d.setHours(0, 0, 0, 0); return d.getTime(); };
+  const wgXMin = wgMidnight(wgTs(weighins[0]));
+  const wgXMax = wgMidnight(wgTs(wgLast)) + 864e5;
 
   const wgScanTs = s => { const [dd, mm, yy] = s.date.split('/'); return new Date(`${yy}-${mm}-${dd}T12:00:00`).getTime(); };
   const wgScansInWindow = scans.filter(s => { const t = wgScanTs(s); return t >= wgXMin && t <= wgXMax; });
@@ -3317,16 +3331,21 @@ function renderWithings() {
     },
   };
 
-  const wgRaw = (label, key, color) => ({
-    label, data: wgPoints(key), showLine: false,
-    borderColor: color, backgroundColor: color,
-    pointRadius: 3.5, pointHoverRadius: 6, pointBorderColor: '#ffffff', pointBorderWidth: 1,
+  // `style` and `dash` separate metrics that share a chart. Two series on two axes can
+  // land on top of each other by coincidence of scaling - the fat % / fat kg pair does
+  // exactly that - and a shape plus a dash pattern survives the overlap where colour
+  // alone does not. order:0 keeps the readings drawn above their own mean line.
+  const wgRaw = (label, key, color, style = 'circle') => ({
+    label, data: wgPoints(key), showLine: false, order: 0,
+    borderColor: color, backgroundColor: color, pointStyle: style,
+    pointRadius: style === 'circle' ? 4 : 5, pointHoverRadius: style === 'circle' ? 7 : 8,
+    pointBorderColor: '#ffffff', pointBorderWidth: 2,
   });
-  const wgMean = (label, key, color) => ({
-    label: label + ' (7-mean)', data: wgRolling(key),
+  const wgMean = (label, key, color, dash) => ({
+    label: label + ' (7-mean)', data: wgRolling(key), order: 1,
     borderColor: color, backgroundColor: color, pointStyle: 'line',
-    borderWidth: 2, pointRadius: 0, pointHoverRadius: 0, fill: false, tension: 0.25,
-    spanGaps: false,
+    borderWidth: 2, borderDash: dash || [], pointRadius: 0, pointHoverRadius: 0,
+    fill: false, tension: 0.25, spanGaps: false,
   });
   // Returns [] when no scan falls in the window, so the caller can spread it away and the
   // legend does not advertise a series with nothing in it.
@@ -3360,21 +3379,17 @@ function renderWithings() {
       scales: {
         x: {
           type: 'linear', min: wgXMin, max: wgXMax, grid: { display: false },
-          ticks: {
-            maxRotation: 50, font: { size: 10 }, autoSkipPadding: 18,
-            // Short windows put several ticks inside one day, which would print the same
-            // DD/MM over and over. Add the clock there, and blank any label that still
-            // repeats the one before it.
-            callback: (v, i, all) => {
-              const label = wgShortWindow ? `${wgDay(v)} ${wgClock(v)}` : wgDay(v);
-              if (i > 0) {
-                const prevVal = all[i - 1].value;
-                const prev = wgShortWindow ? `${wgDay(prevVal)} ${wgClock(prevVal)}` : wgDay(prevVal);
-                if (prev === label) return '';
-              }
-              return label;
-            },
+          // One tick per calendar day (thinned to at most ~60 before Chart.js autoSkip
+          // thins again for the available width), so a label always means midnight.
+          afterBuildTicks: axis => {
+            const days = Math.ceil((axis.max - axis.min) / 864e5) + 1;
+            const step = Math.max(1, Math.ceil(days / 60));
+            const out = [];
+            for (const d = new Date(axis.min); d.getTime() <= axis.max; d.setDate(d.getDate() + step))
+              out.push({ value: d.getTime() });
+            axis.ticks = out;
           },
+          ticks: { maxRotation: 50, font: { size: 10 }, autoSkip: true, autoSkipPadding: 18, callback: v => wgDay(v) },
         },
         y: { grid: gridOpts, ticks: { font: { size: 10 } } },
       },
@@ -3405,15 +3420,17 @@ function renderWithings() {
     [
       { ...wgRaw('Body fat %', 'fatPct', '#f59e0b'), yAxisID: 'y', _unit: '%' },
       { ...wgMean('Body fat %', 'fatPct', '#f59e0b'), yAxisID: 'y', _unit: '%' },
-      { ...wgRaw('Fat mass', 'fatKg', '#ef4444'), yAxisID: 'y1', _unit: ' kg' },
-      { ...wgMean('Fat mass', 'fatKg', '#ef4444'), yAxisID: 'y1', _unit: ' kg' },
+      { ...wgRaw('Fat mass', 'fatKg', '#ef4444', 'rectRot'), yAxisID: 'y1', _unit: ' kg' },
+      { ...wgMean('Fat mass', 'fatKg', '#ef4444', [6, 4]), yAxisID: 'y1', _unit: ' kg' },
       ...wgInBody('pbf', '%', { yAxisID: 'y' }),
     ],
     wgOptions('%', base => {
+      Object.assign(base.scales.y, wgBounds('fatPct', 0.15, 0.15));
       base.scales.y.title = { display: true, text: '%', font: { size: 10 } };
       base.scales.y1 = {
         position: 'right', grid: { display: false }, ticks: { font: { size: 10 } },
         title: { display: true, text: 'kg', font: { size: 10 } },
+        ...wgBounds('fatKg', 0.45, 0.05),
       };
       return base;
     }));
@@ -3425,7 +3442,7 @@ function renderWithings() {
   wgMake('wgMuscleChart',
     [
       wgRaw('Muscle mass', 'muscleKg', '#22c55e'), wgMean('Muscle mass', 'muscleKg', '#22c55e'),
-      wgRaw('Fat-free mass', 'ffmKg', '#14b8a6'), wgMean('Fat-free mass', 'ffmKg', '#14b8a6'),
+      wgRaw('Fat-free mass', 'ffmKg', '#14b8a6', 'rectRot'), wgMean('Fat-free mass', 'ffmKg', '#14b8a6', [6, 4]),
     ],
     wgOptions(' kg'));
 
@@ -3438,8 +3455,8 @@ function renderWithings() {
   wgMake('wgWaterChart',
     [
       wgRaw('Total water', 'waterKg', '#0ea5e9'), wgMean('Total water', 'waterKg', '#0ea5e9'),
-      wgRaw('ECW', 'ecwKg', '#a855f7'), wgMean('ECW', 'ecwKg', '#a855f7'),
-      wgRaw('ICW', 'icwKg', '#06b6d4'), wgMean('ICW', 'icwKg', '#06b6d4'),
+      wgRaw('ECW', 'ecwKg', '#a855f7', 'rectRot'), wgMean('ECW', 'ecwKg', '#a855f7', [6, 4]),
+      wgRaw('ICW', 'icwKg', '#06b6d4', 'triangle'), wgMean('ICW', 'icwKg', '#06b6d4', [2, 3]),
     ],
     wgOptions(' kg'));
 
@@ -3451,14 +3468,16 @@ function renderWithings() {
     [
       { ...wgRaw('Visceral fat index', 'vfi', '#7c3aed'), yAxisID: 'y', _unit: '' },
       { ...wgMean('Visceral fat index', 'vfi', '#7c3aed'), yAxisID: 'y', _unit: '' },
-      { ...wgRaw('Metabolic age', 'metAge', '#ea580c'), yAxisID: 'y1', _unit: ' y' },
-      { ...wgMean('Metabolic age', 'metAge', '#ea580c'), yAxisID: 'y1', _unit: ' y' },
+      { ...wgRaw('Metabolic age', 'metAge', '#ea580c', 'rectRot'), yAxisID: 'y1', _unit: ' y' },
+      { ...wgMean('Metabolic age', 'metAge', '#ea580c', [6, 4]), yAxisID: 'y1', _unit: ' y' },
     ],
     wgOptions('', base => {
+      Object.assign(base.scales.y, wgBounds('vfi', 0.15, 0.15));
       base.scales.y.title = { display: true, text: 'index', font: { size: 10 } };
       base.scales.y1 = {
         position: 'right', grid: { display: false }, ticks: { font: { size: 10 } },
         title: { display: true, text: 'years', font: { size: 10 } },
+        ...wgBounds('metAge', 0.45, 0.05),
       };
       return base;
     }));
