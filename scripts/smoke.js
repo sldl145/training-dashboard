@@ -65,12 +65,53 @@ function findChromium() {
   await settle();
   failures.push(...await checkActiveTab('Running', 4));
 
-  // Tab 3: Body Composition (also wires window.exportPDF on first open)
+  // Tab 3: Body Composition - Withings block (5 charts) above InBody (6 charts).
+  // Also wires window.exportPDF on first open.
   await page.click('button.tab-button:has-text("Body Composition")');
   await settle();
-  failures.push(...await checkActiveTab('Body Composition', 6));
+  failures.push(...await checkActiveTab('Body Composition', 11));
   if (await page.evaluate(() => typeof window.exportPDF !== 'function'))
     failures.push('Body Composition: window.exportPDF is not wired');
+
+  // Withings block: every chart drawn, KPIs and the segmental outline filled in, and the
+  // block kept OUTSIDE #dashboard so the Export-to-PDF button stays InBody-only.
+  failures.push(...await page.evaluate(() => {
+    const out = [];
+    const block = document.getElementById('withings-block');
+    if (!block) return ['Withings: #withings-block is missing'];
+    if (document.getElementById('dashboard').contains(block))
+      out.push('Withings: block is inside #dashboard - it would leak into the PDF export');
+
+    ['wgWeightChart', 'wgFatChart', 'wgMuscleChart', 'wgWaterChart', 'wgVfiChart'].forEach(id => {
+      const c = document.getElementById(id);
+      if (!c) { out.push(`Withings: canvas #${id} is missing`); return; }
+      const chart = Chart.getChart(c);
+      if (!chart) { out.push(`Withings: canvas #${id} has no Chart instance`); return; }
+      if (!chart.data.datasets.some(d => (d.data || []).length))
+        out.push(`Withings: chart #${id} has no plotted points`);
+    });
+
+    const kpis = block.querySelectorAll('#withings-kpi-grid .inbody-kpi-card');
+    if (kpis.length !== 6) out.push(`Withings: expected 6 KPI cards, found ${kpis.length}`);
+
+    const boxes = block.querySelectorAll('#withings-seg-card .withings-seg-box');
+    if (boxes.length !== 5) out.push(`Withings: expected 5 segment boxes, found ${boxes.length}`);
+
+    if (!document.getElementById('withings-subtitle').textContent.trim())
+      out.push('Withings: subtitle is empty');
+    return out;
+  }));
+
+  // Phone width (380 px): the segmental boxes must stack, not squeeze into three columns.
+  await page.setViewportSize({ width: 380, height: 900 });
+  await page.waitForTimeout(200);
+  failures.push(...await page.evaluate(() => {
+    const boxes = [...document.querySelectorAll('#withings-seg-card .withings-seg-box')];
+    if (boxes.length < 2) return [];
+    const lefts = new Set(boxes.map(b => Math.round(b.getBoundingClientRect().left)));
+    return lefts.size === 1 ? [] : ['Withings: segment boxes do not stack at 380 px width'];
+  }));
+  await page.setViewportSize({ width: 1440, height: 1000 });
 
   await browser.close();
 

@@ -73,9 +73,12 @@
   .tag-hevy   { background: #dbeafe; color: var(--accent); }
   .tag-apple  { background: #ffedd5; color: var(--orange); }
   .tag-inbody { background: #dcfce7; color: var(--green); }
+  .tag-withings { background: #ede9fe; color: var(--purple); }
   .tag-live   { background: #ccfbf1; color: var(--teal); }
 
-  .gym h2 .icon, .scan h2 .icon, .run h2 .icon { font-size: 1.2em; }
+  .gym h2 .icon, .scan h2 .icon, .run h2 .icon, .weigh h2 .icon { font-size: 1.2em; }
+  .weigh .stage .num { border-color: var(--purple); color: var(--purple); background: #f5f3ff; }
+  .weigh .you-bring { border-left-color: var(--purple); background: #f5f3ff; }
   .scan .stage .num { border-color: var(--green); color: var(--green); background: #f0fdf4; }
   .scan .you-bring { border-left-color: var(--green); background: #f0fdf4; }
   .run .stage .num { border-color: var(--orange); color: var(--orange); background: #fff7ed; }
@@ -95,7 +98,7 @@
 <body>
 
 <h1>How to Update the Dashboard</h1>
-<p class="subtitle">The four workflows - gym session, body scan, run, month rollover. Everything happens from your phone. <a href="index.html">Back to the dashboard</a></p>
+<p class="subtitle">The five workflows - gym session, daily weigh-in, body scan, run, month rollover. Everything happens from your phone. <a href="index.html">Back to the dashboard</a></p>
 
 <div class="start-here">
   <h2>Start here - every workflow begins the same way</h2>
@@ -139,6 +142,36 @@
     <div class="detail">Data validator + real-browser render check must both pass, then the session pushes and the live page updates in ~60 seconds. Decisions get checked off in Notion.</div>
     <span class="tag tag-code">Claude Code</span><span class="tag tag-live">Live dashboard</span>
   </div></div>
+</div>
+
+<!-- WITHINGS WEIGH-IN -->
+<div class="flow-section weigh">
+  <h2><span class="icon">&#9878;&#65039;</span> Daily Weigh-In (Withings)</h2>
+  <div class="desc">Body Composition tab - the daily block above the InBody one</div>
+  <div class="you-bring"><b>You bring:</b> nothing at all - not even a session. Stand on the scale in the morning and forget about it. The next session that runs picks up every weigh-in since the last one it saw.</div>
+
+  <div class="stage"><div class="num">1</div><div>
+    <div class="label">Stand on the Body Scan</div>
+    <div class="detail">Morning, before eating or drinking, same conditions each time - that consistency is what makes the daily trend readable. The scale sends the reading to Withings on its own.</div>
+    <span class="tag tag-you">You</span><span class="tag tag-withings">Withings</span>
+  </div></div>
+  <div class="stage"><div class="num">2</div><div>
+    <div class="label">Any Code session picks them up automatically</div>
+    <div class="detail">There is no "log my weight" step. Every "update dashboard" session pulls <b>everything since the last weigh-in on file</b>, so missing a few days costs nothing - the next pull catches up. Numbers are never typed in from the phone app.</div>
+    <span class="tag tag-code">Claude Code</span><span class="tag tag-withings">Withings</span>
+  </div></div>
+  <div class="stage"><div class="num">3</div><div>
+    <div class="label">Failed readings dropped, good ones added</div>
+    <div class="detail">If the scale gets your weight but the body-composition measurement fails, that reading is thrown away rather than plotted - you often see this as two attempts a minute apart. Nothing goes to Notion: for daily weigh-ins the dashboard itself is the record.</div>
+    <span class="tag tag-code">Claude Code</span>
+  </div></div>
+  <div class="stage"><div class="num">4</div><div>
+    <div class="label">Dashboard updated &rarr; published</div>
+    <div class="detail">KPI cards, the five trend charts and the left/right segmental view all recompute; checks pass; live in ~60 seconds.</div>
+    <span class="tag tag-code">Claude Code</span><span class="tag tag-live">Live dashboard</span>
+  </div></div>
+
+  <div class="you-bring" style="margin-top:16px;margin-bottom:0;"><b>Two instruments, never mixed:</b> the Withings scale at home and the InBody at SATS measure differently and disagree on purpose. Withings reports a whole-body <i>muscle mass</i> around 69 kg; the InBody reports <i>skeletal muscle mass</i> around 43 kg. That is a difference in definition, not a contradiction, and the dashboard keeps them as two separate series that are never averaged or corrected against each other. Watch each one against itself.</div>
 </div>
 
 <!-- SCAN -->
@@ -243,7 +276,11 @@
 </div>
 
 <div class="note-card">
-  <b>Fallbacks, so nothing ever blocks:</b> if Hevy can't be reached, the session asks you to paste a screenshot of the workout from the Hevy app instead. If you'd rather debrief in regular Claude Chat (on the metro, say), that works too - Chat writes the journal to Notion and the next Code session picks up the unchecked decisions. Duplicates are always detected and skipped.
+  <b>Once a year, one tap:</b> the connection to Withings is held by a small service of yours that has to be re-approved about once every twelve months. A session will tell you when it is close, and the fix is to open <b>withings-mcp.paul-rucki.workers.dev/auth</b> in a browser while logged into Withings and approve. Nothing else changes, and weigh-ins taken in the meantime are not lost - they arrive with the next pull.
+</div>
+
+<div class="note-card">
+  <b>Fallbacks, so nothing ever blocks:</b> if Hevy can't be reached, the session asks you to paste a screenshot of the workout from the Hevy app instead. If Withings can't be reached, the session says which of the three causes it is - expired token, blocked network, or a passing glitch - and simply skips the pull; weigh-ins are never typed in by hand, because a missed pull is caught up by the next one whereas a typo is permanent. If you'd rather debrief in regular Claude Chat (on the metro, say), that works too - Chat writes the journal to Notion and the next Code session picks up the unchecked decisions. Duplicates are always detected and skipped.
 </div>
 
 <footer>Living document - any workflow change must update this page (and the README diagram) in the same session. See CLAUDE.md in the repo.</footer>
