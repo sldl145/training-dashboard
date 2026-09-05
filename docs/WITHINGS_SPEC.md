@@ -153,10 +153,18 @@ Body Composition tab gains a Withings block above the existing InBody block. Min
 - **Trend charts**, x = date, raw points + rolling mean line over the last 7 readings
   (readings, not calendar days - gaps are gaps):
   1. weight
-  2. fat % and fat kg
-  3. muscle kg and fat-free mass kg
-  4. water: total, ECW, ICW (ECW/ICW ratio is the hydration-noise tell)
-  5. visceral fat index, metabolic age (small)
+  2. fat % (own chart)
+  3. fat kg (own chart)
+  4. muscle kg and fat-free mass kg
+  5. water: total, ECW, ICW (ECW/ICW ratio is the hydration-noise tell)
+  6. visceral fat index, metabolic age
+
+  Fat % and fat kg were one dual-axis chart in the original draft. Split on Pawel's call
+  (05/09/2026) after implementation showed the two are near-collinear - fat kg is
+  weight x fat %, and weight moves by tens of grams a day - so two independently
+  auto-scaled axes mapped both series onto the same pixels (measured 0-1 px apart) and
+  one series vanished. Any future pair of derived metrics on shared axes has the same
+  trap; `scripts/smoke.js` now fails on any two series within 8 px.
 - **Segmental**: latest reading as a 5-box body outline or a simple table with L/R
   asymmetry % per limb. Asymmetry > 5 % gets a highlight - it is the one segmental number a
   training programme can act on.

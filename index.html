@@ -819,26 +819,31 @@
         <canvas id="wgWeightChart" height="170"></canvas>
       </div>
       <div class="inbody-chart-card">
-        <h3 style="color:#f59e0b;">Body Fat - % and kg</h3>
-        <div class="trend-info" id="wgFatInfo"></div>
-        <canvas id="wgFatChart" height="170"></canvas>
+        <h3 style="color:#f59e0b;">Body Fat (%)</h3>
+        <div class="trend-info" id="wgFatPctInfo"></div>
+        <canvas id="wgFatPctChart" height="170"></canvas>
       </div>
     </div>
 
     <div class="inbody-charts-grid">
+      <div class="inbody-chart-card">
+        <h3 style="color:#ef4444;">Fat Mass (kg)</h3>
+        <div class="trend-info" id="wgFatKgInfo"></div>
+        <canvas id="wgFatKgChart" height="170"></canvas>
+      </div>
       <div class="inbody-chart-card">
         <h3 style="color:#22c55e;">Muscle Mass &amp; Fat-Free Mass (kg)</h3>
         <div class="trend-info" id="wgMuscleInfo"></div>
         <canvas id="wgMuscleChart" height="170"></canvas>
       </div>
+    </div>
+
+    <div class="inbody-charts-grid">
       <div class="inbody-chart-card">
         <h3 style="color:#0ea5e9;">Water - Total, ECW, ICW (kg)</h3>
         <div class="trend-info" id="wgWaterInfo"></div>
         <canvas id="wgWaterChart" height="170"></canvas>
       </div>
-    </div>
-
-    <div class="inbody-charts-grid">
       <div class="inbody-chart-card">
         <h3 style="color:#7c3aed;">Visceral Fat Index &amp; Metabolic Age</h3>
         <div class="trend-info" id="wgVfiInfo"></div>
@@ -3413,29 +3418,26 @@ function renderWithings() {
     [wgRaw('Weight', 'kg', '#6366f1'), wgMean('Weight', 'kg', '#6366f1'), ...wgInBody('weight', ' kg')],
     wgOptions(' kg'));
 
-  // ---- 2. Body fat: % (left axis) and kg (right axis) -------------------------------
-  document.getElementById('wgFatInfo').textContent =
-    `Latest ${wgNum(wgLast.fatPct, 2)}% / ${wgNum(wgLast.fatKg, 2)} kg. Left axis %, right axis kg. ${wgOverlayNote}${wgAlgoNote}`;
-  wgMake('wgFatChart',
-    [
-      { ...wgRaw('Body fat %', 'fatPct', '#f59e0b'), yAxisID: 'y', _unit: '%' },
-      { ...wgMean('Body fat %', 'fatPct', '#f59e0b'), yAxisID: 'y', _unit: '%' },
-      { ...wgRaw('Fat mass', 'fatKg', '#ef4444', 'rectRot'), yAxisID: 'y1', _unit: ' kg' },
-      { ...wgMean('Fat mass', 'fatKg', '#ef4444', [6, 4]), yAxisID: 'y1', _unit: ' kg' },
-      ...wgInBody('pbf', '%', { yAxisID: 'y' }),
-    ],
-    wgOptions('%', base => {
-      Object.assign(base.scales.y, wgBounds('fatPct', 0.15, 0.15));
-      base.scales.y.title = { display: true, text: '%', font: { size: 10 } };
-      base.scales.y1 = {
-        position: 'right', grid: { display: false }, ticks: { font: { size: 10 } },
-        title: { display: true, text: 'kg', font: { size: 10 } },
-        ...wgBounds('fatKg', 0.45, 0.05),
-      };
-      return base;
-    }));
+  // ---- 2. Body fat %  --------------------------------------------------------------
+  // Percentage and mass are on separate charts (Pawel's call). They are near-collinear -
+  // fat kg is weight x fat %, and weight barely moves - so on one chart with two axes
+  // they land on the same pixels and one of them disappears.
+  document.getElementById('wgFatPctInfo').textContent =
+    `Latest ${wgNum(wgLast.fatPct, 2)}%. Fat mass in kg is the chart below. ${wgOverlayNote}${wgAlgoNote}`;
+  wgMake('wgFatPctChart',
+    [wgRaw('Body fat %', 'fatPct', '#f59e0b'), wgMean('Body fat %', 'fatPct', '#f59e0b'), ...wgInBody('pbf', '%')],
+    wgOptions('%'));
 
-  // ---- 3. Muscle mass and fat-free mass --------------------------------------------
+  // ---- 3. Fat mass ------------------------------------------------------------------
+  // No InBody overlay here: the spec puts scans[] on the weight and body-fat-% charts
+  // only, and InBody fat mass is a different measurement from the Withings figure.
+  document.getElementById('wgFatKgInfo').textContent =
+    `Latest ${wgNum(wgLast.fatKg, 2)} kg. Body fat as a percentage is the chart above.${wgAlgoNote}`;
+  wgMake('wgFatKgChart',
+    [wgRaw('Fat mass', 'fatKg', '#ef4444'), wgMean('Fat mass', 'fatKg', '#ef4444')],
+    wgOptions(' kg'));
+
+  // ---- 4. Muscle mass and fat-free mass --------------------------------------------
   document.getElementById('wgMuscleInfo').textContent =
     `Latest ${wgNum(wgLast.muscleKg, 2)} kg muscle, ${wgNum(wgLast.ffmKg, 2)} kg fat-free mass. ` +
     `Withings composite muscle mass - NOT the InBody's skeletal muscle mass, and not plotted against it.${wgAlgoNote}`;
@@ -3446,7 +3448,7 @@ function renderWithings() {
     ],
     wgOptions(' kg'));
 
-  // ---- 4. Water: total, ECW, ICW ---------------------------------------------------
+  // ---- 5. Water: total, ECW, ICW ---------------------------------------------------
   const wgRatio = (wgLast.ecwKg != null && wgLast.icwKg != null) ? (wgLast.ecwKg / wgLast.icwKg) : null;
   document.getElementById('wgWaterInfo').textContent =
     `Latest ${wgNum(wgLast.waterKg, 2)} kg total, ECW ${wgNum(wgLast.ecwKg, 2)} / ICW ${wgNum(wgLast.icwKg, 2)}` +
@@ -3460,7 +3462,7 @@ function renderWithings() {
     ],
     wgOptions(' kg'));
 
-  // ---- 5. Visceral fat index and metabolic age (small) ------------------------------
+  // ---- 6. Visceral fat index and metabolic age -------------------------------------
   document.getElementById('wgVfiInfo').textContent =
     `Latest VFI ${wgNum(wgLast.vfi, 1)}, metabolic age ${wgLast.metAge == null ? '-' : wgLast.metAge} y. ` +
     `Left axis index, right axis years.${wgAlgoNote}`;

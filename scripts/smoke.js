@@ -65,11 +65,11 @@ function findChromium() {
   await settle();
   failures.push(...await checkActiveTab('Running', 4));
 
-  // Tab 3: Body Composition - Withings block (5 charts) above InBody (6 charts).
+  // Tab 3: Body Composition - Withings block (6 charts) above InBody (6 charts).
   // Also wires window.exportPDF on first open.
   await page.click('button.tab-button:has-text("Body Composition")');
   await settle();
-  failures.push(...await checkActiveTab('Body Composition', 11));
+  failures.push(...await checkActiveTab('Body Composition', 12));
   if (await page.evaluate(() => typeof window.exportPDF !== 'function'))
     failures.push('Body Composition: window.exportPDF is not wired');
 
@@ -82,7 +82,7 @@ function findChromium() {
     if (document.getElementById('dashboard').contains(block))
       out.push('Withings: block is inside #dashboard - it would leak into the PDF export');
 
-    ['wgWeightChart', 'wgFatChart', 'wgMuscleChart', 'wgWaterChart', 'wgVfiChart'].forEach(id => {
+    ['wgWeightChart', 'wgFatPctChart', 'wgFatKgChart', 'wgMuscleChart', 'wgWaterChart', 'wgVfiChart'].forEach(id => {
       const c = document.getElementById(id);
       if (!c) { out.push(`Withings: canvas #${id} is missing`); return; }
       const chart = Chart.getChart(c);
@@ -95,7 +95,7 @@ function findChromium() {
     // rows, or points hidden under their own mean line, both show up here.
     const n = +(document.getElementById('withings-subtitle').textContent.match(/(\d+) weigh-in/) || [])[1];
     if (!n) out.push('Withings: could not read the weigh-in count from the subtitle');
-    else ['wgWeightChart', 'wgFatChart', 'wgMuscleChart', 'wgWaterChart', 'wgVfiChart'].forEach(id => {
+    else ['wgWeightChart', 'wgFatPctChart', 'wgFatKgChart', 'wgMuscleChart', 'wgWaterChart', 'wgVfiChart'].forEach(id => {
       const chart = Chart.getChart(document.getElementById(id));
       if (!chart) return;
       chart.data.datasets
