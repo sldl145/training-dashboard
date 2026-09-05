@@ -13,6 +13,7 @@ anywhere else. Pushing `main` is publishing.
 | "update dashboard" after a gym session | This file (workflow below) + `docs/DEBRIEF.md` for the debrief |
 | Detailed data rules, Hevy name mapping, goals/graveyard mechanics | `docs/GYM_DASHBOARD_INSTRUCTIONS.md` |
 | New run data / Running tab changes | `docs/RUNNING_TAB_SPEC.md` |
+| New Withings weigh-ins / Body Composition daily block | `docs/WITHINGS_SPEC.md` |
 | New InBody scan | `docs/GYM_DASHBOARD_INSTRUCTIONS.md` (InBody section) |
 | Publishing questions, live-site issues | `docs/DEPLOYMENT.md` |
 | Monthly rollover / first session of a new month | `docs/GYM_DASHBOARD_INSTRUCTIONS.md` (End-of-Month Checklist) |
@@ -44,15 +45,18 @@ one conversation does the whole pipeline — debrief, Notion journal, dashboard,
    against the actual Hevy sets. **Hevy always wins** — the PT logs into Hevy; any
    verbal/PT number that contradicts Hevy sets gets the Hevy value plus a correction
    annotation (format below).
-4. **Apply targeted edits to `index.html`.** Never regenerate the file or a whole data
+4. **Pull Withings weigh-ins** (see Withings weigh-ins below). Everything since the last
+   `weighins[]` row, not just today's reading. Independent of Hevy: a Hevy problem never
+   skips this, and a Withings problem never skips Hevy.
+5. **Apply targeted edits to `index.html`.** Never regenerate the file or a whole data
    block wholesale — use surgical edits only. Bump the `TODAY` constant (the ONLY date
    constant to update; everything else derives from it).
-5. **Validate:** `node scripts/validate.js` AND `node scripts/smoke.js` must both pass
+6. **Validate:** `node scripts/validate.js` AND `node scripts/smoke.js` must both pass
    (validate: warnings OK, errors are not; smoke: real-browser render check).
-6. **Commit and push `main` directly** — this is a data update, see Two-track publishing
+7. **Commit and push `main` directly** — this is a data update, see Two-track publishing
    below. Commit message convention: `Deploy YYYY-MM-DD HH:MM` with a body summarizing
    what changed.
-7. **Check off the executed Decisions** in the Notion session pages (on the same page
+8. **Check off the executed Decisions** in the Notion session pages (on the same page
    where each was found).
 
 This workflow assumes an interactive session (the Notion connector is not available in
@@ -84,7 +88,7 @@ also how it *behaves*.
 Adding rows and values. The page's behaviour is untouched; only its contents move.
 
 - session rows in `exercises` / `graveyard` `data` arrays, and their `sets`
-- `runs[]` entries, `scans[]` entries
+- `runs[]` entries, `scans[]` entries, `weighins[]` entries
 - the `TODAY` constant
 - note text, correction annotations, `**NOT trend-valid**` markers
 - monthly hand-edits that follow directly from new data: Goals cards on rollover,
@@ -196,6 +200,29 @@ Scan photo pasted into the session →
    public repo.
 4. Append to `scans[]` in `index.html` (date format `DD/MM/YYYY`). Header, hero, KPIs,
    charts, and table all derive from the array.
+
+## Withings weigh-ins (Body Composition tab, daily)
+
+Source: Cloudflare Worker `withings-mcp` (spec: `docs/WITHINGS_SPEC.md`). Env var
+`WITHINGS_TOKEN`; host `withings-mcp.paul-rucki.workers.dev` must be on the egress
+allowlist. `scripts/withings-preflight.sh` runs at SessionStart; its verdict is in your
+context - never call Withings "blocked" without it.
+
+Every "update dashboard" session, after Hevy: fetch
+`/api/measures?start=<last weighins[].dt date>&end=<today>`, drop `complete:false`, dedup on
+`dt`, append to `weighins[]` (schema in the spec), keep sorted. Data track: straight to
+`main` with the session's other data. No Notion write. Never hand-type a weigh-in from the
+phone app.
+
+`weighins[]` (Withings, daily, home) and `scans[]` (InBody, monthly, SATS) are different
+instruments and stay separate series. `muscle_mass` is not SMM. Do not merge, calibrate or
+compare them as if they were one.
+
+`algo` changes between rows are scale-side model updates; the charts mark them. Do not
+write a note interpreting a step that coincides with one.
+
+Yearly: when preflight says the refresh token is < 30 days from expiry, tell Pawel to open
+`https://withings-mcp.paul-rucki.workers.dev/auth` in a browser once.
 
 ## Notion page IDs
 

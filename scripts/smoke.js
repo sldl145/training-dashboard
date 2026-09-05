@@ -65,12 +65,91 @@ function findChromium() {
   await settle();
   failures.push(...await checkActiveTab('Running', 4));
 
-  // Tab 3: Body Composition (also wires window.exportPDF on first open)
+  // Tab 3: Body Composition - Withings block (6 charts) above InBody (6 charts).
+  // Also wires window.exportPDF on first open.
   await page.click('button.tab-button:has-text("Body Composition")');
   await settle();
-  failures.push(...await checkActiveTab('Body Composition', 6));
+  failures.push(...await checkActiveTab('Body Composition', 12));
   if (await page.evaluate(() => typeof window.exportPDF !== 'function'))
     failures.push('Body Composition: window.exportPDF is not wired');
+
+  // Withings block: every chart drawn, KPIs and the segmental outline filled in, and the
+  // block kept OUTSIDE #dashboard so the Export-to-PDF button stays InBody-only.
+  failures.push(...await page.evaluate(() => {
+    const out = [];
+    const block = document.getElementById('withings-block');
+    if (!block) return ['Withings: #withings-block is missing'];
+    if (document.getElementById('dashboard').contains(block))
+      out.push('Withings: block is inside #dashboard - it would leak into the PDF export');
+
+    ['wgWeightChart', 'wgFatPctChart', 'wgFatKgChart', 'wgMuscleChart', 'wgWaterChart', 'wgVfiChart'].forEach(id => {
+      const c = document.getElementById(id);
+      if (!c) { out.push(`Withings: canvas #${id} is missing`); return; }
+      const chart = Chart.getChart(c);
+      if (!chart) { out.push(`Withings: canvas #${id} has no Chart instance`); return; }
+      if (!chart.data.datasets.some(d => (d.data || []).length))
+        out.push(`Withings: chart #${id} has no plotted points`);
+    });
+
+    // Every raw series must carry one point per weigh-in. A metric silently dropping
+    // rows, or points hidden under their own mean line, both show up here.
+    const n = +(document.getElementById('withings-subtitle').textContent.match(/(\d+) weigh-in/) || [])[1];
+    if (!n) out.push('Withings: could not read the weigh-in count from the subtitle');
+    else ['wgWeightChart', 'wgFatPctChart', 'wgFatKgChart', 'wgMuscleChart', 'wgWaterChart', 'wgVfiChart'].forEach(id => {
+      const chart = Chart.getChart(document.getElementById(id));
+      if (!chart) return;
+      chart.data.datasets
+        .filter(d => d.showLine === false && d.label !== 'InBody (SATS)')
+        .forEach(d => {
+          const drawn = (d.data || []).filter(pt => pt && pt.y != null).length;
+          if (drawn !== n) out.push(`Withings: ${id} series "${d.label}" draws ${drawn} points, expected ${n}`);
+          if (!(d.pointRadius > 0)) out.push(`Withings: ${id} series "${d.label}" has no visible points`);
+        });
+      // Two metrics sharing a chart must stay visually separable. Near-collinear pairs
+      // (fat % and fat kg) can otherwise land on the same pixels once each axis
+      // auto-scales to its own range, which hides one series completely.
+      const raws = chart.data.datasets
+        .map((d, i) => ({ d, i }))
+        .filter(x => x.d.showLine === false && x.d.label !== 'InBody (SATS)');
+      for (let a = 0; a < raws.length; a++) for (let b2 = a + 1; b2 < raws.length; b2++) {
+        const A = chart.getDatasetMeta(raws[a].i).data, B = chart.getDatasetMeta(raws[b2].i).data;
+        A.forEach((pt, k) => {
+          if (!B[k]) return;
+          const gap = Math.hypot(pt.x - B[k].x, pt.y - B[k].y);
+          if (gap < 8) out.push(
+            `Withings: ${id} "${raws[a].d.label}" and "${raws[b2].d.label}" overlap at point ${k + 1} (${gap.toFixed(1)} px apart)`);
+        });
+      }
+
+      // Axis labels are dates, so every tick must be a real calendar midnight.
+      chart.scales.x.ticks.forEach(t => {
+        const d = new Date(t.value);
+        if (d.getHours() || d.getMinutes() || d.getSeconds())
+          out.push(`Withings: ${id} has an x tick at ${d.toTimeString().slice(0, 8)}, not midnight`);
+      });
+    });
+
+    const kpis = block.querySelectorAll('#withings-kpi-grid .inbody-kpi-card');
+    if (kpis.length !== 6) out.push(`Withings: expected 6 KPI cards, found ${kpis.length}`);
+
+    const boxes = block.querySelectorAll('#withings-seg-card .withings-seg-box');
+    if (boxes.length !== 5) out.push(`Withings: expected 5 segment boxes, found ${boxes.length}`);
+
+    if (!document.getElementById('withings-subtitle').textContent.trim())
+      out.push('Withings: subtitle is empty');
+    return out;
+  }));
+
+  // Phone width (380 px): the segmental boxes must stack, not squeeze into three columns.
+  await page.setViewportSize({ width: 380, height: 900 });
+  await page.waitForTimeout(200);
+  failures.push(...await page.evaluate(() => {
+    const boxes = [...document.querySelectorAll('#withings-seg-card .withings-seg-box')];
+    if (boxes.length < 2) return [];
+    const lefts = new Set(boxes.map(b => Math.round(b.getBoundingClientRect().left)));
+    return lefts.size === 1 ? [] : ['Withings: segment boxes do not stack at 380 px width'];
+  }));
+  await page.setViewportSize({ width: 1440, height: 1000 });
 
   await browser.close();
 

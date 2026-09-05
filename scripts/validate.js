@@ -26,7 +26,10 @@ function extract(name, next) {
 eval(extract('exercises', '// ========== GRAVEYARD'));
 eval(extract('graveyard', '// ========== HELPERS'));
 eval(extract('runs', 'function formatPace'));
+eval(extract('weighins', '// ========== DATA =========='));
 eval(extract('scans', 'const labels = scans'));
+
+const isNum = v => typeof v === 'number' && !Number.isNaN(v);
 
 const errors = [];
 const warnings = [];
@@ -84,8 +87,43 @@ scans.forEach(s => {
     warnings.push(`scan ${s.date}: pbf ${s.pbf}% inconsistent with bfm/weight = ${(s.bfm / s.weight * 100).toFixed(1)}%`);
 });
 
+// ---- Withings weigh-ins (docs/WITHINGS_SPEC.md -> Validator additions) ----
+// weighins[] is a different instrument from scans[] and is never cross-checked against it.
+{
+  const ISO_DT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/;
+  const SEG_KEYS = ['trunk', 'lLeg', 'rLeg', 'lArm', 'rArm'];
+  const SEG_TOTALS = { ffm: 'ffmKg', fat: 'fatKg', muscle: 'muscleKg' };
+  let prevDt = '';
+  weighins.forEach((w, i) => {
+    if (!ISO_DT.test(w.dt || ''))
+      errors.push(`weighin index ${i}: dt "${w.dt}" is not ISO local YYYY-MM-DDTHH:MM:SS`);
+    if (prevDt && w.dt < prevDt) errors.push(`weighins: out of order at index ${i}: ${w.dt} after ${prevDt}`);
+    if (prevDt && w.dt === prevDt) errors.push(`weighins: duplicate dt ${w.dt}`);
+    prevDt = w.dt;
+
+    ['kg', 'fatPct', 'fatKg', 'ffmKg'].forEach(k => {
+      if (!isNum(w[k])) errors.push(`weighin ${w.dt}: ${k} missing or non-numeric`);
+    });
+    if (isNum(w.kg) && isNum(w.fatKg) && isNum(w.ffmKg) && Math.abs(w.fatKg + w.ffmKg - w.kg) > 0.1)
+      errors.push(`weighin ${w.dt}: fatKg ${w.fatKg} + ffmKg ${w.ffmKg} = ${(w.fatKg + w.ffmKg).toFixed(2)}, but kg is ${w.kg}`);
+
+    if (w.seg == null) return;
+    for (const [metric, totalKey] of Object.entries(SEG_TOTALS)) {
+      const seg = w.seg[metric];
+      if (!seg) { errors.push(`weighin ${w.dt}: seg present but seg.${metric} is missing`); continue; }
+      const keys = Object.keys(seg);
+      if (keys.length !== 5 || !SEG_KEYS.every(k => isNum(seg[k])))
+        errors.push(`weighin ${w.dt}: seg.${metric} must carry five numeric keys ${SEG_KEYS.join('/')}, got ${keys.join('/')}`);
+      else if (isNum(w[totalKey])) {
+        const sum = SEG_KEYS.reduce((a, k) => a + seg[k], 0);
+        if (Math.abs(sum - w[totalKey]) > 0.2)
+          errors.push(`weighin ${w.dt}: seg.${metric} sums to ${sum.toFixed(2)} but ${totalKey} is ${w[totalKey]}`);
+      }
+    }
+  });
+}
+
 // ---- Numeric sanity: NaN/non-numeric values would silently break charts ----
-const isNum = v => typeof v === 'number' && !Number.isNaN(v);
 for (const [name, ex] of Object.entries(exercises)) {
   ex.data.forEach(d => {
     if (!isNum(d.weight) || !isNum(d.bestReps)) errors.push(`${name} ${d.date}: non-numeric weight/bestReps`);
@@ -143,5 +181,5 @@ if (today && newest > today) errors.push(`TODAY (${today}) is older than the new
 
 warnings.forEach(w => console.log('warn: ' + w));
 errors.forEach(e => console.error('ERROR: ' + e));
-console.log(`\n${Object.keys(exercises).length} exercises, ${Object.keys(graveyard).length} graveyard, ${runs.length} runs, ${scans.length} scans - ${errors.length} error(s), ${warnings.length} warning(s)`);
+console.log(`\n${Object.keys(exercises).length} exercises, ${Object.keys(graveyard).length} graveyard, ${runs.length} runs, ${scans.length} scans, ${weighins.length} weigh-ins - ${errors.length} error(s), ${warnings.length} warning(s)`);
 process.exit(errors.length ? 1 : 0);

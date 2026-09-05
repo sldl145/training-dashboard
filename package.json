@@ -6,7 +6,7 @@
     "validate": "node scripts/validate.js",
     "smoke": "node scripts/smoke.js",
     "check": "node scripts/validate.js && node scripts/smoke.js",
-    "preflight": "bash scripts/hevy-preflight.sh"
+    "preflight": "bash scripts/hevy-preflight.sh; H=$?; echo; bash scripts/withings-preflight.sh; W=$?; exit $(( H > W ? H : W ))"
   },
   "devDependencies": {
     "playwright-core": "^1.62.1"

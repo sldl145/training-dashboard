@@ -43,7 +43,7 @@ attempt() {
 # Documented in /root/.ccr/README.md. Best effort: every message is correct without it.
 proxy_verdict() {
   local port body
-  port="${HTTPS_PROXY##*:}"; port="${port%%/*}"
+  port="${HTTPS_PROXY:-}"; port="${port##*:}"; port="${port%%/*}"
   case "$port" in ''|*[!0-9]*) return 1 ;; esac
   command -v jq >/dev/null 2>&1 || return 1
   body=$(curl -sS -m 3 "http://127.0.0.1:${port}/__agentproxy/status" 2>/dev/null) || return 1
