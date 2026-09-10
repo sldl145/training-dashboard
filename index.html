@@ -2289,7 +2289,7 @@ function renderCharts() {
                 pointRadius: 3,
                 pointHoverRadius: 6,
                 pointBackgroundColor: color,
-                tension: 0.3,
+                tension: 0,          // straight segments: nothing is measured between sessions (10/09/2026)
                 fill: true,
                 yAxisID: 'y',
                 segment: {
@@ -2305,7 +2305,7 @@ function renderCharts() {
                 borderWidth: 1.5,
                 borderDash: [4, 3],
                 pointRadius: 0,
-                tension: 0.3,
+                tension: 0,          // straight segments: nothing is measured between sessions (10/09/2026)
                 fill: false,
                 yAxisID: 'y',
                 segment: { borderColor: ctx => isGap(ctx) ? 'transparent' : undefined },
@@ -2317,7 +2317,7 @@ function renderCharts() {
                 backgroundColor: '#f1f5f922',
                 borderWidth: 1,
                 pointRadius: 2,
-                tension: 0.2,
+                tension: 0,          // straight segments: nothing is measured between sessions (10/09/2026)
                 fill: false,
                 yAxisID: 'y1',
                 segment: { borderColor: ctx => isGap(ctx) ? 'transparent' : undefined },
