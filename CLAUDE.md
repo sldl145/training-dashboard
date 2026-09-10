@@ -13,7 +13,7 @@ anywhere else. Pushing `main` is publishing.
 | "update dashboard" after a gym session | This file (workflow below) + `docs/DEBRIEF.md` for the debrief |
 | Detailed data rules, Hevy name mapping, goals/graveyard mechanics | `docs/GYM_DASHBOARD_INSTRUCTIONS.md` |
 | New run data / Running tab changes | `docs/RUNNING_TAB_SPEC.md` |
-| New Withings weigh-ins / Body Composition daily block | `docs/WITHINGS_SPEC.md` |
+| New Withings weigh-ins / Withings tab changes | `docs/WITHINGS_SPEC.md` |
 | New InBody scan | `docs/GYM_DASHBOARD_INSTRUCTIONS.md` (InBody section) |
 | Publishing questions, live-site issues | `docs/DEPLOYMENT.md` |
 | Monthly rollover / first session of a new month | `docs/GYM_DASHBOARD_INSTRUCTIONS.md` (End-of-Month Checklist) |
@@ -191,7 +191,7 @@ table, all computed from `runs[]`. Adding a run stays on the data track. Reinsta
 race is a development-track change and `docs/RUNNING_TAB_SPEC.md` records what was removed
 and how to recover it from git history rather than rewriting it.
 
-## InBody scans (Body Composition tab)
+## InBody scans (InBody tab)
 
 Scan photo pasted into the session →
 1. Extract: Scan Date, Score, Weight, SMM, BFM, PBF, BMI, VFL, WHR (VFL/WHR may be absent → `null`).
@@ -201,7 +201,7 @@ Scan photo pasted into the session →
 4. Append to `scans[]` in `index.html` (date format `DD/MM/YYYY`). Header, hero, KPIs,
    charts, and table all derive from the array.
 
-## Withings weigh-ins (Body Composition tab, daily)
+## Withings weigh-ins (Withings tab, daily)
 
 Source: Cloudflare Worker `withings-mcp` (spec: `docs/WITHINGS_SPEC.md`). Env var
 `WITHINGS_TOKEN`; host `withings-mcp.paul-rucki.workers.dev` must be on the egress
@@ -216,7 +216,8 @@ phone app.
 
 `weighins[]` (Withings, daily, home) and `scans[]` (InBody, monthly, SATS) are different
 instruments and stay separate series. `muscle_mass` is not SMM. Do not merge, calibrate or
-compare them as if they were one.
+compare them as if they were one. Since 10/09/2026 they are separate tabs as well (Pawel's
+call); the InBody tab keeps the DOM id `body-comp`.
 
 `algo` changes between rows are scale-side model updates; the charts mark them. Do not
 write a note interpreting a step that coincides with one.
@@ -356,7 +357,7 @@ with the heavier single still in `sets` — only when the session note explicitl
 ## Verification
 
 - `node scripts/validate.js` — data consistency + inline-script syntax. Must pass (exit 0).
-- `node scripts/smoke.js` — renders the page in headless Chromium, clicks all three tabs,
+- `node scripts/smoke.js` — renders the page in headless Chromium, clicks all four tabs,
   fails on any console/page error or undrawn chart. Must pass. (First run in a fresh
   container: `npm install` to get playwright-core; browsers are pre-installed at
   `/opt/pw-browsers` — never run `playwright install`.)
