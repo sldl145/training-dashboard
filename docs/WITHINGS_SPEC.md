@@ -149,7 +149,9 @@ Log stays monthly/InBody only.
 ## Rendering (development track)
 
 The Withings block renders in its own tab, `#withings` (since 10/09/2026, Pawel's call; it
-first shipped above the InBody block in a shared Body Composition tab). Minimum:
+first shipped above the InBody block in a shared Body Composition tab). A time-range bar
+(`#range-withings`: 4W/12W/6M/1Y/All, prev/next, From/To, Reset; default 4W) sits above the
+charts and shares the `RANGE` controller with the Training tab (10/09/2026). Minimum:
 
 - **Header KPIs** (latest complete weigh-in): weight, fat %, fat kg, muscle kg, water kg,
   visceral fat index, with delta vs 7-reading mean.

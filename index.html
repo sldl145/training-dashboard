@@ -122,6 +122,18 @@
   .chart-grid.lifts { grid-template-columns: 1fr; }
   .chart-card .chart-box { position: relative; height: 300px; }
   .chart-card .chart-box canvas { max-height: none; }
+  /* Time-range controls (10/09/2026): one bar per tab, directly above its charts. */
+  .range-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 0 0 14px; font-size: 0.8em; }
+  .range-bar .range-group { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--card); }
+  .range-bar button { background: transparent; border: none; border-right: 1px solid var(--border); padding: 6px 11px; color: var(--muted); font: inherit; font-weight: 600; cursor: pointer; letter-spacing: 0.3px; line-height: 1.2; }
+  .range-bar button:last-child { border-right: none; }
+  .range-bar button:hover { color: var(--text); background: var(--border); }
+  .range-bar button.active { color: #fff; background: var(--accent); }
+  .range-bar button:disabled { opacity: 0.35; cursor: default; background: transparent; color: var(--muted); }
+  .range-bar .range-dates { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); }
+  .range-bar input[type="date"] { font: inherit; font-size: 0.95em; padding: 4px 6px; border: 1px solid var(--border); border-radius: 6px; background: var(--card); color: var(--text); }
+  .range-bar .range-span { color: var(--muted); margin-left: auto; font-variant-numeric: tabular-nums; }
+  @media (max-width: 700px) { .range-bar .range-span { margin-left: 0; width: 100%; } }
   .chart-card {
     background: var(--card);
     border: 1px solid var(--border);
@@ -813,6 +825,7 @@
     </div>
 
     <div class="inbody-kpi-grid" id="withings-kpi-grid"></div>
+    <div class="range-bar" id="range-withings"></div>
 
     <div class="inbody-charts-grid">
       <div class="inbody-chart-card">
@@ -958,8 +971,11 @@ function switchTab(tabName, btn) {
   document.getElementById(tabName).classList.add('active');
   btn.classList.add('active');
 
-  // Initialize InBody charts on first switch to the InBody tab (id body-comp)
-  if (tabName === 'body-comp' && !inbodyInitialized) {
+  // InBody and Withings are built together by initInBodyCharts (renderWithings reads
+  // scans[], which lives inside it), so whichever of the two tabs opens first builds both.
+  // Before the tabs were split (10/09/2026) this could not matter; after it, opening
+  // Withings first left the tab empty.
+  if ((tabName === 'body-comp' || tabName === 'withings') && !inbodyInitialized) {
     initInBodyCharts();
     inbodyInitialized = true;
   }
@@ -971,6 +987,207 @@ function switchTab(tabName, btn) {
   }
 }
 
+
+// ========== TIME RANGE CONTROLS ==========
+// Added 10/09/2026 (Pawel's call). One control bar per tab, above its charts. Presets
+// (4W/12W/6M/1Y/All) anchor to the newest reading in that tab; prev/next shift the window
+// by its own length; From/To set an exact period; Reset returns to the tab's default
+// (Training 12W, Withings 4W). The window lives in the URL fragment
+// (#training=12w&withings=2026-08-01..2026-09-10) so a view survives a reload and can be
+// sent as a link; the last preset per tab is also remembered in localStorage. Charts keep
+// their full datasets: only the x bounds move and each y axis is refitted to the points in
+// view, with the same relative padding the chart was built with. Nothing is recomputed.
+const RANGE = (() => {
+  const DAY = 864e5;
+  const PRESETS = [['4w', '4W', 28], ['12w', '12W', 84], ['6m', '6M', 182], ['1y', '1Y', 365], ['all', 'All', null]];
+  const tabs = {};
+  const pad2 = v => String(v).padStart(2, '0');
+  const midnight = ts => { const d = new Date(ts); d.setHours(0, 0, 0, 0); return d.getTime(); };
+  const snap = ts => midnight(ts + DAY / 2);            // nearest midnight, DST-proof
+  const isoDate = ts => { const d = new Date(ts); return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`; };
+  const fromIso = str => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(str || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3]).getTime() : NaN; };
+  const ddmmyyyy = ts => { const d = new Date(ts); return `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${d.getFullYear()}`; };
+  const isPreset = spec => PRESETS.some(p => p[0] === spec);
+
+  const hashState = () => {
+    const out = {};
+    location.hash.replace(/^#/, '').split('&').forEach(kv => {
+      const [k, v] = kv.split('='); if (k && v) out[k] = decodeURIComponent(v);
+    });
+    return out;
+  };
+  const writeHash = () => {
+    const parts = Object.keys(tabs).map(k => `${k}=${tabs[k].spec}`);
+    try { history.replaceState(null, '', location.pathname + location.search + '#' + parts.join('&')); } catch (e) {}
+  };
+  const lsGet = k => { try { return localStorage.getItem('td.range.' + k); } catch (e) { return null; } };
+  const lsSet = (k, v) => { try { localStorage.setItem('td.range.' + k, v); } catch (e) {} };
+
+  // spec -> {from, to}. A preset ends at the midnight after the newest reading and never
+  // starts before the first one; 'all' is the whole record; 'YYYY-MM-DD..YYYY-MM-DD' is
+  // inclusive of both days. Returns null for anything it cannot read.
+  function resolve(t, spec) {
+    const floor = midnight(t.earliest), ceil = midnight(t.latest) + DAY;
+    const preset = PRESETS.find(p => p[0] === spec);
+    if (preset) return preset[2] == null ? { from: floor, to: ceil } : { from: Math.max(floor, snap(ceil - preset[2] * DAY)), to: ceil };
+    const m = /^(\d{4}-\d{2}-\d{2})\.\.(\d{4}-\d{2}-\d{2})$/.exec(spec || '');
+    if (m) { const a = fromIso(m[1]), b = snap(fromIso(m[2]) + DAY); if (a < b) return { from: a, to: b }; }
+    return null;
+  }
+
+  // Padding each y axis was built with, as a fraction of its data range, so a refit keeps
+  // the chart's own look (the Withings charts pad their two axes deliberately unequally).
+  // Auto-scaled axes get 10% either side.
+  const axisValues = (chart, axisId, from, to) => {
+    const vals = [];
+    chart.data.datasets.forEach(ds => {
+      if ((ds.yAxisID || 'y') !== axisId || ds._excludeFromFit) return;
+      (ds.data || []).forEach(p => {
+        if (p && p.y != null && (from == null || (p.x >= from && p.x <= to))) vals.push(p.y);
+      });
+    });
+    return vals;
+  };
+  const spread = (lo, hi) => (hi - lo) || Math.max(Math.abs(hi) * 0.05, 0.5);
+  function derivePads(chart, fixed) {
+    const pads = {};
+    Object.keys(chart.scales).forEach(axisId => {
+      if (axisId === 'x' || fixed.includes(axisId)) return;
+      const opt = chart.options.scales[axisId];
+      if (opt.min == null || opt.max == null) return;
+      const vals = axisValues(chart, axisId);
+      if (!vals.length) return;
+      const lo = Math.min(...vals), hi = Math.max(...vals), range = spread(lo, hi);
+      pads[axisId] = { lo: Math.max(0, (lo - opt.min) / range), hi: Math.max(0, (opt.max - hi) / range) };
+    });
+    return pads;
+  }
+  function fitY(chart, from, to) {
+    Object.keys(chart.scales).forEach(axisId => {
+      if (axisId === 'x' || chart._rangeFixed.includes(axisId)) return;
+      const vals = axisValues(chart, axisId, from, to);
+      if (!vals.length) return;                        // nothing in view: keep the last fit
+      const lo = Math.min(...vals), hi = Math.max(...vals), range = spread(lo, hi);
+      const pads = chart._rangePads[axisId] || { lo: 0.1, hi: 0.1 };
+      chart.options.scales[axisId].min = +(lo - range * pads.lo).toFixed(2);
+      chart.options.scales[axisId].max = +(hi + range * pads.hi).toFixed(2);
+    });
+  }
+
+  function apply(key) {
+    const t = tabs[key];
+    const w = resolve(t, t.spec) || resolve(t, t.defaultSpec);
+    t.from = w.from; t.to = w.to;
+    t.charts.forEach(c => {
+      c.options.scales.x.min = w.from; c.options.scales.x.max = w.to;
+      fitY(c, w.from, w.to);
+      c.update('none');
+    });
+    renderBar(t);
+    writeHash();
+    if (isPreset(t.spec)) lsSet(key, t.spec);
+  }
+  function set(key, spec) { const t = tabs[key]; if (!t || !resolve(t, spec)) return; t.spec = spec; apply(key); }
+  function shift(key, dir) {
+    const t = tabs[key]; const span = t.to - t.from;
+    const floor = midnight(t.earliest), ceil = midnight(t.latest) + DAY;
+    let from = snap(t.from + dir * span), to = snap(t.to + dir * span);
+    if (from < floor) { from = floor; to = snap(floor + span); }
+    if (to > ceil) { to = ceil; from = snap(ceil - span); }
+    set(key, `${isoDate(from)}..${isoDate(to - DAY)}`);
+  }
+
+  function renderBar(t) {
+    const el = t.el; if (!el) return;
+    const floor = midnight(t.earliest), ceil = midnight(t.latest) + DAY;
+    if (!el.dataset.built) {
+      el.innerHTML = `
+        <div class="range-group range-presets">${PRESETS.map(p =>
+          `<button type="button" data-preset="${p[0]}" title="${p[2] == null ? 'Whole record' : 'Last ' + p[1] + ', ending at the newest reading'}">${p[1]}</button>`).join('')}</div>
+        <div class="range-group range-nav">
+          <button type="button" data-nav="prev" title="Earlier: move the window back by its own length">&lsaquo;</button>
+          <button type="button" data-nav="next" title="Later: move the window forward by its own length">&rsaquo;</button>
+        </div>
+        <label class="range-dates">From <input type="date" data-from></label>
+        <label class="range-dates">To <input type="date" data-to></label>
+        <div class="range-group"><button type="button" data-reset title="Back to ${t.defaultLabel}, ending at the newest reading">Reset</button></div>
+        <span class="range-span" data-span></span>`;
+      el.querySelectorAll('[data-preset]').forEach(b => b.addEventListener('click', () => set(t.key, b.dataset.preset)));
+      el.querySelector('[data-nav="prev"]').addEventListener('click', () => shift(t.key, -1));
+      el.querySelector('[data-nav="next"]').addEventListener('click', () => shift(t.key, 1));
+      el.querySelector('[data-reset]').addEventListener('click', () => set(t.key, t.defaultSpec));
+      const onDates = () => {
+        const a = el.querySelector('[data-from]').value, b = el.querySelector('[data-to]').value;
+        if (a && b && fromIso(a) <= fromIso(b)) set(t.key, `${a}..${b}`);
+      };
+      el.querySelector('[data-from]').addEventListener('change', onDates);
+      el.querySelector('[data-to]').addEventListener('change', onDates);
+      el.dataset.built = '1';
+    }
+    el.querySelectorAll('[data-preset]').forEach(b => b.classList.toggle('active', b.dataset.preset === t.spec));
+    el.querySelector('[data-nav="prev"]').disabled = t.from <= floor;
+    el.querySelector('[data-nav="next"]').disabled = t.to >= ceil;
+    const fromEl = el.querySelector('[data-from]'), toEl = el.querySelector('[data-to]');
+    fromEl.value = isoDate(t.from); toEl.value = isoDate(t.to - DAY);
+    fromEl.min = toEl.min = isoDate(floor); fromEl.max = toEl.max = isoDate(ceil - DAY);
+    const days = Math.round((t.to - t.from) / DAY);
+    el.querySelector('[data-span]').textContent = `${ddmmyyyy(t.from)} - ${ddmmyyyy(t.to - DAY)} (${days} days)`;
+  }
+
+  // Shared x-axis ticks for every windowed chart: always real calendar midnights, density
+  // by span - daily up to ~6 weeks, Mondays up to ~6 months, the 1st of the month beyond.
+  // Chart.js autoSkip then thins whatever does not fit the width.
+  function ticks(axis) {
+    const days = (axis.max - axis.min) / DAY;
+    const out = [];
+    const d = new Date(midnight(axis.min));
+    if (days <= 45) {
+      if (d.getTime() < axis.min) d.setDate(d.getDate() + 1);
+      for (; d.getTime() <= axis.max; d.setDate(d.getDate() + 1)) out.push({ value: d.getTime() });
+    } else if (days <= 200) {
+      const dow = (d.getDay() + 6) % 7;                 // Monday = 0
+      if (dow) d.setDate(d.getDate() + (7 - dow)); else if (d.getTime() < axis.min) d.setDate(d.getDate() + 7);
+      for (; d.getTime() <= axis.max; d.setDate(d.getDate() + 7)) out.push({ value: d.getTime() });
+    } else {
+      d.setDate(1);
+      if (d.getTime() < axis.min) d.setMonth(d.getMonth() + 1);
+      for (; d.getTime() <= axis.max; d.setMonth(d.getMonth() + 1)) out.push({ value: d.getTime() });
+    }
+    axis.ticks = out;
+  }
+  function tickLabel(v) {                                // called with the scale as `this`
+    const days = (this.max - this.min) / DAY; const d = new Date(v);
+    if (days <= 45) return `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}`;
+    if (days <= 200) return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+    return d.toLocaleDateString('en-GB', { month: 'short', year: '2-digit' });
+  }
+
+  // cfg: { defaultSpec, earliest (ms), latest (ms) }. The initial window comes from the URL
+  // fragment, then localStorage, then the default.
+  function register(key, cfg) {
+    const t = tabs[key] = { key, ...cfg, charts: [], spec: null, from: 0, to: 0, el: null };
+    t.defaultLabel = (PRESETS.find(p => p[0] === cfg.defaultSpec) || [])[1] || cfg.defaultSpec;
+    const wanted = hashState()[key] || lsGet(key) || cfg.defaultSpec;
+    t.spec = resolve(t, wanted) ? wanted : cfg.defaultSpec;
+    const w = resolve(t, t.spec); t.from = w.from; t.to = w.to;
+    return t;
+  }
+  function mount(key, el) { tabs[key].el = el; renderBar(tabs[key]); }
+  // opts.fixedAxes: y axes the window must not refit (e.g. the 0-12 reps axis).
+  function attach(key, chart, opts) {
+    const t = tabs[key];
+    chart._rangeFixed = (opts && opts.fixedAxes) || [];
+    chart._rangePads = derivePads(chart, chart._rangeFixed);
+    t.charts.push(chart);
+    chart.options.scales.x.min = t.from; chart.options.scales.x.max = t.to;
+    fitY(chart, t.from, t.to);
+    chart.update('none');
+    return chart;
+  }
+  const get = key => ({ from: tabs[key].from, to: tabs[key].to, spec: tabs[key].spec });
+
+  return { register, mount, attach, set, shift, get, ticks, tickLabel, DAY };
+})();
 
 // ========== GYM DASHBOARD SCRIPT ==========
 
@@ -1995,26 +2212,24 @@ function renderCharts() {
     <div class="section-label">
       All Lifts <span class="count">${allNames.length}</span>
     </div>
+    <div class="range-bar" id="range-training"></div>
   `;
   const grid = document.createElement('div');
   grid.className = 'chart-grid lifts';
 
-  // Shared time axis: every lift chart runs from the first session in the record to
-  // TODAY (plus a week of breathing room), so starts, stops and breaks line up across
-  // lifts and a gap reads as empty space rather than as two adjacent points.
+  // Shared time axis: every lift chart shows the same window (RANGE, default the last
+  // 12 weeks; 'All' is the first session in the record to the newest), so starts, stops
+  // and breaks line up across lifts and a gap reads as empty space rather than as two
+  // adjacent points.
   const liftTs = dateStr => new Date(dateStr + 'T12:00:00').getTime();
-  const axisMin = Math.min(...allNames.map(n => liftTs(exercises[n].data[0].date)));
-  const axisMax = liftTs(TODAY) + 7 * 864e5;
+  RANGE.register('training', {
+    defaultSpec: '12w',
+    earliest: Math.min(...allNames.map(n => liftTs(exercises[n].data[0].date))),
+    latest: Math.max(...allNames.map(n => liftTs(exercises[n].data[exercises[n].data.length - 1].date))),
+  });
+  RANGE.mount('training', sectionDiv.querySelector('#range-training'));
   const GAP_MS = 42 * 864e5;   // > 6 weeks between sessions is drawn as a break
   const isGap = ctx => (ctx.p1.parsed.x - ctx.p0.parsed.x) > GAP_MS;
-  const monthTicks = axis => {
-    const out = [];
-    const d = new Date(axis.min); d.setDate(1); d.setHours(12, 0, 0, 0);
-    if (d.getTime() < axis.min) d.setMonth(d.getMonth() + 1);
-    for (; d.getTime() <= axis.max; d.setMonth(d.getMonth() + 1)) out.push({ value: d.getTime() });
-    axis.ticks = out;
-  };
-  const tickLabel = v => new Date(v).toLocaleDateString('en-GB', { month: 'short', year: '2-digit' });
   const tooltipDate = v => new Date(v).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
   allNames.forEach((name) => {
@@ -2061,7 +2276,7 @@ function renderCharts() {
       requestAnimationFrame(() => {
         const ctx = document.getElementById(chartId);
         if (!ctx) return;
-        new Chart(ctx.getContext('2d'), {
+        const chart = new Chart(ctx.getContext('2d'), {
           type: 'line',
           data: {
             datasets: [
@@ -2128,9 +2343,9 @@ function renderCharts() {
             },
             scales: {
               x: {
-                type: 'linear', min: axisMin, max: axisMax,
-                afterBuildTicks: monthTicks,
-                ticks: { color: '#94a3b8', maxRotation: 45, font: { size: 10 }, autoSkip: true, autoSkipPadding: 12, callback: tickLabel },
+                type: 'linear',   // window (min/max) is set by RANGE.attach below
+                afterBuildTicks: RANGE.ticks,
+                ticks: { color: '#94a3b8', maxRotation: 45, font: { size: 10 }, autoSkip: true, autoSkipPadding: 12, callback: RANGE.tickLabel },
                 grid: { color: '#f1f5f9' }
               },
               y: {
@@ -2150,6 +2365,7 @@ function renderCharts() {
             }
           }
         });
+        RANGE.attach('training', chart, { fixedAxes: ['y1'] });
       });
     });
 
@@ -3319,7 +3535,7 @@ function renderWithings() {
     document.getElementById('withings-kpi-grid').outerHTML =
       '<div class="withings-empty">No Withings weigh-ins recorded yet. The next dashboard ' +
       'update pulls everything the scale holds from the agreed start date.</div>';
-    block.querySelectorAll('.inbody-charts-grid, .withings-seg-card').forEach(el => el.remove());
+    block.querySelectorAll('.inbody-charts-grid, .withings-seg-card, .range-bar').forEach(el => el.remove());
     return;
   }
 
@@ -3382,13 +3598,17 @@ function renderWithings() {
     return { min: +(lo - range * padLo).toFixed(2), max: +(hi + range * padHi).toFixed(2) };
   };
 
-  // ---- x-axis window: the weigh-in span. InBody scans outside it are not plotted; the
-  // daily series is the point of this block and a year-long axis would flatten it.
+  // ---- x-axis window: the weigh-in span at most. InBody scans outside it are not plotted;
+  // the daily series is the point of this block and a year-long axis would flatten it.
   // Bounds are the midnight before the first reading and the midnight after the last, so
   // every tick is a real calendar boundary and every reading sits inside a labelled day.
+  // The visible window inside that span is RANGE's (default the last 4 weeks; the bar is
+  // #range-withings, above the charts).
   const wgMidnight = ts => { const d = new Date(ts); d.setHours(0, 0, 0, 0); return d.getTime(); };
   const wgXMin = wgMidnight(wgTs(weighins[0]));
   const wgXMax = wgMidnight(wgTs(wgLast)) + 864e5;
+  RANGE.register('withings', { defaultSpec: '4w', earliest: wgTs(weighins[0]), latest: wgTs(wgLast) });
+  RANGE.mount('withings', document.getElementById('range-withings'));
 
   const wgScanTs = s => { const [dd, mm, yy] = s.date.split('/'); return new Date(`${yy}-${mm}-${dd}T12:00:00`).getTime(); };
   const wgScansInWindow = scans.filter(s => { const t = wgScanTs(s); return t >= wgXMin && t <= wgXMax; });
@@ -3445,7 +3665,7 @@ function renderWithings() {
   // Returns [] when no scan falls in the window, so the caller can spread it away and the
   // legend does not advertise a series with nothing in it.
   const wgInBody = (key, unit, extra) => !wgScansInWindow.length ? [] : [{
-    label: 'InBody (SATS)', data: wgOverlay(key), showLine: false,
+    label: 'InBody (SATS)', data: wgOverlay(key), showLine: false, _excludeFromFit: true,
     borderColor: '#334155', backgroundColor: '#334155',
     pointStyle: 'triangle', pointRadius: 7, pointHoverRadius: 9,
     _unit: unit, ...(extra || {}),
@@ -3474,17 +3694,10 @@ function renderWithings() {
       scales: {
         x: {
           type: 'linear', min: wgXMin, max: wgXMax, grid: { display: false },
-          // One tick per calendar day (thinned to at most ~60 before Chart.js autoSkip
-          // thins again for the available width), so a label always means midnight.
-          afterBuildTicks: axis => {
-            const days = Math.ceil((axis.max - axis.min) / 864e5) + 1;
-            const step = Math.max(1, Math.ceil(days / 60));
-            const out = [];
-            for (const d = new Date(axis.min); d.getTime() <= axis.max; d.setDate(d.getDate() + step))
-              out.push({ value: d.getTime() });
-            axis.ticks = out;
-          },
-          ticks: { maxRotation: 50, font: { size: 10 }, autoSkip: true, autoSkipPadding: 18, callback: v => wgDay(v) },
+          // Ticks are real calendar midnights at a density that follows the window
+          // (RANGE.ticks), so a label always means midnight.
+          afterBuildTicks: RANGE.ticks,
+          ticks: { maxRotation: 50, font: { size: 10 }, autoSkip: true, autoSkipPadding: 18, callback: RANGE.tickLabel },
         },
         y: { grid: gridOpts, ticks: { font: { size: 10 } } },
       },
@@ -3493,9 +3706,9 @@ function renderWithings() {
   };
 
   const wgMake = (canvasId, datasets, options) =>
-    new Chart(document.getElementById(canvasId), {
+    RANGE.attach('withings', new Chart(document.getElementById(canvasId), {
       type: 'line', data: { datasets }, options, plugins: [wgAlgoMarkerPlugin],
-    });
+    }));
 
   const wgAlgoNote = wgMarks.length
     ? ` Dashed line = scale algorithm change (${wgMarks.map(m => m.label).join(', ')}); the rolling mean restarts there.`
