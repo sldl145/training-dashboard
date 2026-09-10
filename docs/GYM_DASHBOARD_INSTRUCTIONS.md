@@ -163,7 +163,8 @@ Single self-contained HTML file (`index.html`):
 
 [Training Tab]
 <div id="summary">     <- Summary stat cards (auto-calculated)
-<div id="goals">       <- Monthly goal cards (manually maintained)
+<div id="goals">       <- Monthly goals: one progress bar per goal from the GOALS constant;
+                          status derived from the logged sets (10/09/2026)
 <div id="sections">    <- Exercise charts: one per row, all on ONE shared time axis (> 6-week
                           gaps drawn dashed). #range-training above them: 4W/12W/6M/1Y/All,
                           prev/next, From/To, Reset (default 12W); window kept in the URL
@@ -200,8 +201,10 @@ const TRAINING_START = "2026-01-11"
 const TARGET_FINISH_MIN/MAX = 120/130  // finish-time goal (min); pace bands derive from these
 ```
 
-Rendering is fully automatic from the data arrays except `renderGoals()` (hand-written
-monthly HTML) and `EXERCISE_ORDER` (chart order; lifts absent from it get a NEW badge).
+Rendering is fully automatic from the data arrays. Two hand-edited constants steer it:
+`GOALS` (the month's targets - `renderGoals()` draws the progress bars and derives DONE /
+Pending from the logged sets) and `EXERCISE_ORDER` (chart order; lifts absent from it get a
+NEW badge).
 
 ### Exercise Data Format
 
@@ -260,8 +263,8 @@ See CLAUDE.md for the full single-session workflow (debrief -> Notion -> data ->
 2. For each exercise: map the name (table above), extract the data point + all sets,
    append chronologically with a meaningful note (PR, target hit, technique, RPE).
 3. Update `TODAY` - the only date constant to edit.
-4. Update `renderGoals()` if targets were hit (status -> `&#10003; DONE` /
-   `&#10003; EXCEEDED`, update the counter in the section label).
+4. Goal statuses update themselves from the new sets (a set with weight >= target and
+   reps >= target marks the goal DONE); nothing to edit unless a target itself changes.
 5. Run both checks: `node scripts/validate.js` and `node scripts/smoke.js`.
 6. Commit + push `main` (see `docs/DEPLOYMENT.md`).
 
@@ -274,9 +277,12 @@ Agreed with Pawel: Body Composition (PBF/SMM targets), Primary lifts (~4, weight
 Secondary lifts (2-3), Nice-to-have (tracked, no formal target), Cardio (running plan).
 
 ### Updating Goals
-`renderGoals()` is hand-written HTML - replace its content when goals change. Status
-colors: green + `&#10003;` = achieved, orange = in progress, muted = not started.
-Archive the old month's block as a `_MONTH_ARCHIVE` template string rather than deleting.
+Goals live in the `GOALS` constant: `month` (`YYYY-MM`) and groups (`tag`, `label`, `title`,
+`goals: [{lift, target: {w, r}, from: {w, r}}]`). `renderGoals()` draws one progress row per
+goal - bar from the starting set's e1RM to the target's, filled to the best e1RM of any
+logged set in the month - and derives the status: DONE (green, full bar, the set and date that hit it) the
+first time a logged set in the goal month meets weight AND reps, else Pending. Edit only
+the data; never the status. No in-file archive of superseded months.
 
 ---
 
@@ -308,7 +314,7 @@ Date, Score, Weight (kg), SMM (kg), BFM (kg), PBF (%), BMI, VFL, WHR.
 - **Attach the scan image to the Notion row** - images live in Notion, never in
   this public repo.
 - Append to `scans[]` (inside `initInBodyCharts()`); everything renders from it.
-- Update body-comp goals in `renderGoals()` if affected.
+- Body composition carries no dashboard goal (its own tab is the record).
 
 ---
 
@@ -344,9 +350,10 @@ unavailable in headless/scheduled runs.
    page for a month that already has one.
 6. **Carry forward live trackers** (e.g. the Bench 100 kg Watch) to the new month page.
    Leave the closing month's full evaluation log where it is.
-7. **Update `renderGoals()`** with the new targets; delete the old month's cards and put
-   the month back in the section label. No in-file archive - git history and the Notion
-   month pages are the record. If no goals are agreed, render the empty state.
+7. **Update `GOALS`** with the new month and targets (`month`, and each group's `goals`);
+   the section label and statuses follow. No in-file archive - git history and the Notion
+   month pages are the record. If no goals are agreed, leave every group's `goals` empty
+   and the empty state renders.
 8. **Update the Gym Hub index table:** new month `Active`, closing month `Closed`. A
    month is only `Closed` once its summary is written.
 
@@ -395,6 +402,6 @@ for August 2026:
 ---
 
 Active exercises, current goals, injury status, and body composition are live state.
-Read them from `index.html` (`exercises`, `renderGoals()`, `injuryLog`) and Notion
+Read them from `index.html` (`exercises`, `GOALS`, `injuryLog`) and Notion
 (InBody Scan Log; Gym Hub -> current month's Training Log for context and decisions).
 Do not hardcode snapshots of live state in instruction files.

@@ -91,7 +91,7 @@ Adding rows and values. The page's behaviour is untouched; only its contents mov
 - `runs[]` entries, `scans[]` entries, `weighins[]` entries
 - the `TODAY` constant
 - note text, correction annotations, `**NOT trend-valid**` markers
-- monthly hand-edits that follow directly from new data: Goals cards on rollover,
+- monthly hand-edits that follow directly from new data: the `GOALS` constant on rollover,
   adding a lift to `EXERCISE_ORDER`, moving a lift to the graveyard with its `reason`
 
 **Track 2 — development. Branch + PR, Pawel merges.**
@@ -112,7 +112,7 @@ development — even a one-line fix, even an obvious one. When genuinely unsure,
 rather than guessing; a wrong call in the data direction publishes unreviewed code.
 
 **Hevy data goes straight to `main`.** Session rows and their sets, the `TODAY` bump, notes,
-correction annotations, goal card statuses that follow from the sets just logged. No branch,
+correction annotations. (Goal statuses derive from the sets automatically since 10/09/2026.) No branch,
 no asking, no waiting — a gym session is never held up by a review.
 
 **Recalculation is never data.** Anything that changes how a number is *derived* — adding or
@@ -348,11 +348,15 @@ with the heavier single still in `sets` — only when the session note explicitl
   Log section further down the Training tab.
 - When no goals are agreed for the current month, `renderGoals` renders the empty state
   (`Currently no goals are set up.`) — do not backfill it with context to look full.
-- Goals cards (`renderGoals`) are hand-edited HTML, monthly cadence. On rollover: delete
-  the old month's cards and write the new month's; put the month back in the section
-  label (`August 2026 Goals`). Superseded months are **not** archived in `index.html` —
-  git history and the Notion session pages are the record. Update statuses when targets
-  are hit. (Run/scan data conventions: see their sections above.)
+- Goals are the `GOALS` constant (`month` + groups of `{lift, target: {w, r}, from: {w, r}}`),
+  hand-edited data on a monthly cadence; `renderGoals` draws one progress row per goal
+  (since 10/09/2026): the bar runs from the starting set's e1RM to the target's and fills
+  to the best e1RM of any logged set in the month. **Status is derived, never typed**: DONE the first time a
+  logged set in the goal month has weight >= target and reps >= target, with that set and
+  date shown; otherwise Pending. On rollover: replace `month` and the groups' `goals`; the
+  section label follows `month`. Superseded months are **not** archived in `index.html` —
+  git history and the Notion session pages are the record. (Run/scan data conventions:
+  see their sections above.)
 
 ## Verification
 
@@ -361,7 +365,7 @@ with the heavier single still in `sets` — only when the session note explicitl
   fails on any console/page error or undrawn chart. Must pass. (First run in a fresh
   container: `npm install` to get playwright-core; browsers are pre-installed at
   `/opt/pw-browsers` — never run `playwright install`.)
-- Goals cards, `EXERCISE_ORDER`, and other hand-edited HTML: eyeball the rendered page.
+- `GOALS`, `EXERCISE_ORDER`, and other hand-edited data: eyeball the rendered page.
 - After pushing, the live page updates within ~a minute:
   https://sldl145.github.io/training-dashboard/ — spot-check the tab you touched.
   **This step needs Pawel's browser.** `sldl145.github.io` is not on the environment's
