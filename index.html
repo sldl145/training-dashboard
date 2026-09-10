@@ -767,7 +767,8 @@
 <!-- Tab Navigation -->
 <div class="tab-nav">
   <button class="tab-button active" onclick="switchTab('training', this)">Training</button>
-  <button class="tab-button" onclick="switchTab('body-comp', this)">Body Composition</button>
+  <button class="tab-button" onclick="switchTab('body-comp', this)">InBody</button>
+  <button class="tab-button" onclick="switchTab('withings', this)">Withings</button>
   <button class="tab-button" onclick="switchTab('running', this)">Running</button>
 </div>
 
@@ -788,13 +789,9 @@
   <div class="table-section" id="running-table"></div>
 </div>
 
-<!-- Body Composition Tab -->
-<div id="body-comp" class="tab-content">
-  <div class="inbody-loading-overlay hidden" id="loading">
-    <div class="inbody-spinner"></div>
-    <p style="color: var(--muted); font-size: 14px;">Generating PDF...</p>
-  </div>
-
+<!-- Withings Tab (daily home weigh-ins). Its own tab since 10/09/2026, Pawel's call: Withings
+     (daily, home) and InBody (monthly, SATS) are separate instruments and read better apart. -->
+<div id="withings" class="tab-content">
   <!-- Withings Body Scan (daily). Deliberately OUTSIDE #dashboard: the Export-to-PDF
        button exports #dashboard, and the PDF stays InBody-only. -->
   <div id="withings-block" class="withings-block">
@@ -804,7 +801,7 @@
         <p class="withings-sub" id="withings-subtitle"></p>
       </div>
       <div class="withings-instrument-note">
-        Home BIA scale, daily. A different instrument from the InBody below - its muscle
+        Home BIA scale, daily. A different instrument from the InBody on its own tab - its muscle
         figure is a whole-body composite, not skeletal muscle mass (SMM). The two are
         never merged, calibrated or plotted on one axis.
       </div>
@@ -852,6 +849,14 @@
     </div>
 
     <div class="withings-seg-card" id="withings-seg-card"></div>
+  </div>
+</div>
+
+<!-- InBody Tab. The id stays "body-comp": exportPDF and the lazy chart init both key on it. -->
+<div id="body-comp" class="tab-content">
+  <div class="inbody-loading-overlay hidden" id="loading">
+    <div class="inbody-spinner"></div>
+    <p style="color: var(--muted); font-size: 14px;">Generating PDF...</p>
   </div>
 
   <div id="dashboard" style="display:none;">
@@ -948,7 +953,7 @@ function switchTab(tabName, btn) {
   document.getElementById(tabName).classList.add('active');
   btn.classList.add('active');
 
-  // Initialize InBody charts on first switch to body-comp tab
+  // Initialize InBody charts on first switch to the InBody tab (id body-comp)
   if (tabName === 'body-comp' && !inbodyInitialized) {
     initInBodyCharts();
     inbodyInitialized = true;

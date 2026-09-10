@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Real-browser smoke test. Run before every push: node scripts/smoke.js
-// Loads index.html in headless Chromium, clicks all three tabs, and fails on
+// Loads index.html in headless Chromium, clicks all four tabs, and fails on
 // any console/page error or any canvas without a live Chart instance.
 // Browsers are pre-installed in the Claude Code environment at /opt/pw-browsers
 // (PLAYWRIGHT_BROWSERS_PATH) - NEVER run "playwright install".
@@ -65,13 +65,17 @@ function findChromium() {
   await settle();
   failures.push(...await checkActiveTab('Running', 4));
 
-  // Tab 3: Body Composition - Withings block (6 charts) above InBody (6 charts).
-  // Also wires window.exportPDF on first open.
-  await page.click('button.tab-button:has-text("Body Composition")');
+  // Tab 3: InBody (6 charts). Also wires window.exportPDF on first open.
+  await page.click('button.tab-button:has-text("InBody")');
   await settle();
-  failures.push(...await checkActiveTab('Body Composition', 12));
+  failures.push(...await checkActiveTab('InBody', 6));
   if (await page.evaluate(() => typeof window.exportPDF !== 'function'))
-    failures.push('Body Composition: window.exportPDF is not wired');
+    failures.push('InBody: window.exportPDF is not wired');
+
+  // Tab 4: Withings (6 charts) - its own tab since 10/09/2026.
+  await page.click('button.tab-button:has-text("Withings")');
+  await settle();
+  failures.push(...await checkActiveTab('Withings', 6));
 
   // Withings block: every chart drawn, KPIs and the segmental outline filled in, and the
   // block kept OUTSIDE #dashboard so the Export-to-PDF button stays InBody-only.
@@ -81,6 +85,8 @@ function findChromium() {
     if (!block) return ['Withings: #withings-block is missing'];
     if (document.getElementById('dashboard').contains(block))
       out.push('Withings: block is inside #dashboard - it would leak into the PDF export');
+    if (!document.getElementById('withings').contains(block))
+      out.push('Withings: block is not inside the #withings tab');
 
     ['wgWeightChart', 'wgFatPctChart', 'wgFatKgChart', 'wgMuscleChart', 'wgWaterChart', 'wgVfiChart'].forEach(id => {
       const c = document.getElementById(id);
@@ -158,5 +164,5 @@ function findChromium() {
     console.error(`\nsmoke test FAILED - ${failures.length} problem(s)`);
     process.exit(1);
   }
-  console.log('smoke test PASSED - all three tabs render, console clean, export wired');
+  console.log('smoke test PASSED - all four tabs render, console clean, export wired');
 })().catch(e => { console.error('smoke test crashed: ' + e.message); process.exit(1); });

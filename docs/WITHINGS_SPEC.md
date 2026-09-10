@@ -1,11 +1,13 @@
-# Withings Body Scan - Body Composition tab integration
+# Withings Body Scan - Withings tab integration
 
 Status: **spec, not yet implemented**. Development track (branch + PR, Pawel merges).
 Written 05/09/2026 from a live payload of Pawel's account.
 
 ## Requirement
 
-Daily Withings Body Scan weigh-ins become the routine input to the Body Composition tab,
+Daily Withings Body Scan weigh-ins become the routine input to the dashboard's Withings tab
+(its own tab since 10/09/2026; from 06/09 to 10/09 the block sat above InBody in a shared
+Body Composition tab),
 replacing the InBody printout photo as the day-to-day source. The monthly SATS InBody scan
 stays exactly as it is (`scans[]`, Notion Scan Log, photo flow) as an independent cross-check.
 
@@ -146,7 +148,8 @@ Log stays monthly/InBody only.
 
 ## Rendering (development track)
 
-Body Composition tab gains a Withings block above the existing InBody block. Minimum:
+The Withings block renders in its own tab, `#withings` (since 10/09/2026, Pawel's call; it
+first shipped above the InBody block in a shared Body Composition tab). Minimum:
 
 - **Header KPIs** (latest complete weigh-in): weight, fat %, fat kg, muscle kg, water kg,
   visceral fat index, with delta vs 7-reading mean.
@@ -204,7 +207,7 @@ Smoke: the new charts must draw; add the Withings block to the click-through.
 ## Appendix A - CLAUDE.md section to add
 
 ```
-## Withings weigh-ins (Body Composition tab, daily)
+## Withings weigh-ins (Withings tab, daily)
 
 Source: Cloudflare Worker `withings-mcp` (spec: `docs/WITHINGS_SPEC.md`). Env var
 `WITHINGS_TOKEN`; host `withings-mcp.paul-rucki.workers.dev` must be on the egress

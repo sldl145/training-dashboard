@@ -87,16 +87,16 @@ flowchart TD
 
 | Path | Purpose |
 |------|---------|
-| `index.html` | The dashboard (Training / Body Composition / Running tabs) |
+| `index.html` | The dashboard (Training / InBody / Withings / Running tabs) |
 | `workflows.html` | Visual "how to update" guide — gym session, scan, run, month rollover — live at [/workflows.html](https://sldl145.github.io/training-dashboard/workflows.html) |
 | `CLAUDE.md` | Session contract: workflow, house rules, conventions |
 | `docs/GYM_DASHBOARD_INSTRUCTIONS.md` | Full operating manual (Hevy mapping, data rules, goals, graveyard) |
 | `docs/DEBRIEF.md` | Post-session conversation guide + Notion journal formats |
 | `docs/RUNNING_TAB_SPEC.md` | Running tab spec (data model, layout, charts) |
-| `docs/WITHINGS_SPEC.md` | Withings weigh-in spec (Worker API, `weighins[]` schema, ingestion rule, Body Composition rendering) |
+| `docs/WITHINGS_SPEC.md` | Withings weigh-in spec (Worker API, `weighins[]` schema, ingestion rule, Withings tab rendering) |
 | `docs/DEPLOYMENT.md` | Hosting, publishing rules, troubleshooting |
 | `scripts/validate.js` | Data consistency + syntax + button wiring + TODAY freshness — must exit 0 |
-| `scripts/smoke.js` | Headless-Chromium render check of all three tabs — must pass |
+| `scripts/smoke.js` | Headless-Chromium render check of all four tabs — must pass |
 | `scripts/hevy-preflight.sh`, `scripts/withings-preflight.sh` | SessionStart probes — say whether Hevy / Withings are reachable and, if not, whose problem it is (`npm run preflight` runs both) |
 | `infra/withings-mcp/` | Source of the Cloudflare Worker that fronts the Withings API (deployed from the Cloudflare dashboard, not from this repo) |
 | `assets/` | Vendored Chart.js + html2pdf (page has no external dependencies) |

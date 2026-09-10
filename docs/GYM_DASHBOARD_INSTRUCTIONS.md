@@ -11,7 +11,7 @@ this repo IS the system now (see `docs/DEPLOYMENT.md`).
 
 ```
 training-dashboard/
-  index.html                      <- THE DASHBOARD (Training + Body Composition + Running tabs)
+  index.html                      <- THE DASHBOARD (Training + InBody + Withings + Running tabs)
   CLAUDE.md                       <- Routing layer + workflow contract for sessions
   README.md                       <- System architecture diagram (keep current on workflow changes)
   assets/
@@ -152,12 +152,14 @@ Single self-contained HTML file (`index.html`):
 - **Chart.js 4.4.1** - vendored at `assets/chart.umd.min.js` (switched from CDN
   01/08/2026 so the page has zero runtime dependencies on external hosts).
 - **Vanilla JavaScript**, no framework. **CSS custom properties** for theming.
-- **Tabs:** Training, Body Composition, Running (see `docs/RUNNING_TAB_SPEC.md`).
+- **Tabs:** Training, InBody, Withings, Running (Running: `docs/RUNNING_TAB_SPEC.md`;
+  Withings: `docs/WITHINGS_SPEC.md`). InBody and Withings were one "Body Composition" tab
+  until 10/09/2026; the InBody tab keeps the DOM id `body-comp`.
 
 ### HTML Structure
 
 ```
-<div class="tab-nav">  <- Tab buttons: Training | Body Composition | Running
+<div class="tab-nav">  <- Tab buttons: Training | InBody | Withings | Running
 
 [Training Tab]
 <div id="summary">     <- Summary stat cards (auto-calculated)
@@ -169,6 +171,12 @@ Single self-contained HTML file (`index.html`):
 
 [Running Tab]
 <div id="running-countdown"> ... <div id="running-table">  (see RUNNING_TAB_SPEC.md)
+
+[InBody Tab]  id="body-comp"
+<div id="dashboard">   <- InBody header, score hero, KPIs, 6 charts, scan table (exported to PDF)
+
+[Withings Tab]  id="withings"
+<div id="withings-block">  <- Withings KPIs, 6 charts, segmental card (see WITHINGS_SPEC.md)
 ```
 
 ### JavaScript Structure
@@ -282,7 +290,7 @@ New movement seen once -> graveyard with a reason (precedents: Single Leg Extens
 
 ---
 
-## InBody Scans (Body Composition tab)
+## InBody Scans (InBody tab)
 
 Notion Scan Log: page `b3212cc0-f266-4059-bf8d-098ac2369ebc`, data source
 `ea0a85b3-a860-45b9-af4e-212d76773a19`. Properties: Scan Date (title, DD/MM/YYYY),
