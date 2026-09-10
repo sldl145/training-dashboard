@@ -117,6 +117,11 @@
     grid-template-columns: repeat(auto-fit, minmax(580px, 1fr));
     gap: 16px;
   }
+  /* Lift charts: one per row on a shared time axis (10/09/2026). The Running tab keeps
+     the two-column .chart-grid. */
+  .chart-grid.lifts { grid-template-columns: 1fr; }
+  .chart-card .chart-box { position: relative; height: 300px; }
+  .chart-card .chart-box canvas { max-height: none; }
   .chart-card {
     background: var(--card);
     border: 1px solid var(--border);
@@ -1992,19 +1997,38 @@ function renderCharts() {
     </div>
   `;
   const grid = document.createElement('div');
-  grid.className = 'chart-grid';
+  grid.className = 'chart-grid lifts';
+
+  // Shared time axis: every lift chart runs from the first session in the record to
+  // TODAY (plus a week of breathing room), so starts, stops and breaks line up across
+  // lifts and a gap reads as empty space rather than as two adjacent points.
+  const liftTs = dateStr => new Date(dateStr + 'T12:00:00').getTime();
+  const axisMin = Math.min(...allNames.map(n => liftTs(exercises[n].data[0].date)));
+  const axisMax = liftTs(TODAY) + 7 * 864e5;
+  const GAP_MS = 42 * 864e5;   // > 6 weeks between sessions is drawn as a break
+  const isGap = ctx => (ctx.p1.parsed.x - ctx.p0.parsed.x) > GAP_MS;
+  const monthTicks = axis => {
+    const out = [];
+    const d = new Date(axis.min); d.setDate(1); d.setHours(12, 0, 0, 0);
+    if (d.getTime() < axis.min) d.setMonth(d.getMonth() + 1);
+    for (; d.getTime() <= axis.max; d.setMonth(d.getMonth() + 1)) out.push({ value: d.getTime() });
+    axis.ticks = out;
+  };
+  const tickLabel = v => new Date(v).toLocaleDateString('en-GB', { month: 'short', year: '2-digit' });
+  const tooltipDate = v => new Date(v).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
   allNames.forEach((name) => {
     const ex = exercises[name];
     const data = ex.data;
-    const labels = data.map(d => formatDate(d.date));
-    const weights = data.map(d => d.weight);
-    const reps = data.map(d => d.bestReps);
-    const e1rms = data.map(d => Math.round(e1rm(d.weight, d.bestReps) * 10) / 10);
+    const xs = data.map(d => liftTs(d.date));
+    const weights = data.map((d, i) => ({ x: xs[i], y: d.weight }));
+    const reps = data.map((d, i) => ({ x: xs[i], y: d.bestReps }));
+    const e1rmVals = data.map(d => Math.round(e1rm(d.weight, d.bestReps) * 10) / 10);
+    const e1rms = e1rmVals.map((v, i) => ({ x: xs[i], y: v }));
 
-    const firstE1rm = e1rms[0];
-    const bestE1rm = Math.max(...e1rms);
-    const currentE1rm = e1rms[e1rms.length - 1];
+    const firstE1rm = e1rmVals[0];
+    const bestE1rm = Math.max(...e1rmVals);
+    const currentE1rm = e1rmVals[e1rmVals.length - 1];
     const totalGain = firstE1rm > 0 ? ((bestE1rm - firstE1rm) / firstE1rm * 100).toFixed(0) : '~';
 
     const color = chartColors[colorIdx % chartColors.length];
@@ -2029,7 +2053,7 @@ function renderCharts() {
           <div class="mini"><span>Best e1RM:</span> ${bestE1rm} kg</div>
           <div class="mini"><span>Latest:</span> ${data[data.length-1].weight} kg x${data[data.length-1].bestReps}</div>
         </div>
-        <canvas id="${chartId}"></canvas>
+        <div class="chart-box"><canvas id="${chartId}"></canvas></div>
       `;
       grid.appendChild(div);
 
@@ -2040,7 +2064,6 @@ function renderCharts() {
         new Chart(ctx.getContext('2d'), {
           type: 'line',
           data: {
-            labels: labels,
             datasets: [
               {
                 label: 'Weight (kg)',
@@ -2054,6 +2077,11 @@ function renderCharts() {
                 tension: 0.3,
                 fill: true,
                 yAxisID: 'y',
+                segment: {
+                  borderDash: ctx => isGap(ctx) ? [3, 5] : undefined,
+                  borderWidth: ctx => isGap(ctx) ? 1 : undefined,
+                  backgroundColor: ctx => isGap(ctx) ? 'transparent' : undefined,
+                },
               },
               {
                 label: 'Est. 1RM',
@@ -2065,6 +2093,7 @@ function renderCharts() {
                 tension: 0.3,
                 fill: false,
                 yAxisID: 'y',
+                segment: { borderColor: ctx => isGap(ctx) ? 'transparent' : undefined },
               },
               {
                 label: 'Best Reps',
@@ -2076,12 +2105,13 @@ function renderCharts() {
                 tension: 0.2,
                 fill: false,
                 yAxisID: 'y1',
+                segment: { borderColor: ctx => isGap(ctx) ? 'transparent' : undefined },
               }
             ]
           },
           options: {
             responsive: true,
-            maintainAspectRatio: true,
+            maintainAspectRatio: false,
             interaction: { mode: 'index', intersect: false },
             plugins: {
               legend: { display: true, labels: { color: '#94a3b8', font: { size: 10 }, boxWidth: 10, padding: 12 } },
@@ -2092,12 +2122,15 @@ function renderCharts() {
                 borderColor: '#334155',
                 borderWidth: 1,
                 cornerRadius: 8,
-                bodyFont: { size: 11 }
+                bodyFont: { size: 11 },
+                callbacks: { title: items => items.length ? tooltipDate(items[0].parsed.x) : '' }
               }
             },
             scales: {
               x: {
-                ticks: { color: '#94a3b8', maxRotation: 45, font: { size: 10 } },
+                type: 'linear', min: axisMin, max: axisMax,
+                afterBuildTicks: monthTicks,
+                ticks: { color: '#94a3b8', maxRotation: 45, font: { size: 10 }, autoSkip: true, autoSkipPadding: 12, callback: tickLabel },
                 grid: { color: '#f1f5f9' }
               },
               y: {
