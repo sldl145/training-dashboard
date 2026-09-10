@@ -189,28 +189,20 @@
     align-items: center;
     gap: 8px;
   }
-  .goal-card table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.8em;
-  }
-  .goal-card th {
-    color: var(--muted);
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.78em;
-    letter-spacing: 0.4px;
-    padding: 5px 8px;
-    border-bottom: 1px solid var(--border);
-    background: transparent;
-    text-align: left;
-  }
-  .goal-card td {
-    padding: 5px 8px;
-    border-bottom: 1px solid #f1f0ed;
-    font-size: 0.95em;
-  }
-  .goal-card tr:last-child td { border-bottom: none; }
+  /* One progress row per goal (10/09/2026): head line, bar, e1RM scale. */
+  .goal-row { padding: 9px 0 10px; border-bottom: 1px solid #f1f0ed; }
+  .goal-row:last-child { border-bottom: none; padding-bottom: 2px; }
+  .goal-head { display: flex; align-items: baseline; gap: 10px; font-size: 0.82em; margin-bottom: 6px; flex-wrap: wrap; }
+  .goal-lift { font-weight: 600; flex: 1; min-width: 120px; }
+  .goal-target strong { font-weight: 700; }
+  .goal-from { color: var(--muted); font-size: 0.85em; margin-left: 4px; }
+  .goal-status { font-size: 0.85em; color: var(--muted); white-space: nowrap; }
+  .goal-status.done { color: var(--green); font-weight: 600; }
+  .goal-status .goal-hit { color: var(--muted); font-weight: 400; }
+  .goal-bar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+  .goal-fill { height: 100%; background: var(--accent); border-radius: 4px; }
+  .goal-fill.done { background: var(--green); }
+  .goal-scale { display: flex; justify-content: space-between; gap: 8px; font-size: 0.68em; color: var(--muted); margin-top: 4px; font-variant-numeric: tabular-nums; }
   .goal-tag {
     display: inline-block;
     font-size: 0.7em;
@@ -2458,45 +2450,99 @@ function renderTables() {
   });
 }
 
+// ========== GOALS ==========
+// Goals only. A row belongs here if it carries a target with a live status; the narrative,
+// program detail and open questions live in Notion, not on the dashboard (Pawel's calls of
+// 01/08 and 01/09). A row carries lift, target, starting point and status - nothing else.
+//
+// GOALS is hand-edited DATA, monthly cadence, set in the month-end closeout (docs: Goal
+// Calibration). On rollover replace `month` and the groups' `goals`; superseded months are
+// not archived here - git history and the Notion month pages are the record. An empty
+// goals list renders the empty state ("Currently no goals are set up.").
+//
+// Status is DERIVED, never typed (10/09/2026): a target is DONE the first time any logged
+// set in the goal month has weight >= target.w AND reps >= target.r. The bar runs from the
+// starting set's e1RM to the target's, filled to the best e1RM of any logged set in the
+// month so far (Brzycki, the page's own e1rm()) - the same set-level view the DONE test uses. e1RM is noisy at the 2-3 kg level, so
+// the fill is a reading of the month's best session, not a percentage to quote.
+const GOALS = {
+  month: '2026-09',
+  groups: [
+    { tag: 'primary', label: 'Anchors', title: 'Bench / OHP / RDL', goals: [
+      { lift: 'Bench Press',       target: { w: 90,   r: 4 }, from: { w: 85,  r: 4 } },
+      { lift: 'Overhead Press',    target: { w: 57.5, r: 4 }, from: { w: 55,  r: 4 } },
+      { lift: 'Romanian Deadlift', target: { w: 150,  r: 5 }, from: { w: 150, r: 4 } },
+    ] },
+    { tag: 'secondary', label: 'Back', title: 'Lat Pulldown', goals: [
+      { lift: 'Lat Pulldown',      target: { w: 115,  r: 6 }, from: { w: 110, r: 6 } },
+    ] },
+    { tag: 'nice', label: 'Accessories', title: 'Legs / Arms', goals: [
+      { lift: 'Leg Extension',     target: { w: 160,  r: 6 }, from: { w: 153, r: 5 } },
+      { lift: 'Reverse Curl',      target: { w: 32.5, r: 7 }, from: { w: 30,  r: 6 } },
+    ] },
+  ],
+};
+
 // ========== RENDER GOALS ==========
-// Goals only. A card belongs here if it carries a target with a live status; the
-// narrative, program detail and open questions live in Notion, not on the dashboard.
-// When a month has no agreed targets, render the empty state instead:
-//   <div class="section-label">Goals</div>
-//   <p class="goals-empty">Currently no goals are set up.</p>
-// August 2026: calibrated 01/08 from the logged sets - log-linear trend on session-top
-// e1RMs, slope shrunk for low-sample lifts, simulated over the 3.4 trainable weeks August
-// has (Greece 03-06/08 out). Targets aimed at a ~40-55% hit rate; every target is a set
-// not already achieved. Update the Status cell as each lands.
+function evaluateGoal(goal, month) {
+  const source = exercises[goal.lift] || graveyard[goal.lift] || {};
+  const rows = (source.data || []).filter(d => d.date.startsWith(month));
+  const setsOf = d => (d.sets && d.sets.length ? d.sets : [{ w: d.weight, r: d.bestReps }]);
+  let hit = null;
+  outer: for (const d of rows) {
+    for (const st of setsOf(d)) {
+      if (st.w >= goal.target.w && st.r >= goal.target.r) { hit = { w: st.w, r: st.r, date: d.date }; break outer; }
+    }
+  }
+  const best = rows.length ? Math.max(...rows.flatMap(d => setsOf(d).map(st => e1rm(st.w, st.r)))) : null;
+  const start = e1rm(goal.from.w, goal.from.r), end = e1rm(goal.target.w, goal.target.r);
+  let frac = 0;
+  if (hit) frac = 1;
+  else if (best != null && end > start) frac = Math.max(0, Math.min(1, (best - start) / (end - start)));
+  return { hit, best, start, end, frac };
+}
+
 function renderGoals() {
   const container = document.getElementById('goals');
+  const monthLabel = new Date(GOALS.month + '-01T12:00:00').toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+  const goals = GOALS.groups.flatMap(g => g.goals);
+  if (!goals.length) {
+    container.innerHTML = `
+    <div class="section-label">${monthLabel} Goals</div>
+    <p class="goals-empty">Currently no goals are set up.</p>`;
+    return;
+  }
+  const fmtSet = st => `${st.w} &times; ${st.r}`;
+  const fmtDay = iso => `${iso.slice(8, 10)}/${iso.slice(5, 7)}`;
+  const kg = v => v.toFixed(1);
+  let hits = 0;
+  const cards = GOALS.groups.filter(g => g.goals.length).map(g => `
+      <div class="goal-card">
+        <h3><span class="goal-tag goal-tag-${g.tag}">${g.label}</span> ${g.title}</h3>
+        ${g.goals.map(goal => {
+          const r = evaluateGoal(goal, GOALS.month);
+          if (r.hit) hits++;
+          const status = r.hit
+            ? `<span class="goal-status done">DONE <span class="goal-hit">&middot; ${fmtSet(r.hit)}, ${fmtDay(r.hit.date)}</span></span>`
+            : '<span class="goal-status">Pending</span>';
+          const bestText = r.best == null ? 'no session yet this month' : `best this month ${kg(r.best)}`;
+          return `
+        <div class="goal-row" data-lift="${goal.lift}" data-done="${r.hit ? 1 : 0}">
+          <div class="goal-head">
+            <span class="goal-lift">${goal.lift}</span>
+            <span class="goal-target"><strong>${fmtSet(goal.target)}</strong><span class="goal-from">from ${fmtSet(goal.from)}</span></span>
+            ${status}
+          </div>
+          <div class="goal-bar" title="e1RM ${kg(r.start)} at the starting set, ${kg(r.end)} at the target; ${bestText}">
+            <div class="goal-fill${r.hit ? ' done' : ''}" style="width:${(r.frac * 100).toFixed(1)}%"></div>
+          </div>
+          <div class="goal-scale"><span>e1RM ${kg(r.start)}</span><span>${bestText}</span><span>${kg(r.end)}</span></div>
+        </div>`;
+        }).join('')}
+      </div>`).join('');
   container.innerHTML = `
-    <div class="section-label">September 2026 Goals <span class="count">6 targets - 1 hit</span></div>
-    <div class="goals-grid">
-      <div class="goal-card">
-        <h3><span class="goal-tag goal-tag-primary">Anchors</span> Bench / OHP / RDL</h3>
-        <table>
-          <tr><th>Lift</th><th>Target</th><th>Status</th></tr>
-          <tr><td>Bench Press</td><td><strong>90 &times; 4</strong><br><span style="color:var(--muted);font-size:0.85em;">from 85 &times; 4</span></td><td style="color:var(--muted);">Pending</td></tr>
-          <tr><td>Overhead Press</td><td><strong>57.5 &times; 4</strong><br><span style="color:var(--muted);font-size:0.85em;">from 55 &times; 4</span></td><td style="color:var(--muted);">Pending</td></tr>
-          <tr><td>Romanian Deadlift</td><td><strong>150 &times; 5</strong><br><span style="color:var(--muted);font-size:0.85em;">from 150 &times; 4</span></td><td style="color:var(--green);font-weight:600;">DONE<br><span style="color:var(--muted);font-weight:400;font-size:0.85em;">150 &times; 5, 06/09</span></td></tr>
-        </table>
-      </div>
-      <div class="goal-card">
-        <h3><span class="goal-tag goal-tag-secondary">Back</span> Lat Pulldown</h3>
-        <table>
-          <tr><th>Lift</th><th>Target</th><th>Status</th></tr>
-          <tr><td>Lat Pulldown</td><td><strong>115 &times; 6</strong><br><span style="color:var(--muted);font-size:0.85em;">from 110 &times; 6</span></td><td style="color:var(--muted);">Pending</td></tr>
-        </table>
-      </div>
-      <div class="goal-card">
-        <h3><span class="goal-tag goal-tag-nice">Accessories</span> Legs / Arms</h3>
-        <table>
-          <tr><th>Lift</th><th>Target</th><th>Status</th></tr>
-          <tr><td>Leg Extension</td><td><strong>160 &times; 6</strong><br><span style="color:var(--muted);font-size:0.85em;">from 153 &times; 5</span></td><td style="color:var(--muted);">Pending</td></tr>
-          <tr><td>Reverse Curl</td><td><strong>32.5 &times; 7</strong><br><span style="color:var(--muted);font-size:0.85em;">from 30 &times; 6</span></td><td style="color:var(--muted);">Pending</td></tr>
-        </table>
-      </div>
+    <div class="section-label">${monthLabel} Goals <span class="count">${goals.length} target${goals.length === 1 ? '' : 's'} - ${hits} hit</span></div>
+    <div class="goals-grid">${cards}
     </div>
   `;
 }

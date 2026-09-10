@@ -60,6 +60,31 @@ function findChromium() {
   await settle();
   failures.push(...await checkActiveTab('Training', 5));
 
+  // Goals (10/09/2026): one progress row per goal, status derived from the logged sets,
+  // fill within 0-100%, and the section-label count agreeing with the rows.
+  failures.push(...await page.evaluate(() => {
+    const out = [];
+    const rows = [...document.querySelectorAll('#goals .goal-row')];
+    const label = (document.querySelector('#goals .section-label') || {}).textContent || '';
+    if (!rows.length) return /no goals are set up/.test(label + document.getElementById('goals').textContent) ? [] : ['Goals: no rows and no empty state'];
+    const m = /(\d+) targets? - (\d+) hit/.exec(label);
+    if (!m) out.push(`Goals: section label "${label.trim()}" has no "N targets - M hit"`);
+    else {
+      if (+m[1] !== rows.length) out.push(`Goals: label says ${m[1]} targets, ${rows.length} rows rendered`);
+      const done = rows.filter(r => r.dataset.done === '1').length;
+      if (+m[2] !== done) out.push(`Goals: label says ${m[2]} hit, ${done} rows marked done`);
+    }
+    rows.forEach(r => {
+      const fill = r.querySelector('.goal-fill');
+      const w = parseFloat(fill && fill.style.width);
+      if (!(w >= 0 && w <= 100)) out.push(`Goals: ${r.dataset.lift} fill width "${fill && fill.style.width}"`);
+      if (r.dataset.done === '1' && w !== 100) out.push(`Goals: ${r.dataset.lift} is done but not full`);
+      if (r.dataset.done === '1' && !fill.classList.contains('done')) out.push(`Goals: ${r.dataset.lift} done row not green`);
+      if (!r.querySelector('.goal-status')) out.push(`Goals: ${r.dataset.lift} has no status`);
+    });
+    return out;
+  }));
+
   // Range controls (10/09/2026): 12W default, presets, prev/next, URL state, reset, and
   // the y axis following the window. Bench Press stands in for every lift chart - they
   // all hang off the same RANGE tab.
