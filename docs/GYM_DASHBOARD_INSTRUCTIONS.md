@@ -164,8 +164,10 @@ Single self-contained HTML file (`index.html`):
 [Training Tab]
 <div id="summary">     <- Summary stat cards (auto-calculated)
 <div id="goals">       <- Monthly goal cards (manually maintained)
-<div id="sections">    <- Exercise charts: one per row, all on ONE shared time axis (first
-                          session in the record to TODAY; > 6-week gaps drawn dashed) - 10/09/2026
+<div id="sections">    <- Exercise charts: one per row, all on ONE shared time axis (> 6-week
+                          gaps drawn dashed). #range-training above them: 4W/12W/6M/1Y/All,
+                          prev/next, From/To, Reset (default 12W); window kept in the URL
+                          fragment (#training=12w&withings=4w) - RANGE controller, 10/09/2026
 <div id="tables">      <- Collapsible exercise tables with expandable set detail rows
 <div id="graveyard-section">  <- Collapsible retired exercises
 <div id="injury-log-section"> <- Collapsible injury history, grouped by muscle group

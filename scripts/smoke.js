@@ -60,22 +60,69 @@ function findChromium() {
   await settle();
   failures.push(...await checkActiveTab('Training', 5));
 
+  // Range controls (10/09/2026): 12W default, presets, prev/next, URL state, reset, and
+  // the y axis following the window. Bench Press stands in for every lift chart - they
+  // all hang off the same RANGE tab.
+  failures.push(...await page.evaluate(() => {
+    const out = [];
+    const bar = document.getElementById('range-training');
+    if (!bar) return ['Training: #range-training is missing'];
+    const chart = Chart.getChart(document.getElementById('chart-Bench_Press'));
+    if (!chart) return ['Training: no Bench Press chart to test the range against'];
+    const DAY = 864e5;
+    const span = () => (chart.options.scales.x.max - chart.options.scales.x.min) / DAY;
+    const near = (a, b) => Math.abs(a - b) <= 1.1;
+    if (!near(span(), 84)) out.push(`Training: default window is ${span().toFixed(1)} days, expected 84 (12W)`);
+    if (!bar.querySelector('[data-preset="12w"].active')) out.push('Training: 12W is not shown as the active preset');
+    const yAll = chart.options.scales.y.max - chart.options.scales.y.min;
+    bar.querySelector('[data-preset="4w"]').click();
+    if (!near(span(), 28)) out.push(`Training: 4W gives ${span().toFixed(1)} days`);
+    if (!/training=4w/.test(location.hash)) out.push(`Training: 4W not written to the URL fragment (${location.hash})`);
+    const y4w = chart.options.scales.y.max - chart.options.scales.y.min;
+    if (!(y4w > 0)) out.push('Training: y axis has no bounds after 4W');
+    const before = chart.options.scales.x.min;
+    bar.querySelector('[data-nav="prev"]').click();
+    if (!(chart.options.scales.x.min < before)) out.push('Training: prev did not move the window back');
+    if (!near(span(), 28)) out.push('Training: prev changed the window length');
+    if (bar.querySelector('[data-preset].active')) out.push('Training: a preset still reads active after prev');
+    bar.querySelector('[data-preset="all"]').click();
+    if (!(span() > 300)) out.push(`Training: All gives only ${span().toFixed(0)} days`);
+    if (!bar.querySelector('[data-nav="prev"]').disabled || !bar.querySelector('[data-nav="next"]').disabled)
+      out.push('Training: prev/next not disabled on All');
+    const yAllAgain = chart.options.scales.y.max - chart.options.scales.y.min;
+    if (!(yAllAgain >= y4w)) out.push('Training: y axis did not widen again on All');
+    bar.querySelector('[data-reset]').click();
+    if (!near(span(), 84)) out.push('Training: reset did not restore 12W');
+    chart.scales.x.ticks.forEach(t => {
+      const d = new Date(t.value);
+      if (d.getHours() || d.getMinutes()) out.push(`Training: x tick at ${d.toTimeString().slice(0, 8)}, not midnight`);
+    });
+    void yAll;
+    return out;
+  }));
+
   // Tab 2: Running
   await page.click('button.tab-button:has-text("Running")');
   await settle();
   failures.push(...await checkActiveTab('Running', 4));
 
-  // Tab 3: InBody (6 charts). Also wires window.exportPDF on first open.
-  await page.click('button.tab-button:has-text("InBody")');
-  await settle();
-  failures.push(...await checkActiveTab('InBody', 6));
-  if (await page.evaluate(() => typeof window.exportPDF !== 'function'))
-    failures.push('InBody: window.exportPDF is not wired');
-
-  // Tab 4: Withings (6 charts) - its own tab since 10/09/2026.
+  // Tab 3: Withings (6 charts) - its own tab since 10/09/2026, and deliberately opened
+  // BEFORE InBody: both are built by initInBodyCharts, and opening Withings first once
+  // left the tab empty. InBody's charts are then created hidden and must still size.
   await page.click('button.tab-button:has-text("Withings")');
   await settle();
   failures.push(...await checkActiveTab('Withings', 6));
+
+  // Range bar present with 4W as the default, then widen to All so the point-count checks
+  // below see every weigh-in whatever the record's length.
+  failures.push(...await page.evaluate(() => {
+    const bar = document.getElementById('range-withings');
+    if (!bar) return ['Withings: #range-withings is missing'];
+    if (!bar.querySelector('[data-preset="4w"].active')) return ['Withings: 4W is not the active default'];
+    return [];
+  }));
+  await page.click('#range-withings [data-preset="all"]');
+  await settle();
 
   // Withings block: every chart drawn, KPIs and the segmental outline filled in, and the
   // block kept OUTSIDE #dashboard so the Export-to-PDF button stays InBody-only.
@@ -156,6 +203,13 @@ function findChromium() {
     return lefts.size === 1 ? [] : ['Withings: segment boxes do not stack at 380 px width'];
   }));
   await page.setViewportSize({ width: 1440, height: 1000 });
+
+  // Tab 4: InBody (6 charts), opened AFTER Withings on purpose - see above. Also wires window.exportPDF on first open.
+  await page.click('button.tab-button:has-text("InBody")');
+  await settle();
+  failures.push(...await checkActiveTab('InBody', 6));
+  if (await page.evaluate(() => typeof window.exportPDF !== 'function'))
+    failures.push('InBody: window.exportPDF is not wired');
 
   await browser.close();
 
