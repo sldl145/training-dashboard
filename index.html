@@ -1173,7 +1173,15 @@ const RANGE = (() => {
     t.charts.push(chart);
     chart.options.scales.x.min = t.from; chart.options.scales.x.max = t.to;
     fitY(chart, t.from, t.to);
-    chart.update('none');
+    // Full update, NOT update('none'). The chart has already rendered once against an
+    // auto-fitted x axis by the time attach() runs (charts are built inside a
+    // requestAnimationFrame), and 'none' re-renders without re-laying-out the point
+    // elements - so every point keeps the pixel it was given under the old scale while
+    // the axis and its ticks switch to the window. Found 12/09/2026: the Training tab
+    // was drawing points up to 987 px (of a 1244 px plot) away from their own dates,
+    // which made lifts appear on days they were never trained. scripts/smoke.js now
+    // asserts the drift is zero.
+    chart.update();
     return chart;
   }
   const get = key => ({ from: tabs[key].from, to: tabs[key].to, spec: tabs[key].spec });

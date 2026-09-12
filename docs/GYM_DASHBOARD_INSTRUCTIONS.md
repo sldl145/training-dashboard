@@ -62,7 +62,7 @@ The primary lifting data source is the Hevy workout tracking app.
 | Lying Leg Curl (Machine) | Lying Leg Curl |
 | Hack Squat (Machine) | Hack Squat |
 | Leg Press (Machine) | Leg Press |
-| Triceps Dip (Weighted) | Weighted Dips |
+| Triceps Dip (Weighted) | Weighted Dips (GRAVEYARD from 12/09/2026) |
 | Lat Pulldown (Cable) | Lat Pulldown |
 | Romanian Deadlift (Barbell) | Romanian Deadlift |
 | Single Arm Triceps Pushdown (Cable) | Single Arm Triceps Pushdown |
@@ -77,9 +77,18 @@ The primary lifting data source is the Hevy workout tracking app.
 | Back Extension (Weighted Hyperextension) | Back Extension (GRAVEYARD) |
 | Chest Dip (Assisted) | Chest Dip (Assisted) (GRAVEYARD) |
 | Chest Press (Machine) | Chest Press (Machine) (GRAVEYARD) |
-| Bicep Curl (Cable) | Bicep Curl (Cable) (GRAVEYARD) |
+| Bicep Curl (Cable) | Bicep Curl (see note below - NOT the graveyard entry) |
 | Seated Shoulder Press (Machine) | Seated Shoulder Press (GRAVEYARD) |
 | T Bar Row | T Bar Row (GRAVEYARD - pending classification, promote on 2nd appearance) |
+
+Note: **`Bicep Curl (Cable)` maps to the active `Bicep Curl`, not to the graveyard entry of
+the same Hevy name.** Hevy has one cable bicep curl (template `ADA8623C`, 8 sessions). Two of
+them - 24/12 and 28/12/2025 - were done in Tunis, training alone, on a different machine, and
+live in the graveyard as `Bicep Curl (Cable)`; everything from 26/08/2026 is the home-gym lift
+and belongs in `Bicep Curl`. **Do not merge the two series.** This table said "GRAVEYARD" until
+12/09/2026 while every session since 26/08/2026 was filed to the active entry - table and
+practice disagreed for six months and the error was only found when the card showed the wrong
+session count.
 
 Note: "Seated Triceps Press" and "Triceps Extension (Cable)" are the same exercise,
 different Hevy template IDs. Map both to "Triceps Extension".
