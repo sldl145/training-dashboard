@@ -56,9 +56,43 @@ function findChromium() {
     return out;
   }, [label, minCharts]);
 
+
+  // Point/axis drift (added 12/09/2026). A chart can render with its points laid out
+  // against one x scale while the axis and ticks show another: RANGE.attach() used to
+  // call chart.update('none'), which re-renders without re-positioning the point
+  // elements, so every point kept the pixel it was given under the pre-window auto-fit.
+  // The charts still drew, the console stayed clean and this test passed - while the
+  // Training tab put points up to 987 px (of a 1244 px plot) away from their own dates,
+  // showing lifts on days they were never trained. Assert the drawn pixel matches the
+  // pixel the point's own x value maps to.
+  const checkDrift = label => page.evaluate(label => {
+    const out = [];
+    const active = new Set([...document.querySelectorAll('.tab-content.active canvas')]);
+    for (const chart of Object.values(Chart.instances)) {
+      if (!active.has(chart.canvas)) continue;
+      const x = chart.scales && chart.scales.x;
+      if (!x || x.type !== 'linear') continue;
+      let worst = 0, at = null;
+      chart.data.datasets.forEach((ds, di) => {
+        const meta = chart.getDatasetMeta(di);
+        (ds.data || []).forEach((p, i) => {
+          if (!p || typeof p !== 'object' || p.x == null || !meta.data[i]) return;
+          const expected = x.getPixelForValue(p.x);
+          if (expected < x.left - 1 || expected > x.right + 1) return;   // off-window, clipped
+          const d = Math.abs(expected - meta.data[i].x);
+          if (d > worst) { worst = d; at = new Date(p.x).toISOString().slice(0, 10); }
+        });
+      });
+      if (worst > 1)
+        out.push(`${label}: #${chart.canvas.id} draws points up to ${Math.round(worst)}px from their dates (worst near ${at})`);
+    }
+    return out;
+  }, label);
+
   // Tab 1: Training (active on load)
   await settle();
   failures.push(...await checkActiveTab('Training', 5));
+  failures.push(...await checkDrift('Training'));
 
   // Goals (10/09/2026): one progress row per goal, status derived from the logged sets,
   // fill within 0-100%, and the section-label count agreeing with the rows.
@@ -125,6 +159,8 @@ function findChromium() {
     void yAll;
     return out;
   }));
+  await settle();
+  failures.push(...await checkDrift('Training after range changes'));
 
   // Tab 2: Running
   await page.click('button.tab-button:has-text("Running")');
@@ -148,6 +184,7 @@ function findChromium() {
   }));
   await page.click('#range-withings [data-preset="all"]');
   await settle();
+  failures.push(...await checkDrift('Withings'));
 
   // Withings block: every chart drawn, KPIs and the segmental outline filled in, and the
   // block kept OUTSIDE #dashboard so the Export-to-PDF button stays InBody-only.
