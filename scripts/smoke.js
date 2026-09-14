@@ -43,6 +43,31 @@ function findChromium() {
   // Charts are created in requestAnimationFrame callbacks - give them a beat
   const settle = () => page.waitForTimeout(700);
 
+  // Drift must be measured with the charts AT REST. settle() waits 700 ms; Chart.js
+  // animates for 1000 ms by default, so RANGE.attach()'s full chart.update() is still
+  // in flight when settle() returns and every point is mid-travel. Measured on this
+  // page: 55 px of apparent drift across all 8 charts at 400 ms, 22 px at 700 ms, and
+  // exactly 0 px once the animations finish. Whether a chart tripped the > 1 px
+  // assertion therefore depended on how long the preceding check happened to take -
+  // the suite failed intermittently on Bicep Curl (the widest travel, so the last to
+  // land) and on a slower machine would have reported all eight charts drifting by
+  // 20+ px, which is indistinguishable from the 987 px bug this assertion exists to
+  // catch. Wait for Chart.animator to go quiet instead of guessing at a timeout.
+  const chartsAtRest = async label => {
+    try {
+      await page.waitForFunction(() => {
+        if (typeof window.Chart === 'undefined') return false;
+        const active = [...document.querySelectorAll('.tab-content.active canvas')];
+        const charts = Object.values(Chart.instances).filter(c => active.includes(c.canvas));
+        if (!charts.length) return false;
+        return charts.every(c => !(Chart.animator && Chart.animator.running && Chart.animator.running(c)));
+      }, null, { timeout: 5000 });
+      return [];
+    } catch {
+      return [label + ': chart animations still running after 5s - cannot measure drift at rest'];
+    }
+  };
+
   const checkActiveTab = (label, minCharts) => page.evaluate(([label, minCharts]) => {
     const out = [];
     if (typeof window.Chart === 'undefined') { out.push(label + ': Chart.js did not load'); return out; }
@@ -92,6 +117,7 @@ function findChromium() {
   // Tab 1: Training (active on load)
   await settle();
   failures.push(...await checkActiveTab('Training', 5));
+  failures.push(...await chartsAtRest('Training'));
   failures.push(...await checkDrift('Training'));
 
   // Goals (10/09/2026): one progress row per goal, status derived from the logged sets,
@@ -160,6 +186,7 @@ function findChromium() {
     return out;
   }));
   await settle();
+  failures.push(...await chartsAtRest('Training after range changes'));
   failures.push(...await checkDrift('Training after range changes'));
 
   // Tab 2: Running
@@ -184,6 +211,7 @@ function findChromium() {
   }));
   await page.click('#range-withings [data-preset="all"]');
   await settle();
+  failures.push(...await chartsAtRest('Withings'));
   failures.push(...await checkDrift('Withings'));
 
   // Withings block: every chart drawn, KPIs and the segmental outline filled in, and the
