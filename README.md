@@ -19,12 +19,14 @@ flowchart TD
     RUN["🏃 Run<br/>(Apple Watch)"] -->|screenshot pasted| SESSION
     SCAN["📊 InBody scan<br/>(photo pasted, monthly at SATS)"] --> SESSION
     WEIGH["⚖️ Withings Body Scan<br/>(daily weigh-in at home)"] -->|pulled from the Worker| SESSION
+    TAPE["📏 Tape measurement<br/>(waist/hip, twice weekly at home)"] -->|said in session, hand-entered| SESSION
 
     subgraph SESSION["One Claude Code session — 'update dashboard'"]
         D1["Debrief conversation<br/>(docs/DEBRIEF.md)"] --> D2["Write Notion journal<br/>Session/Scan page or Run entry<br/>(dedup on date)"]
         D2 --> D3["Fetch ground truth<br/>Hevy API or pasted export<br/>(Hevy always wins)"]
         D3 --> D3W["Pull Withings weigh-ins<br/>everything since the last one on file<br/>(withings-mcp Worker)"]
-        D3W --> D4["Targeted edits to index.html<br/>(TODAY bump, data appends, goals)"]
+        D3W --> D3T["Append any tape measurements<br/>waist/hip, dedup on date<br/>(docs/TAPE_SPEC.md)"]
+        D3T --> D4["Targeted edits to index.html<br/>(TODAY bump, data appends, goals)"]
         D4 --> D5["Checks: scripts/validate.js<br/>+ scripts/smoke.js (real browser)"]
         D5 --> D6["git push main — data track<br/>+ check off Decisions in Notion"]
     end
@@ -69,6 +71,15 @@ flowchart TD
   that holds the OAuth tokens. Numbers are never typed in from the phone app. The monthly
   SATS **InBody** scan stays a separate instrument on its own series — the two are never
   merged, calibrated against each other, or plotted on one axis.
+- **Tape measurements** (waist/hip, twice weekly) are the one hand-typed series — there is no
+  API for a tape measure. They exist because every other composition number comes from
+  bioelectrical impedance, which fails with hydration; a tape fails differently, so the two
+  agreeing carries information. Tape WHR is measured, the InBody's WHR is a model output —
+  separate series, never merged.
+- **The Withings tab is read in fortnights, not days.** Per-reading noise is about the size of
+  a fortnight's real change, so the block-comparison card at the top of that tab — trailing
+  14 days against the 14 before, with a noise threshold computed from the series' own scatter
+  — is the number to answer from. See [`docs/BLOCK_COMPARISON.md`](docs/BLOCK_COMPARISON.md).
 - **This repo** is the rendered dashboard and the system of record for how updates work.
 - **Two tracks.** Data (session rows, runs, scans, weigh-ins, `TODAY`, monthly goals cards) goes
   straight to `main` — a gym session is never held up by a review. Anything touching

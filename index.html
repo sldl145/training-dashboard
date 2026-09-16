@@ -668,6 +668,52 @@
   @keyframes spin { to { transform: rotate(360deg); } }
 
   /* ========== WITHINGS BODY SCAN (daily weigh-ins) ========== */
+  /* ========== BLOCK COMPARISON + TAPE ========== */
+  .block-compare-card, .tape-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 24px; margin-bottom: 20px;
+  }
+  .block-compare-card h3, .tape-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; color: var(--text); }
+  .block-compare-card .trend-info, .tape-card .trend-info { font-size: 11px; color: var(--muted); margin-bottom: 16px; }
+  .block-compare-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .block-compare-table th {
+    text-align: right; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;
+    color: var(--muted); font-weight: 600; padding: 0 10px 8px 10px; border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .block-compare-table th:first-child, .block-compare-table td:first-child { text-align: left; padding-left: 0; }
+  .block-compare-table th:last-child, .block-compare-table td:last-child { text-align: left; padding-right: 0; }
+  .block-compare-table td { text-align: right; padding: 9px 10px; border-bottom: 1px solid var(--border); }
+  .block-compare-table tr:last-child td { border-bottom: none; }
+  .block-compare-table .metric { font-weight: 600; white-space: nowrap; }
+  .block-compare-table .num { font-variant-numeric: tabular-nums; }
+  .block-compare-table .delta { font-variant-numeric: tabular-nums; font-weight: 700; }
+  .block-compare-table .delta.up { color: var(--red); }
+  .block-compare-table .delta.down { color: var(--green); }
+  .block-compare-table .delta.flat { color: var(--muted); }
+  .block-compare-table .thr { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .verdict {
+    display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 9px;
+    border-radius: 999px; white-space: nowrap;
+  }
+  .verdict.real { background: #dcfce7; color: var(--green); }
+  .verdict.noise { background: #f1f0ec; color: var(--muted); }
+  .verdict.short { background: #fef3c7; color: var(--orange); }
+  .block-compare-note {
+    margin-top: 14px; font-size: 11px; color: var(--muted); line-height: 1.6;
+    border-top: 1px solid var(--border); padding-top: 12px;
+  }
+  .tape-protocol {
+    background: var(--bg); border: 1px dashed var(--border); border-radius: 8px;
+    padding: 16px 18px; font-size: 12px; color: var(--muted); line-height: 1.7;
+  }
+  .tape-protocol strong { color: var(--text); font-weight: 600; }
+  .tape-protocol ol { margin: 8px 0 0 18px; }
+  @media (max-width: 720px) {
+    .block-compare-table { font-size: 12px; }
+    .block-compare-table th, .block-compare-table td { padding-left: 5px; padding-right: 5px; }
+  }
+
   .withings-block { margin-bottom: 40px; }
 
   .withings-header {
@@ -817,6 +863,12 @@
     </div>
 
     <div class="inbody-kpi-grid" id="withings-kpi-grid"></div>
+
+    <!-- Block comparison. Sits directly under the KPI cards on purpose: the KPI deltas are
+         a single reading against a baseline and invite exactly the misreading this card
+         exists to correct. Read this first, the daily points second. -->
+    <div class="block-compare-card" id="withings-block-compare"></div>
+
     <div class="range-bar" id="range-withings"></div>
 
     <div class="inbody-charts-grid">
@@ -859,6 +911,39 @@
     </div>
 
     <div class="withings-seg-card" id="withings-seg-card"></div>
+  </div>
+
+  <!-- Tape measurements (manual). A separate instrument from the scale above and kept in
+       its own block for it: a tape measures a length, the scale infers composition from
+       impedance, and the two fail in different ways. Never merged into one series. -->
+  <div class="withings-block" id="tape-block">
+    <div class="withings-header">
+      <div>
+        <h2 style="font-size: 1.2em; font-weight: 700; margin-bottom: 4px;">Tape Measurements</h2>
+        <p class="withings-sub" id="tape-subtitle"></p>
+      </div>
+      <div class="withings-instrument-note">
+        Hand-measured girths, weekly. The only manually entered series on this tab - there is
+        no API for a tape measure. It is here because it does not depend on impedance, so it
+        fails independently of the scale above. Its WHR is a measurement; the InBody's WHR is
+        a model output. They are never merged.
+      </div>
+    </div>
+
+    <div class="tape-card" id="tape-card"></div>
+
+    <div class="inbody-charts-grid" id="tape-charts">
+      <div class="inbody-chart-card">
+        <h3 style="color:#0d9488;">Waist &amp; Hip (cm)</h3>
+        <div class="trend-info" id="tapeGirthInfo"></div>
+        <canvas id="tapeGirthChart" height="170"></canvas>
+      </div>
+      <div class="inbody-chart-card">
+        <h3 style="color:#7c3aed;">Waist-to-Hip Ratio</h3>
+        <div class="trend-info" id="tapeWhrInfo"></div>
+        <canvas id="tapeWhrChart" height="170"></canvas>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -3101,6 +3186,30 @@ function initInBodyCharts() {
   
   // Initialize InBody data and charts
 
+// ========== TAPE MEASUREMENTS (manual, home) ==========
+// A hand-measured girth series. The ONLY hand-typed data on this tab, and deliberately
+// so: there is no API for a tape measure. It exists because every other number on this
+// tab comes out of one instrument (bioelectrical impedance) whose systematic error moves
+// with hydration - a tape measures a length and fails independently, so when the two
+// agree the agreement means something.
+//
+// Protocol (the protocol IS the measurement - an inconsistent one is worse than none):
+//   same morning slot as the weigh-in, fasted, before drinking, standing relaxed at the
+//   end of a normal exhale; tape level all the way round; three passes, record the MEDIAN.
+//   waist = at the navel.  hip = at the widest point of the glutes.
+//
+// { date: "YYYY-MM-DD", waist: 94.5, hip: 102.0, note: null }
+//   date  - ISO, date only (no time; this is a weekly-cadence measurement)
+//   waist - cm, required
+//   hip   - cm, optional (null when not taken); waist/hip gives WHR
+//   note  - free text, same conventions as session notes
+//
+// WHR here is NOT comparable to scans[].whr. The InBody's WHR is a MODEL OUTPUT estimated
+// from impedance, not a tape measurement - a different instrument by the repo's own rule,
+// so the two are never merged, calibrated or plotted on one axis. Spec: docs/TAPE_SPEC.md.
+const tape = [
+];
+
 // ========== WITHINGS WEIGH-INS (daily, home Body Scan) ==========
 // One object per COMPLETE weigh-in, chronologically sorted. `dt` is ISO local
 // YYYY-MM-DDTHH:MM:SS - not scans[]'s legacy DD/MM/YYYY. Schema and ingestion rule:
@@ -3977,6 +4086,301 @@ function renderWithings() {
 }
 
 renderWithings();
+
+// ========== BLOCK COMPARISON (14-day means) ==========
+// Why this exists (Pawel's call, 16/09/2026). A single reading's noise is roughly the size
+// of a fortnight's real change, so reading the scale day to day is reading noise: on
+// 16/09/2026 it showed 0.44 kg moving from fat to muscle overnight, which no body does.
+// Averaging a block of readings shrinks the RANDOM component by sqrt(n) and leaves the
+// trend, so a block mean against the block before it is the smallest honest unit of change.
+//
+// What it does NOT do: averaging removes random scatter, never systematic error. BIA's
+// systematic error tracks hydration, and hydration itself trends. A block comparison can
+// therefore be precise and still biased - which is why the tape series below exists as an
+// instrument that fails in a different way.
+
+const BLOCK_DAYS = 14;
+const BLOCK_MIN_N = { scale: 4, tape: 3 };   // fewest readings a block needs to be reported
+
+// Per-reading noise, successive-difference (von Neumann) estimator: for a series carrying a
+// trend, the SD of consecutive differences is about sigma*sqrt(2). Dividing by sqrt(2)
+// recovers the per-reading noise WITHOUT the trend inflating it, which a plain SD would do.
+// Checked 16/09/2026 against the OLS residual SD of the same rows - agrees within ~20%.
+function blockSigma(vals) {
+  const d = [];
+  for (let i = 1; i < vals.length; i++) d.push(vals[i] - vals[i - 1]);
+  if (d.length < 2) return null;
+  const m = d.reduce((a, b) => a + b, 0) / d.length;
+  const v = d.reduce((a, b) => a + (b - m) ** 2, 0) / (d.length - 1);
+  return { sigma: Math.sqrt(v / 2), df: d.length - 1 };
+}
+
+// Two-sided 95% t critical values. With ten-odd readings the noise estimate is itself
+// uncertain, and a flat 1.96 would call changes real that are not.
+const T95 = [[1, 12.71], [2, 4.30], [3, 3.18], [4, 2.78], [5, 2.57], [6, 2.45], [7, 2.36],
+             [8, 2.31], [9, 2.26], [10, 2.23], [12, 2.18], [15, 2.13], [20, 2.09],
+             [30, 2.04], [60, 2.00]];
+const tCrit = df => { for (const [d, v] of T95) if (df <= d) return v; return 1.96; };
+
+// One metric. `rows` must ALREADY be restricted to a comparable stretch - for anything
+// impedance-derived that means a single scale-algorithm run, since an algo change is a
+// step in the instrument, not in Pawel.
+function blockCompare(rows, tsOf, key, endTs, minN) {
+  const cutA = endTs - BLOCK_DAYS * 864e5;          // start of the latest block
+  const cutB = endTs - 2 * BLOCK_DAYS * 864e5;      // start of the block before it
+  const pick = (lo, hi) => rows
+    .filter(r => { const t = tsOf(r); return t > lo && t <= hi; })
+    .map(r => (typeof key === 'function' ? key(r) : r[key]))
+    .filter(v => v != null && !Number.isNaN(v));
+  const cur = pick(cutA, endTs), prev = pick(cutB, cutA);
+  const all = rows.map(r => (typeof key === 'function' ? key(r) : r[key]))
+                  .filter(v => v != null && !Number.isNaN(v));
+  const s = blockSigma(all);
+  const mean = a => a.reduce((x, y) => x + y, 0) / a.length;
+  if (cur.length < minN || prev.length < minN || !s) {
+    // When the series simply does not reach back two blocks yet, the useful answer is a
+    // DATE, not "collect more" - so work out when the first comparison becomes possible.
+    const times = rows.map(tsOf).filter(t => !Number.isNaN(t));
+    const readyTs = times.length ? Math.min(...times) + 2 * BLOCK_DAYS * 864e5 : null;
+    return {
+      short: true, nCur: cur.length, nPrev: prev.length, need: minN,
+      readyTs: readyTs != null && readyTs > endTs ? readyTs : null,
+    };
+  }
+  const se = s.sigma * Math.sqrt(1 / cur.length + 1 / prev.length);
+  const thr = tCrit(s.df) * se;
+  const delta = mean(cur) - mean(prev);
+  return {
+    short: false, nCur: cur.length, nPrev: prev.length,
+    meanCur: mean(cur), meanPrev: mean(prev), delta, thr, sigma: s.sigma,
+    real: Math.abs(delta) > thr,
+  };
+}
+
+function renderBlockCompare() {
+  const card = document.getElementById('withings-block-compare');
+  if (!card) return;
+
+  // Anchor on TODAY, not on the last reading. If the readings stop, the latest block should
+  // empty out and say so - anchoring on the last reading would quietly compare two stale
+  // blocks and look healthy.
+  const endTs = new Date(TODAY + 'T23:59:59').getTime();
+  const wgTs = w => new Date(w.dt).getTime();
+  const tpTs = t => new Date(t.date + 'T12:00:00').getTime();
+
+  const fmtDay = ts => { const d = new Date(ts);
+    return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0'); };
+  const curFrom = fmtDay(endTs - BLOCK_DAYS * 864e5 + 864e5), curTo = fmtDay(endTs);
+  const prevFrom = fmtDay(endTs - 2 * BLOCK_DAYS * 864e5 + 864e5), prevTo = fmtDay(endTs - BLOCK_DAYS * 864e5);
+
+  // Impedance-derived metrics are only comparable inside one scale-algorithm run. Weight
+  // comes off a load cell and is unaffected, so it gets the whole series.
+  let algoRunStart = 0;
+  for (let i = 1; i < weighins.length; i++) {
+    const a = weighins[i - 1].algo, b = weighins[i].algo;
+    if (a != null && b != null && a !== b) algoRunStart = i;
+  }
+  const algoRun = weighins.slice(algoRunStart);
+  const algoChanged = algoRunStart > 0;
+
+  const ROWS = [
+    { label: 'Weight',     rows: weighins, ts: wgTs, key: 'kg',       unit: ' kg', dp: 2, goodWhenDown: null,  kind: 'scale' },
+    { label: 'Fat mass',   rows: algoRun,  ts: wgTs, key: 'fatKg',    unit: ' kg', dp: 2, goodWhenDown: true,  kind: 'scale' },
+    { label: 'Body fat %', rows: algoRun,  ts: wgTs, key: 'fatPct',   unit: '%',   dp: 2, goodWhenDown: true,  kind: 'scale' },
+    { label: 'Muscle',     rows: algoRun,  ts: wgTs, key: 'muscleKg', unit: ' kg', dp: 2, goodWhenDown: false, kind: 'scale' },
+  ];
+  if (tape.length) {
+    ROWS.push(
+      { label: 'Waist',    rows: tape, ts: tpTs, key: 'waist', unit: ' cm', dp: 1, goodWhenDown: true, kind: 'tape' },
+      { label: 'Hip',      rows: tape, ts: tpTs, key: 'hip',   unit: ' cm', dp: 1, goodWhenDown: null, kind: 'tape' },
+      { label: 'WHR',      rows: tape, ts: tpTs, unit: '', dp: 3, goodWhenDown: true, kind: 'tape',
+        key: t => (t.waist != null && t.hip ? t.waist / t.hip : null) });
+  }
+
+  const body = ROWS.map(m => {
+    const r = blockCompare(m.rows, m.ts, m.key, endTs, BLOCK_MIN_N[m.kind]);
+    if (r.short) {
+      const when = r.readyTs
+        ? `first comparison ${fmtDay(r.readyTs)}`
+        : `needs ${r.need} per block`;
+      return `<tr>
+        <td class="metric">${m.label}</td>
+        <td class="num" colspan="3" style="text-align:right;color:var(--muted)">
+          ${r.nPrev} reading${r.nPrev === 1 ? '' : 's'} in the earlier block,
+          ${r.nCur} in the latest</td>
+        <td><span class="verdict short">${when}</span></td></tr>`;
+    }
+    const dir = Math.abs(r.delta) < 0.0005 ? 'flat' : (r.delta > 0 ? 'up' : 'down');
+    // Colour follows GOOD/BAD, not up/down: less fat is green, less muscle is red.
+    let cls = 'flat';
+    if (m.goodWhenDown !== null && r.real) cls = (m.goodWhenDown === (r.delta < 0)) ? 'down' : 'up';
+    else if (r.real) cls = 'flat';
+    const sign = r.delta >= 0 ? '+' : '';
+    return `<tr>
+      <td class="metric">${m.label}</td>
+      <td class="num">${r.meanPrev.toFixed(m.dp)}<span style="color:var(--muted)">${m.unit}</span>
+        <span style="color:var(--muted);font-size:11px"> (n=${r.nPrev})</span></td>
+      <td class="num">${r.meanCur.toFixed(m.dp)}<span style="color:var(--muted)">${m.unit}</span>
+        <span style="color:var(--muted);font-size:11px"> (n=${r.nCur})</span></td>
+      <td class="delta ${cls}">${sign}${r.delta.toFixed(m.dp)}</td>
+      <td><span class="verdict ${r.real ? 'real' : 'noise'}">${r.real ? 'real change' : 'within noise'}</span>
+        <span class="thr" style="font-size:11px"> needs &plusmn;${r.thr.toFixed(m.dp)}</span></td></tr>`;
+  }).join('');
+
+  card.innerHTML = `
+    <h3>Block Comparison - last ${BLOCK_DAYS} days vs the ${BLOCK_DAYS} before</h3>
+    <div class="trend-info">
+      ${prevFrom}-${prevTo} against ${curFrom}-${curTo}. A change is only called real when it
+      clears the noise threshold for that metric at ~95% confidence. Read this before the
+      daily points - one reading's scatter is about a fortnight's worth of real change.
+    </div>
+    <table class="block-compare-table">
+      <thead><tr>
+        <th>Metric</th><th>${prevFrom}-${prevTo}</th><th>${curFrom}-${curTo}</th>
+        <th>Change</th><th>Verdict</th>
+      </tr></thead>
+      <tbody>${body}</tbody>
+    </table>
+    <div class="block-compare-note">
+      Thresholds are computed from this series' own scatter (successive-difference estimate of
+      per-reading noise, t-corrected for how few readings back it), not typed in - they move as
+      the data does. Averaging removes random noise only: impedance readings also carry a
+      systematic component that tracks hydration, which no amount of averaging fixes, so a
+      "real change" here means real <em>relative to scatter</em>, not independently verified.
+      ${algoChanged ? 'Everything except weight is restricted to the current scale-algorithm run; ' +
+        'weight comes off a load cell and is unaffected by an algorithm change. ' : ''}
+      ${tape.length ? '' : 'Tape rows will appear here once the girth series has data.'}
+    </div>`;
+}
+
+// ========== TAPE MEASUREMENTS ==========
+function renderTape() {
+  const block = document.getElementById('tape-block');
+  if (!block) return;
+  const sub = document.getElementById('tape-subtitle');
+  const card = document.getElementById('tape-card');
+
+  // Empty state carries the protocol, deliberately. An inconsistent tape measurement is
+  // worse than none, and the protocol is the part that is easy to forget between weeks.
+  if (!tape.length) {
+    sub.textContent = 'No measurements recorded yet';
+    card.innerHTML = `
+      <h3>Not started yet</h3>
+      <div class="trend-info">Two numbers a week. The protocol matters more than the tape does.</div>
+      <div class="tape-protocol">
+        <strong>When:</strong> the same morning slot as the weigh-in - fasted, before drinking,
+        twice a week.<br>
+        <strong>How:</strong> standing relaxed, at the end of a normal exhale (not held, not
+        sucked in). Tape snug but not compressing, level all the way round.
+        <ol>
+          <li><strong>Waist</strong> - at the navel.</li>
+          <li><strong>Hip</strong> - at the widest point of the glutes.</li>
+        </ol>
+        Three passes each, record the <strong>median</strong>. Say the numbers in a session and
+        they go into <code>tape[]</code>; the charts and the block comparison above pick them up
+        from there.
+      </div>`;
+    document.getElementById('tape-charts').remove();
+    return;
+  }
+
+  const tpTs = t => new Date(t.date + 'T12:00:00').getTime();
+  const stamp = d => { const [y, m, dd] = d.split('-'); return `${dd}/${m}/${y}`; };
+  const last = tape[tape.length - 1];
+  const whr = t => (t.waist != null && t.hip ? t.waist / t.hip : null);
+  sub.textContent = `Pawel - tape measurements (home, manual) - ${tape.length} measurement` +
+    `${tape.length === 1 ? '' : 's'}, ${stamp(tape[0].date)} to ${stamp(last.date)}`;
+
+  const lastWhr = whr(last);
+  card.innerHTML = `
+    <h3>Latest - ${stamp(last.date)}</h3>
+    <div class="trend-info">
+      Waist is the channel that answers "is the fat going"; WHR is the continuation of the
+      series the InBody used to estimate, measured rather than modelled.
+    </div>
+    <div class="inbody-kpi-grid">
+      ${kpiCard('Waist', last.waist == null ? '-' : last.waist.toFixed(1), 'cm',
+        tape.length > 1 && tape[0].waist != null && last.waist != null ? +(last.waist - tape[0].waist).toFixed(1) : 0,
+        ' cm', true, tape.length > 1 ? `from ${tape[0].waist} cm start` : 'first measurement', 1)}
+      ${kpiCard('Hip', last.hip == null ? '-' : last.hip.toFixed(1), 'cm',
+        tape.length > 1 && tape[0].hip != null && last.hip != null ? +(last.hip - tape[0].hip).toFixed(1) : 0,
+        ' cm', null, tape.length > 1 && tape[0].hip != null ? `from ${tape[0].hip} cm start` : 'first measurement', 1)}
+      ${kpiCard('Waist-to-Hip', lastWhr == null ? '-' : lastWhr.toFixed(3), '',
+        tape.length > 1 && whr(tape[0]) != null && lastWhr != null ? +(lastWhr - whr(tape[0])).toFixed(3) : 0,
+        '', true, lastWhr == null ? 'Hip not measured on this row' : 'tape-measured, not the InBody model', 3)}
+    </div>`;
+
+  const pts = key => tape.filter(t => (typeof key === 'function' ? key(t) : t[key]) != null)
+    .map(t => ({ x: tpTs(t), y: +(typeof key === 'function' ? key(t) : t[key]) }));
+
+  // x is a LINEAR scale over timestamps, not Chart.js's 'time' scale: the page loads no
+  // date adapter (every other chart here does the same), and a 'time' axis without one
+  // throws "Check that a complete date adapter is provided" and leaves a dead canvas.
+  // Caught by scripts/smoke.js on 16/09/2026 - keep it linear.
+  const dayMs = 864e5;
+  const midnight = ts => { const d = new Date(ts); d.setHours(0, 0, 0, 0); return d.getTime(); };
+  const tapeTimes = tape.map(tpTs);
+  const xMin = midnight(Math.min(...tapeTimes));
+  const xMax = midnight(Math.max(...tapeTimes)) + dayMs;
+  const dayLabel = v => { const d = new Date(v);
+    return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0'); };
+
+  const opts = (unit, dp) => ({
+    responsive: true, maintainAspectRatio: true, animation: false,
+    interaction: { mode: 'nearest', intersect: false },
+    plugins: {
+      legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } },
+      tooltip: { callbacks: {
+        title: c => (c.length ? dayLabel(c[0].parsed.x) : ''),
+        label: c => `${c.dataset.label}: ${c.parsed.y.toFixed(dp)}${unit}`,
+      } },
+    },
+    scales: {
+      x: {
+        type: 'linear', min: xMin, max: xMax, grid: { display: false },
+        ticks: { font: { size: 10 }, maxRotation: 50, autoSkip: true, autoSkipPadding: 18,
+                 callback: dayLabel },
+      },
+      y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 10 } } },
+    },
+  });
+
+  const girth = document.getElementById('tapeGirthChart');
+  const hipPts = pts('hip');
+  document.getElementById('tapeGirthInfo').textContent =
+    `Latest waist ${last.waist == null ? '-' : last.waist.toFixed(1)} cm` +
+    `${last.hip == null ? '' : `, hip ${last.hip.toFixed(1)} cm`}. ` +
+    `${hipPts.length ? '' : 'No hip measurement recorded yet. '}` +
+    `Measured, not inferred - this series does not depend on impedance.`;
+  new Chart(girth, {
+    type: 'line',
+    data: { datasets: [
+      { label: 'Waist', data: pts('waist'), borderColor: '#0d9488', backgroundColor: '#0d9488',
+        borderWidth: 2, pointRadius: 3, tension: 0.25 },
+      ...(hipPts.length ? [{ label: 'Hip', data: hipPts, borderColor: '#ea580c',
+        backgroundColor: '#ea580c', borderWidth: 2, pointRadius: 3, tension: 0.25 }] : []),
+    ] },
+    options: opts(' cm', 1),
+  });
+
+  const whrPts = pts(whr);
+  document.getElementById('tapeWhrInfo').textContent = whrPts.length
+    ? `Latest ${lastWhr.toFixed(3)}. Waist divided by hip, both tape-measured. The InBody's WHR ` +
+      `on its own tab is estimated from impedance - a different instrument, not this series.`
+    : 'WHR needs a hip measurement alongside the waist. None recorded yet.';
+  new Chart(document.getElementById('tapeWhrChart'), {
+    type: 'line',
+    data: { datasets: [
+      { label: 'Waist-to-hip ratio', data: whrPts, borderColor: '#7c3aed',
+        backgroundColor: '#7c3aed', borderWidth: 2, pointRadius: 3, tension: 0.25 },
+    ] },
+    options: opts('', 3),
+  });
+}
+
+renderBlockCompare();
+renderTape();
+
 
 }
 
