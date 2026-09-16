@@ -14,6 +14,8 @@ anywhere else. Pushing `main` is publishing.
 | Detailed data rules, Hevy name mapping, goals/graveyard mechanics | `docs/GYM_DASHBOARD_INSTRUCTIONS.md` |
 | New run data / Running tab changes | `docs/RUNNING_TAB_SPEC.md` |
 | New Withings weigh-ins / Withings tab changes | `docs/WITHINGS_SPEC.md` |
+| New tape measurements (waist/hip) | `docs/TAPE_SPEC.md` |
+| How the 14-day block comparison works | `docs/BLOCK_COMPARISON.md` |
 | New InBody scan | `docs/GYM_DASHBOARD_INSTRUCTIONS.md` (InBody section) |
 | Publishing questions, live-site issues | `docs/DEPLOYMENT.md` |
 | Monthly rollover / first session of a new month | `docs/GYM_DASHBOARD_INSTRUCTIONS.md` (End-of-Month Checklist) |
@@ -88,7 +90,7 @@ also how it *behaves*.
 Adding rows and values. The page's behaviour is untouched; only its contents move.
 
 - session rows in `exercises` / `graveyard` `data` arrays, and their `sets`
-- `runs[]` entries, `scans[]` entries, `weighins[]` entries
+- `runs[]` entries, `scans[]` entries, `weighins[]` entries, `tape[]` entries
 - the `TODAY` constant
 - note text, correction annotations, `**NOT trend-valid**` markers
 - monthly hand-edits that follow directly from new data: the `GOALS` constant on rollover,
@@ -224,6 +226,43 @@ write a note interpreting a step that coincides with one.
 
 Yearly: when preflight says the refresh token is < 30 days from expiry, tell Pawel to open
 `https://withings-mcp.paul-rucki.workers.dev/auth` in a browser once.
+
+## Tape measurements (Withings tab, weekly)
+
+Spec: `docs/TAPE_SPEC.md`. Added 16/09/2026 after the SATS InBody broke with no repair date,
+which removed the only instrument that could cross-check the scale. Every other composition
+number on the dashboard comes from bioelectrical impedance, whose systematic error tracks
+hydration; a tape measures a length and fails independently, so the two agreeing means
+something.
+
+**The only hand-typed series in the repo** - there is no API for a tape measure, so the
+validator is the only guard. Never invent, interpolate or round a missed measurement.
+
+Pawel says or pastes the numbers → dedup on `date` → append to `tape[]` → validate + smoke →
+push with the session's other data. Data track. No Notion write.
+
+Protocol (reproduced in the page's empty state, and worth restating if he asks): same
+morning slot as the weigh-in, fasted, before drinking; standing relaxed at the end of a
+normal exhale; waist at the navel, hip at the widest point of the glutes; three passes each,
+record the **median**. An off-protocol reading gets a `note` saying so, not a deletion.
+
+`tape[]` WHR (measured) and `scans[].whr` (the InBody's impedance-derived **model output**)
+are different instruments. Never merge, calibrate or plot them on one axis - same rule as
+`weighins[]` vs `scans[]`.
+
+## Block comparison (how the Withings tab is meant to be read)
+
+Spec: `docs/BLOCK_COMPARISON.md`. The card at the top of the Withings tab compares the
+trailing 14-day block of readings against the 14 before it, and calls a change real only
+when it clears a noise threshold computed from the series' own scatter.
+
+It exists because per-reading noise on this scale is about the size of a fortnight's real
+change (0.29 kg on weight, 0.42 on fat mass, 0.58 on muscle - measured 16/09/2026), so a
+day-to-day reading is a reading of noise. **When Pawel asks what the scale is showing, answer
+from the block comparison, not from the latest reading.**
+
+`BLOCK_DAYS`, the minimum readings per block, and the threshold formula change how a number
+is *derived*: that is **recalculation, not data** - development track, ask first.
 
 ## Notion page IDs
 

@@ -280,6 +280,59 @@ function findChromium() {
 
     if (!document.getElementById('withings-subtitle').textContent.trim())
       out.push('Withings: subtitle is empty');
+
+    // ---- Tape block (docs/TAPE_SPEC.md) ----
+    // Whether tape[] has data is read off the DOM, not off the `tape` binding: a top-level
+    // const in a classic script is NOT reachable from page.evaluate, and an earlier version
+    // of this check silently assumed "no tape data" and would have failed the first time a
+    // measurement was added. The empty state renders .tape-protocol; the populated one
+    // renders #tape-charts.
+    const tb = document.getElementById('tape-block');
+    let hasTape = null;
+    if (!tb) out.push('Withings: #tape-block is missing');
+    else if (!document.getElementById('withings').contains(tb))
+      out.push('Withings: tape block is not inside the #withings tab');
+    else {
+      const protocol = tb.querySelector('.tape-protocol');
+      const charts = document.getElementById('tape-charts');
+      if (protocol && charts)
+        out.push('Withings: tape block shows both the empty-state protocol and the charts');
+      else if (!protocol && !charts)
+        out.push('Withings: tape block shows neither the protocol nor the charts');
+      hasTape = !protocol;
+      if (hasTape) {
+        ['tapeGirthChart', 'tapeWhrChart'].forEach(id => {
+          const c = document.getElementById(id);
+          if (!c) { out.push(`Withings: canvas #${id} is missing`); return; }
+          if (!Chart.getChart(c)) out.push(`Withings: canvas #${id} has no Chart instance`);
+        });
+      }
+    }
+
+    // ---- Block comparison card (docs/BLOCK_COMPARISON.md) ----
+    // It is the card Pawel is meant to read first, so an empty or verdict-less table is a
+    // failure, not a cosmetic issue. Four rows for the scale metrics, plus waist/hip/WHR
+    // once the tape series has data.
+    const bc = document.getElementById('withings-block-compare');
+    if (!bc) out.push('Withings: #withings-block-compare is missing');
+    else {
+      const rows = [...bc.querySelectorAll('tbody tr')];
+      if (hasTape !== null) {
+        const expected = hasTape ? 7 : 4;
+        if (rows.length !== expected)
+          out.push(`Withings: block comparison has ${rows.length} rows, expected ${expected}`);
+      }
+      if (!bc.querySelector('.block-compare-note'))
+        out.push('Withings: block comparison is missing its systematic-error footnote');
+      // Every row must reach a stated outcome - a blank verdict cell means a metric fell
+      // through the short/real/noise branches silently.
+      rows.forEach(tr => {
+        if (!tr.querySelector('.verdict'))
+          out.push(`Withings: block comparison row "${tr.children[0].textContent.trim()}" has no verdict`);
+      });
+      if (!rows.length) out.push('Withings: block comparison table is empty');
+    }
+
     return out;
   }));
 

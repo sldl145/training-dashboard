@@ -98,7 +98,7 @@
 <body>
 
 <h1>How to Update the Dashboard</h1>
-<p class="subtitle">The five workflows - gym session, daily weigh-in, body scan, run, month rollover. Everything happens from your phone. <a href="index.html">Back to the dashboard</a></p>
+<p class="subtitle">The six workflows - gym session, daily weigh-in, tape measurement, body scan, run, month rollover. Everything happens from your phone. <a href="index.html">Back to the dashboard</a></p>
 
 <div class="start-here">
   <h2>Start here - every workflow begins the same way</h2>
@@ -167,11 +167,40 @@
   </div></div>
   <div class="stage"><div class="num">4</div><div>
     <div class="label">Dashboard updated &rarr; published</div>
-    <div class="detail">KPI cards, the six trend charts and the left/right segmental view all recompute; checks pass; live in ~60 seconds.</div>
+    <div class="detail">KPI cards, the six trend charts, the left/right segmental view and the block-comparison card all recompute; checks pass; live in ~60 seconds.</div>
     <span class="tag tag-code">Claude Code</span><span class="tag tag-live">Live dashboard</span>
   </div></div>
 
+  <div class="you-bring" style="margin-top:16px;"><b>Read it in fortnights, not days.</b> One morning's reading is mostly noise - the scatter on a single reading is about the size of a whole fortnight's real change, which is why the scale can appear to move half a kilo from fat to muscle overnight. The card at the top of the Withings tab does the honest comparison for you: the last 14 days of readings averaged against the 14 before them, with a threshold for how big a change has to be before it counts. <b>Green "real change" means it cleared the threshold. Grey "within noise" means ignore it.</b> If you want to know how you are doing, read that card and nothing else.</div>
+
   <div class="you-bring" style="margin-top:16px;margin-bottom:0;"><b>Two instruments, never mixed:</b> the Withings scale at home and the InBody at SATS measure differently and disagree on purpose. Withings reports a whole-body <i>muscle mass</i> around 69 kg; the InBody reports <i>skeletal muscle mass</i> around 43 kg. That is a difference in definition, not a contradiction, and the dashboard keeps them as two separate series that are never averaged or corrected against each other. Watch each one against itself.</div>
+</div>
+
+<!-- TAPE -->
+<div class="flow-section weigh">
+  <h2><span class="icon">&#128207;</span> Tape Measurement (waist &amp; hip)</h2>
+  <div class="desc">Withings tab, bottom - the one thing on the dashboard you measure by hand</div>
+  <div class="you-bring"><b>You bring:</b> two numbers, twice a week. Say them in any session - "waist 94.5, hip 102" - and they go in.</div>
+
+  <div class="stage"><div class="num">1</div><div>
+    <div class="label">Measure, always the same way</div>
+    <div class="detail">Same morning slot as the weigh-in, fasted, before drinking. Stand relaxed and breathe out normally - do not hold it and do not suck in. Tape snug but not squeezing, level all the way round. <b>Waist at the navel. Hip at the widest point of your backside.</b> Three passes each, write down the middle one. The routine matters more than the tape does: a measurement taken differently each time adds noise while looking like information.</div>
+    <span class="tag tag-you">You</span>
+  </div></div>
+  <div class="stage"><div class="num">2</div><div>
+    <div class="label">Say the numbers in a session</div>
+    <div class="detail">No app, no export, nothing to set up. If you measured off-routine - after lunch, after training - say so and it gets recorded with a note rather than thrown away. Missed a week? Nothing to catch up: a gap is just a gap, and the dashboard says so instead of guessing.</div>
+    <span class="tag tag-you">You</span><span class="tag tag-code">Claude Code</span>
+  </div></div>
+  <div class="stage"><div class="num">3</div><div>
+    <div class="label">Charts and the block comparison update</div>
+    <div class="detail">Waist and hip on one chart, waist-to-hip ratio on another, and both join the block-comparison card at the top of the tab. Published the same way as everything else.</div>
+    <span class="tag tag-code">Claude Code</span><span class="tag tag-live">Live dashboard</span>
+  </div></div>
+
+  <div class="you-bring" style="margin-top:16px;"><b>Why bother, when you already have a scale?</b> Because the scale works one way only: it sends a small current through you and works backwards to a fat percentage. That method is sensitive to how hydrated you are, so it can be consistently wrong in the same direction for weeks, and taking more readings will not catch it. A tape measures a distance. It has no opinion about your hydration and goes wrong for completely different reasons - so when the tape and the scale agree, that agreement is worth something. This became the plan when the SATS InBody broke, since that machine used to be the thing checking the scale.</div>
+
+  <div class="you-bring" style="margin-top:16px;margin-bottom:0;"><b>One number that looks familiar but is not:</b> the InBody used to report a waist-to-hip ratio. It never measured your waist - it estimated the ratio from the same electrical reading. The tape one is measured. The dashboard keeps them apart for the same reason it keeps the two scales apart, so do not read the new number as a continuation of the old one.</div>
 </div>
 
 <!-- SCAN -->

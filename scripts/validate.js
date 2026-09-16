@@ -26,6 +26,7 @@ function extract(name, next) {
 eval(extract('exercises', '// ========== GRAVEYARD'));
 eval(extract('graveyard', '// ========== HELPERS'));
 eval(extract('runs', 'function formatPace'));
+eval(extract('tape', '// ========== WITHINGS WEIGH-INS'));
 eval(extract('weighins', '// ========== DATA =========='));
 eval(extract('scans', 'const labels = scans'));
 
@@ -123,6 +124,39 @@ scans.forEach(s => {
   });
 }
 
+// ---- Tape measurements (docs/TAPE_SPEC.md) ----
+// Hand-entered, so the validator is the only guard there is: no API cross-check exists for
+// a tape measure. tape[].whr is NOT comparable to scans[].whr (measured vs impedance-model)
+// and the two are deliberately never checked against each other.
+{
+  const ISO_D = /^\d{4}-\d{2}-\d{2}$/;
+  let prevDate = '';
+  tape.forEach((t, i) => {
+    if (!ISO_D.test(t.date || ''))
+      errors.push(`tape index ${i}: date "${t.date}" is not ISO YYYY-MM-DD`);
+    if (prevDate && t.date < prevDate) errors.push(`tape: out of order at index ${i}: ${t.date} after ${prevDate}`);
+    if (prevDate && t.date === prevDate) errors.push(`tape: duplicate date ${t.date}`);
+    prevDate = t.date;
+
+    if (!isNum(t.waist)) errors.push(`tape ${t.date}: waist missing or non-numeric (it is the required field)`);
+    else if (t.waist < 50 || t.waist > 200) errors.push(`tape ${t.date}: waist ${t.waist} cm is outside 50-200 - cm, not inches?`);
+
+    if (t.hip != null) {
+      if (!isNum(t.hip)) errors.push(`tape ${t.date}: hip present but non-numeric`);
+      else if (t.hip < 50 || t.hip > 200) errors.push(`tape ${t.date}: hip ${t.hip} cm is outside 50-200 - cm, not inches?`);
+      else if (isNum(t.waist) && t.waist / t.hip > 1.3)
+        warnings.push(`tape ${t.date}: waist/hip = ${(t.waist / t.hip).toFixed(2)} - check the two are not swapped`);
+    } else {
+      warnings.push(`tape ${t.date}: no hip measurement - WHR cannot be computed for this row`);
+    }
+
+    // A jump this size between consecutive measurements is a typo or a protocol slip, not a body.
+    const prev = tape[i - 1];
+    if (prev && isNum(t.waist) && isNum(prev.waist) && Math.abs(t.waist - prev.waist) > 5)
+      warnings.push(`tape ${t.date}: waist moved ${(t.waist - prev.waist).toFixed(1)} cm since ${prev.date} - re-measure or annotate`);
+  });
+}
+
 // ---- Numeric sanity: NaN/non-numeric values would silently break charts ----
 for (const [name, ex] of Object.entries(exercises)) {
   ex.data.forEach(d => {
@@ -181,5 +215,5 @@ if (today && newest > today) errors.push(`TODAY (${today}) is older than the new
 
 warnings.forEach(w => console.log('warn: ' + w));
 errors.forEach(e => console.error('ERROR: ' + e));
-console.log(`\n${Object.keys(exercises).length} exercises, ${Object.keys(graveyard).length} graveyard, ${runs.length} runs, ${scans.length} scans, ${weighins.length} weigh-ins - ${errors.length} error(s), ${warnings.length} warning(s)`);
+console.log(`\n${Object.keys(exercises).length} exercises, ${Object.keys(graveyard).length} graveyard, ${runs.length} runs, ${scans.length} scans, ${weighins.length} weigh-ins, ${tape.length} tape - ${errors.length} error(s), ${warnings.length} warning(s)`);
 process.exit(errors.length ? 1 : 0);
