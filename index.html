@@ -2185,7 +2185,7 @@ const graveyard = {
 
 // ========== HELPERS ==========
 // TODAY is the ONLY date constant to update each session. Everything else derives from it.
-const TODAY = "2026-09-20";
+const TODAY = "2026-09-21";
 
 // Derived automatically - do not edit these.
 function shiftDate(iso, days) {
@@ -3353,6 +3353,15 @@ const weighins = [
       fat:    {"trunk":10.32,"lLeg":2.48,"rLeg":2.14,"lArm":0.63,"rArm":0.62},
       muscle: {"trunk":35.5,"lLeg":11.62,"rLeg":11.74,"lArm":4.45,"rArm":4.42}
     }, note: null },
+  { dt: "2026-09-21T04:15:58", algo: 218300672,
+    kg: 87.16, fatPct: 16.61, fatKg: 14.48, ffmKg: 72.68, muscleKg: 69.18,
+    boneKg: 3.5, waterKg: 49.59, ecwKg: 17.94, icwKg: 31.65,
+    vfi: 3, bmr: 2111, metAge: 39, hr: 100, nhs: 43,
+    seg: {
+      ffm:    {"trunk":37.88,"lLeg":12.69,"rLeg":12.78,"lArm":4.69,"rArm":4.64},
+      fat:    {"trunk":9.12,"lLeg":2.19,"rLeg":2.02,"lArm":0.57,"rArm":0.57},
+      muscle: {"trunk":36.33,"lLeg":11.79,"rLeg":11.83,"lArm":4.63,"rArm":4.59}
+    }, note: null },
 ];
 
 // ========== DATA ==========
@@ -3842,8 +3851,15 @@ function renderWithings() {
   // Left to itself, Chart.js pads each axis to its own data range, which makes two
   // near-collinear series land on top of each other: fat kg IS weight x fat %, and
   // weight barely moves day to day, so both curves have the same shape and auto-scaling
-  // maps them to the same pixels (measured: 0-1 px apart). Padding the secondary axis
-  // harder at the bottom slides its series clear without touching either series' shape.
+  // maps them to the same pixels (measured: 0-1 px apart).
+  // The padding is applied as a fraction of each series' OWN range, so the two axes are
+  // banded: the primary series gets most of its padding above (it lives in the lower
+  // part of the plot), the secondary most of it below (upper part). With pads of
+  // (0.1, 1.5) and (1.5, 0.1) each band spans ~38% of the plot height and the bands
+  // never touch, whatever the data does. The earlier tuning (0.15/0.15 vs 0.45/0.05)
+  // only separated VFI from metabolic age by the accident of their ranges: the
+  // 21/09/2026 reading set a new minimum on both at once and the series collapsed
+  // onto each other (2-5 px apart, smoke.js caught it).
   // A flat metric (visceral fat index sits on 3.3) has zero range, hence the floor.
   const wgBounds = (key, padLo, padHi) => {
     const vals = weighins.map(w => w[key]).filter(v => v != null);
@@ -4032,12 +4048,12 @@ function renderWithings() {
       { ...wgMean('Metabolic age', 'metAge', '#ea580c', [6, 4]), yAxisID: 'y1', _unit: ' y' },
     ],
     wgOptions('', base => {
-      Object.assign(base.scales.y, wgBounds('vfi', 0.15, 0.15));
+      Object.assign(base.scales.y, wgBounds('vfi', 0.1, 1.5));
       base.scales.y.title = { display: true, text: 'index', font: { size: 10 } };
       base.scales.y1 = {
         position: 'right', grid: { display: false }, ticks: { font: { size: 10 } },
         title: { display: true, text: 'years', font: { size: 10 } },
-        ...wgBounds('metAge', 0.45, 0.05),
+        ...wgBounds('metAge', 1.5, 0.1),
       };
       return base;
     }));
