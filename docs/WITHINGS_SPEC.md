@@ -77,6 +77,8 @@ Do not retry an identical request inside 10 s. Backfills longer than ~1 year: sl
   "metabolic_age_y": 40,
   "heart_rate_bpm": 105,
   "nerve_health_score": 44.075,
+  "pulse_wave_velocity_ms": 8.111,
+  "vascular_age_y": 47.7,
   "undocumented_158": 41.872,
   "undocumented_159": 44.935,
   "fat_free_mass_segments_kg": {"trunk": 37.69, "left_leg": 12.87, "right_leg": 13.0, "left_arm": 4.55, "right_arm": 4.5},
@@ -96,6 +98,11 @@ Notes on fields:
   change is the scale, not Pawel - see Rendering.
 - `heart_rate_bpm` at weigh-in has been 102-105 on every reading so far, including at 04:04.
   Store it; do not interpret it as resting HR.
+- `pulse_wave_velocity_ms` / `vascular_age_y` (first seen 08/09/2026, stored since
+  21/09/2026) arrive as a pair or not at all - the scale does not report them on every reading,
+  and the first four readings (03-07/09) have neither. Vascular age is
+  Withings' restatement of the same PWV against age norms: the same PWV always gives the
+  same age, so the two are collinear by construction and are **never plotted together**.
 - `complete: false` = weight recorded but impedance failed (the 08:24 / 08:25 pair on
   03/09/2026 is the pattern: a failed attempt then a good one 77 s later). Drop these rows.
 
@@ -111,6 +118,7 @@ One object per complete weigh-in, chronologically sorted. `dt` is ISO local
   "kg": 89.19, "fatPct": 18.59, "fatKg": 16.58, "ffmKg": 72.61, "muscleKg": 69.11,
   "boneKg": 3.50, "waterKg": 49.32, "ecwKg": 18.17, "icwKg": 31.15,
   "vfi": 3.3, "bmr": 2112, "metAge": 40, "hr": 105, "nhs": 44.1,
+  "pwv": 8.11, "vascAge": 47.7,
   "seg": {
     "ffm":    {"trunk": 37.69, "lLeg": 12.87, "rLeg": 13.00, "lArm": 4.55, "rArm": 4.50},
     "fat":    {"trunk": 10.77, "lLeg": 2.41,  "rLeg": 2.11,  "lArm": 0.65, "rArm": 0.64},
@@ -120,7 +128,9 @@ One object per complete weigh-in, chronologically sorted. `dt` is ISO local
 }
 ```
 
-- Round to 2 dp (kg, %), 1 dp for `nhs`, integers for `bmr`, `metAge`, `hr`.
+- Round to 2 dp (kg, %, `pwv`), 1 dp for `nhs` and `vascAge`, integers for `bmr`, `metAge`, `hr`.
+- `pwv` and `vascAge` are `null` when the scale did not report them; both keys are always
+  present, and one is never null without the other (validator enforces both).
 - `undocumented_*` fields are **not** copied into `index.html` (public repo; unknown data).
 - `note` is free text, same conventions as session notes (`**NOT trend-valid**` marker for
   travel/illness/known-dehydrated readings, correction annotations in `[...]`).
@@ -154,7 +164,9 @@ first shipped above the InBody block in a shared Body Composition tab). A time-r
 charts and shares the `RANGE` controller with the Training tab (10/09/2026). Minimum:
 
 - **Header KPIs** (latest complete weigh-in): weight, fat %, fat kg, muscle kg, water kg,
-  visceral fat index, with delta vs 7-reading mean.
+  visceral fat index, pulse wave velocity, vascular age, with delta vs the mean of the 7
+  readings before it (fewer, and the card says how many, when a metric was not reported
+  on all of them).
 - **Trend charts**, x = date, raw points + rolling mean line over the last 7 readings
   (readings, not calendar days - gaps are gaps):
   1. weight
@@ -163,6 +175,8 @@ charts and shares the `RANGE` controller with the Training tab (10/09/2026). Min
   4. muscle kg and fat-free mass kg
   5. water: total, ECW, ICW (ECW/ICW ratio is the hydration-noise tell)
   6. visceral fat index, metabolic age
+  7. pulse wave velocity, single series (since 21/09/2026). Vascular age is not a second
+     series: it is a KPI card and appears in the point tooltip. Rows without PWV are gaps.
 
   Fat % and fat kg were one dual-axis chart in the original draft. Split on Pawel's call
   (05/09/2026) after implementation showed the two are near-collinear - fat kg is
@@ -184,6 +198,8 @@ Validator additions (`scripts/validate.js`):
 - `kg`, `fatPct`, `fatKg`, `ffmKg` present on every row; `fatKg + ffmKg ~ kg` (+/-0.1).
 - When `seg` present: five keys per metric; segment sums ~ the whole-body figure (+/-0.2).
 - `dt` in ISO local format `YYYY-MM-DDTHH:MM:SS`.
+- `pwv` and `vascAge` keys present on every row, numeric or null, null together or not at
+  all; plausibility ranges 4-20 m/s and 18-100 y.
 
 Smoke: the new charts must draw; add the Withings block to the click-through.
 

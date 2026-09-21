@@ -225,7 +225,7 @@ function findChromium() {
     if (!document.getElementById('withings').contains(block))
       out.push('Withings: block is not inside the #withings tab');
 
-    ['wgWeightChart', 'wgFatPctChart', 'wgFatKgChart', 'wgMuscleChart', 'wgWaterChart', 'wgVfiChart'].forEach(id => {
+    ['wgWeightChart', 'wgFatPctChart', 'wgFatKgChart', 'wgMuscleChart', 'wgWaterChart', 'wgVfiChart', 'wgPwvChart'].forEach(id => {
       const c = document.getElementById(id);
       if (!c) { out.push(`Withings: canvas #${id} is missing`); return; }
       const chart = Chart.getChart(c);
@@ -235,17 +235,19 @@ function findChromium() {
     });
 
     // Every raw series must carry one point per weigh-in. A metric silently dropping
-    // rows, or points hidden under their own mean line, both show up here.
+    // rows, or points hidden under their own mean line, both show up here. A series the
+    // scale does not report on every row (PWV) declares its own count as `_expected`.
     const n = +(document.getElementById('withings-subtitle').textContent.match(/(\d+) weigh-in/) || [])[1];
     if (!n) out.push('Withings: could not read the weigh-in count from the subtitle');
-    else ['wgWeightChart', 'wgFatPctChart', 'wgFatKgChart', 'wgMuscleChart', 'wgWaterChart', 'wgVfiChart'].forEach(id => {
+    else ['wgWeightChart', 'wgFatPctChart', 'wgFatKgChart', 'wgMuscleChart', 'wgWaterChart', 'wgVfiChart', 'wgPwvChart'].forEach(id => {
       const chart = Chart.getChart(document.getElementById(id));
       if (!chart) return;
       chart.data.datasets
         .filter(d => d.showLine === false && d.label !== 'InBody (SATS)')
         .forEach(d => {
           const drawn = (d.data || []).filter(pt => pt && pt.y != null).length;
-          if (drawn !== n) out.push(`Withings: ${id} series "${d.label}" draws ${drawn} points, expected ${n}`);
+          const expected = d._expected != null ? d._expected : n;
+          if (drawn !== expected) out.push(`Withings: ${id} series "${d.label}" draws ${drawn} points, expected ${expected}`);
           if (!(d.pointRadius > 0)) out.push(`Withings: ${id} series "${d.label}" has no visible points`);
         });
       // Two metrics sharing a chart must stay visually separable. Near-collinear pairs
@@ -273,7 +275,7 @@ function findChromium() {
     });
 
     const kpis = block.querySelectorAll('#withings-kpi-grid .inbody-kpi-card');
-    if (kpis.length !== 6) out.push(`Withings: expected 6 KPI cards, found ${kpis.length}`);
+    if (kpis.length !== 8) out.push(`Withings: expected 8 KPI cards, found ${kpis.length}`);
 
     const boxes = block.querySelectorAll('#withings-seg-card .withings-seg-box');
     if (boxes.length !== 5) out.push(`Withings: expected 5 segment boxes, found ${boxes.length}`);
@@ -311,14 +313,14 @@ function findChromium() {
 
     // ---- Block comparison card (docs/BLOCK_COMPARISON.md) ----
     // It is the card Pawel is meant to read first, so an empty or verdict-less table is a
-    // failure, not a cosmetic issue. Four rows for the scale metrics, plus waist/hip/WHR
-    // once the tape series has data.
+    // failure, not a cosmetic issue. Five rows for the scale metrics (weight, fat kg, fat %,
+    // muscle, PWV), plus waist/hip/WHR once the tape series has data.
     const bc = document.getElementById('withings-block-compare');
     if (!bc) out.push('Withings: #withings-block-compare is missing');
     else {
       const rows = [...bc.querySelectorAll('tbody tr')];
       if (hasTape !== null) {
-        const expected = hasTape ? 7 : 4;
+        const expected = hasTape ? 8 : 5;
         if (rows.length !== expected)
           out.push(`Withings: block comparison has ${rows.length} rows, expected ${expected}`);
       }

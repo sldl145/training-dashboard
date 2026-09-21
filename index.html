@@ -910,6 +910,14 @@
       </div>
     </div>
 
+    <div class="inbody-charts-grid">
+      <div class="inbody-chart-card">
+        <h3 style="color:#0f766e;">Pulse Wave Velocity (m/s)</h3>
+        <div class="trend-info" id="wgPwvInfo"></div>
+        <canvas id="wgPwvChart" height="170"></canvas>
+      </div>
+    </div>
+
     <div class="withings-seg-card" id="withings-seg-card"></div>
   </div>
 
@@ -3235,12 +3243,12 @@ const weighins = [
   { dt: "2026-09-03T08:25:17", algo: null,
     kg: 89.44, fatPct: 21.03, fatKg: 18.81, ffmKg: 70.63, muscleKg: 67.13,
     boneKg: 3.5, waterKg: 48.97, ecwKg: 19.92, icwKg: 29.06,
-    vfi: 3.3, bmr: 2055, metAge: 42, hr: 103, nhs: 51.3,
+    vfi: 3.3, bmr: 2055, metAge: 42, hr: 103, nhs: 51.3, pwv: null, vascAge: null,
     seg: null, note: null },
   { dt: "2026-09-04T04:04:14", algo: 218300416,
     kg: 88.97, fatPct: 19.01, fatKg: 16.91, ffmKg: 72.07, muscleKg: 68.58,
     boneKg: 3.48, waterKg: 49.78, ecwKg: 18.02, icwKg: 31.76,
-    vfi: 3.3, bmr: 2096, metAge: 41, hr: 102, nhs: 46.1,
+    vfi: 3.3, bmr: 2096, metAge: 41, hr: 102, nhs: 46.1, pwv: null, vascAge: null,
     seg: {
       ffm:    {"trunk":37.35,"lLeg":12.69,"rLeg":12.75,"lArm":4.63,"rArm":4.64},
       fat:    {"trunk":10.74,"lLeg":2.48,"rLeg":2.36,"lArm":0.65,"rArm":0.68},
@@ -3249,7 +3257,7 @@ const weighins = [
   { dt: "2026-09-05T06:35:43", algo: 218300672,
     kg: 89.19, fatPct: 18.59, fatKg: 16.58, ffmKg: 72.61, muscleKg: 69.11,
     boneKg: 3.5, waterKg: 49.32, ecwKg: 18.17, icwKg: 31.15,
-    vfi: 3.3, bmr: 2112, metAge: 40, hr: 105, nhs: 44.1,
+    vfi: 3.3, bmr: 2112, metAge: 40, hr: 105, nhs: 44.1, pwv: null, vascAge: null,
     seg: {
       ffm:    {"trunk":37.69,"lLeg":12.87,"rLeg":13,"lArm":4.55,"rArm":4.5},
       fat:    {"trunk":10.77,"lLeg":2.41,"rLeg":2.11,"lArm":0.65,"rArm":0.64},
@@ -3258,7 +3266,7 @@ const weighins = [
   { dt: "2026-09-07T05:15:07", algo: 218300672,
     kg: 88.92, fatPct: 19.78, fatKg: 17.59, ffmKg: 71.33, muscleKg: 67.88,
     boneKg: 3.45, waterKg: 49.06, ecwKg: 18.04, icwKg: 31.02,
-    vfi: 3.4, bmr: 2074, metAge: 41, hr: 105, nhs: 47.3,
+    vfi: 3.4, bmr: 2074, metAge: 41, hr: 105, nhs: 47.3, pwv: null, vascAge: null,
     seg: {
       ffm:    {"trunk":36.87,"lLeg":12.66,"rLeg":12.81,"lArm":4.55,"rArm":4.45},
       fat:    {"trunk":11.42,"lLeg":2.52,"rLeg":2.32,"lArm":0.66,"rArm":0.67},
@@ -3267,7 +3275,7 @@ const weighins = [
   { dt: "2026-09-08T05:18:02", algo: 218300672,
     kg: 88.75, fatPct: 19.35, fatKg: 17.17, ffmKg: 71.58, muscleKg: 68.13,
     boneKg: 3.46, waterKg: 48.41, ecwKg: 18.1, icwKg: 30.31,
-    vfi: 3.4, bmr: 2081, metAge: 41, hr: 102, nhs: 57.3,
+    vfi: 3.4, bmr: 2081, metAge: 41, hr: 102, nhs: 57.3, pwv: 7.84, vascAge: 46.2,
     seg: {
       ffm:    {"trunk":37.17,"lLeg":12.43,"rLeg":12.68,"lArm":4.69,"rArm":4.61},
       fat:    {"trunk":10.87,"lLeg":2.54,"rLeg":2.47,"lArm":0.64,"rArm":0.64},
@@ -3276,7 +3284,7 @@ const weighins = [
   { dt: "2026-09-09T04:57:27", algo: 218300672,
     kg: 89.30, fatPct: 19.27, fatKg: 17.21, ffmKg: 72.09, muscleKg: 68.61,
     boneKg: 3.48, waterKg: 49.08, ecwKg: 18.16, icwKg: 30.93,
-    vfi: 3.4, bmr: 2097, metAge: 41, hr: 85, nhs: 47.3,
+    vfi: 3.4, bmr: 2097, metAge: 41, hr: 85, nhs: 47.3, pwv: 7.86, vascAge: 46.5,
     seg: {
       ffm:    {"trunk":37.47,"lLeg":12.73,"rLeg":12.83,"lArm":4.58,"rArm":4.48},
       fat:    {"trunk":11.04,"lLeg":2.44,"rLeg":2.39,"lArm":0.65,"rArm":0.69},
@@ -3285,7 +3293,7 @@ const weighins = [
   { dt: "2026-09-10T05:08:01", algo: 218300672,
     kg: 88.15, fatPct: 19.73, fatKg: 17.39, ffmKg: 70.77, muscleKg: 67.34,
     boneKg: 3.43, waterKg: 49.23, ecwKg: 17.86, icwKg: 31.37,
-    vfi: 3.3, bmr: 2055, metAge: 41, hr: 94, nhs: 56.8,
+    vfi: 3.3, bmr: 2055, metAge: 41, hr: 94, nhs: 56.8, pwv: 7.83, vascAge: 46.2,
     seg: {
       ffm:    {"trunk":36.74,"lLeg":12.49,"rLeg":12.64,"lArm":4.44,"rArm":4.46},
       fat:    {"trunk":11.34,"lLeg":2.48,"rLeg":2.23,"lArm":0.66,"rArm":0.67},
@@ -3294,7 +3302,7 @@ const weighins = [
   { dt: "2026-09-12T06:53:13", algo: 218300672,
     kg: 88.42, fatPct: 19.40, fatKg: 17.15, ffmKg: 71.27, muscleKg: 67.82,
     boneKg: 3.44, waterKg: 48.74, ecwKg: 18.02, icwKg: 30.72,
-    vfi: 3.4, bmr: 2071, metAge: 41, hr: 94, nhs: 49.0,
+    vfi: 3.4, bmr: 2071, metAge: 41, hr: 94, nhs: 49.0, pwv: 7.89, vascAge: 46.5,
     seg: {
       ffm:    {"trunk":36.67,"lLeg":12.54,"rLeg":12.64,"lArm":4.81,"rArm":4.6},
       fat:    {"trunk":11.03,"lLeg":2.58,"rLeg":2.3,"lArm":0.62,"rArm":0.62},
@@ -3303,7 +3311,7 @@ const weighins = [
   { dt: "2026-09-13T07:01:52", algo: 218300672,
     kg: 88.38, fatPct: 19.08, fatKg: 16.86, ffmKg: 71.52, muscleKg: 68.06,
     boneKg: 3.45, waterKg: 48.80, ecwKg: 18.03, icwKg: 30.77,
-    vfi: 3.3, bmr: 2078, metAge: 41, hr: 109, nhs: 71.1,
+    vfi: 3.3, bmr: 2078, metAge: 41, hr: 109, nhs: 71.1, pwv: 7.73, vascAge: 45.7,
     seg: {
       ffm:    {"trunk":37.26,"lLeg":12.54,"rLeg":12.66,"lArm":4.58,"rArm":4.47},
       fat:    {"trunk":10.67,"lLeg":2.51,"rLeg":2.42,"lArm":0.62,"rArm":0.64},
@@ -3312,7 +3320,7 @@ const weighins = [
   { dt: "2026-09-14T05:33:39", algo: 218300672,
     kg: 88.36, fatPct: 19.10, fatKg: 16.88, ffmKg: 71.48, muscleKg: 68.02,
     boneKg: 3.45, waterKg: 49.12, ecwKg: 17.99, icwKg: 31.13,
-    vfi: 3.3, bmr: 2077, metAge: 41, hr: 89, nhs: 46.4,
+    vfi: 3.3, bmr: 2077, metAge: 41, hr: 89, nhs: 46.4, pwv: 7.75, vascAge: 45.7,
     seg: {
       ffm:    {"trunk":37.19,"lLeg":12.53,"rLeg":12.65,"lArm":4.61,"rArm":4.5},
       fat:    {"trunk":10.65,"lLeg":2.47,"rLeg":2.46,"lArm":0.64,"rArm":0.67},
@@ -3321,7 +3329,7 @@ const weighins = [
   { dt: "2026-09-15T04:35:09", algo: 218300672,
     kg: 88.43, fatPct: 18.57, fatKg: 16.42, ffmKg: 72.02, muscleKg: 68.54,
     boneKg: 3.48, waterKg: 49.57, ecwKg: 18.0, icwKg: 31.57,
-    vfi: 3.2, bmr: 2093, metAge: 40, hr: 93, nhs: 46.0,
+    vfi: 3.2, bmr: 2093, metAge: 40, hr: 93, nhs: 46.0, pwv: 7.75, vascAge: 45.9,
     seg: {
       ffm:    {"trunk":37.36,"lLeg":12.63,"rLeg":12.8,"lArm":4.58,"rArm":4.64},
       fat:    {"trunk":10.47,"lLeg":2.49,"rLeg":2.17,"lArm":0.63,"rArm":0.65},
@@ -3330,7 +3338,7 @@ const weighins = [
   { dt: "2026-09-16T04:52:19", algo: 218300672,
     kg: 88.39, fatPct: 18.08, fatKg: 15.98, ffmKg: 72.41, muscleKg: 68.92,
     boneKg: 3.49, waterKg: 49.26, ecwKg: 18.08, icwKg: 31.18,
-    vfi: 3.2, bmr: 2105, metAge: 40, hr: 97, nhs: 49.4,
+    vfi: 3.2, bmr: 2105, metAge: 40, hr: 97, nhs: 49.4, pwv: 7.89, vascAge: 46.5,
     seg: {
       ffm:    {"trunk":37.75,"lLeg":12.66,"rLeg":12.75,"lArm":4.64,"rArm":4.61},
       fat:    {"trunk":9.96,"lLeg":2.41,"rLeg":2.38,"lArm":0.61,"rArm":0.62},
@@ -3338,7 +3346,7 @@ const weighins = [
     }, note: null },  { dt: "2026-09-18T05:11:14", algo: 218300672,
     kg: 88.03, fatPct: 19.31, fatKg: 17, ffmKg: 71.03, muscleKg: 67.6,
     boneKg: 3.43, waterKg: 48.83, ecwKg: 17.94, icwKg: 30.88,
-    vfi: 3.3, bmr: 2063, metAge: 41, hr: 104, nhs: 55.2,
+    vfi: 3.3, bmr: 2063, metAge: 41, hr: 104, nhs: 55.2, pwv: 7.96, vascAge: 47.1,
     seg: {
       ffm:    {"trunk":37.12,"lLeg":12.44,"rLeg":12.6,"lArm":4.36,"rArm":4.52},
       fat:    {"trunk":10.75,"lLeg":2.49,"rLeg":2.45,"lArm":0.66,"rArm":0.66},
@@ -3347,7 +3355,7 @@ const weighins = [
   { dt: "2026-09-20T05:40:31", algo: 218300672,
     kg: 87.38, fatPct: 18.54, fatKg: 16.2, ffmKg: 71.18, muscleKg: 67.74,
     boneKg: 3.44, waterKg: 49.1, ecwKg: 17.86, icwKg: 31.25,
-    vfi: 3.2, bmr: 2066, metAge: 40, hr: 90, nhs: 51.7,
+    vfi: 3.2, bmr: 2066, metAge: 40, hr: 90, nhs: 51.7, pwv: 8.1, vascAge: 47.7,
     seg: {
       ffm:    {"trunk":37.04,"lLeg":12.44,"rLeg":12.67,"lArm":4.53,"rArm":4.49},
       fat:    {"trunk":10.32,"lLeg":2.48,"rLeg":2.14,"lArm":0.63,"rArm":0.62},
@@ -3356,7 +3364,7 @@ const weighins = [
   { dt: "2026-09-21T04:15:58", algo: 218300672,
     kg: 87.16, fatPct: 16.61, fatKg: 14.48, ffmKg: 72.68, muscleKg: 69.18,
     boneKg: 3.5, waterKg: 49.59, ecwKg: 17.94, icwKg: 31.65,
-    vfi: 3, bmr: 2111, metAge: 39, hr: 100, nhs: 43,
+    vfi: 3, bmr: 2111, metAge: 39, hr: 100, nhs: 43, pwv: 8.11, vascAge: 47.7,
     seg: {
       ffm:    {"trunk":37.88,"lLeg":12.69,"rLeg":12.78,"lArm":4.69,"rArm":4.64},
       fat:    {"trunk":9.12,"lLeg":2.19,"rLeg":2.02,"lArm":0.57,"rArm":0.57},
@@ -3839,7 +3847,8 @@ function renderWithings() {
         out.push({ x: (wgTs(weighins[i - 1]) + wgTs(w)) / 2, y: null });
       }
       const v = w[key];
-      if (v == null) { out.push(null); return; }
+      // Not reported on this row (PWV before 08/09/2026): a gap at that reading's x.
+      if (v == null) { out.push({ x: wgTs(w), y: null }); return; }
       win.push(v); if (win.length > 7) win.shift();
       out.push({ x: wgTs(w), y: +(win.reduce((a, b) => a + b, 0) / win.length).toFixed(2) });
     });
@@ -4058,13 +4067,43 @@ function renderWithings() {
       return base;
     }));
 
+  // ---- 7. Pulse wave velocity ------------------------------------------------------
+  // Vascular age is Withings' restatement of the same PWV reading against age norms: in
+  // this series the same PWV always maps to the same age, so the two are collinear by
+  // construction. Plotting both would be the fat % / fat kg trap again. PWV is charted;
+  // vascular age is a KPI card and rides in the tooltip. Rows before 08/09/2026 carry
+  // neither (the scale did not report them), so the series starts later than the others.
+  const wgPwvRows = weighins.filter(w => w.pwv != null);
+  const wgPwvByTs = new Map(wgPwvRows.map(w => [wgTs(w), w]));
+  document.getElementById('wgPwvInfo').textContent = wgPwvRows.length
+    ? `Latest ${wgNum(wgLast.pwv, 2)} m/s, vascular age ${wgNum(wgLast.vascAge, 1)} y (on the tooltip - ` +
+      `it is Withings' restatement of the same PWV reading, not a second measurement). ` +
+      `${wgPwvRows.length} of ${weighins.length} weigh-ins report PWV; the scale does not ` +
+      `report it on every reading.${wgAlgoNote}`
+    : 'No weigh-in on record reports pulse wave velocity yet.';
+  wgMake('wgPwvChart',
+    [
+      // _expected tells scripts/smoke.js how many points this series legitimately draws.
+      { ...wgRaw('Pulse wave velocity', 'pwv', '#0f766e'), _expected: wgPwvRows.length },
+      wgMean('Pulse wave velocity', 'pwv', '#0f766e'),
+    ],
+    wgOptions(' m/s', base => {
+      const plain = base.plugins.tooltip.callbacks.label;
+      base.plugins.tooltip.callbacks.label = c => {
+        const w = c.dataset.showLine === false ? wgPwvByTs.get(c.parsed.x) : null;
+        return plain(c) + (w && w.vascAge != null ? ` - vascular age ${w.vascAge} y` : '');
+      };
+      return base;
+    }));
+
   // ---- Header KPIs -----------------------------------------------------------------
   // Delta is the latest reading against the mean of the SEVEN READINGS BEFORE IT, so the
-  // latest value is not part of its own baseline.
+  // latest value is not part of its own baseline. A metric the scale did not report on
+  // some of those readings is averaged over the ones that have it, and the card says how many.
   const wgPrior = weighins.slice(Math.max(0, weighins.length - 8), weighins.length - 1);
   const wgBaseline = key => {
     const vals = wgPrior.map(w => w[key]).filter(v => v != null);
-    return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+    return vals.length ? { mean: vals.reduce((a, b) => a + b, 0) / vals.length, n: vals.length } : null;
   };
   const wgKpi = (label, key, unit, deltaUnit, goodWhenDown, dp) => {
     const val = wgLast[key];
@@ -4072,8 +4111,8 @@ function renderWithings() {
     if (val == null) return kpiCard(label, '-', '', 0, '', null, 'Not reported on the latest reading');
     if (base == null) return kpiCard(label, val.toFixed(dp), unit, 0, deltaUnit, null,
       `No earlier reading yet - no baseline`);
-    return kpiCard(label, val.toFixed(dp), unit, +(val - base).toFixed(2), deltaUnit, goodWhenDown,
-      `vs ${wgPrior.length}-reading mean ${base.toFixed(dp)}${unit ? ' ' + unit : ''}`, dp);
+    return kpiCard(label, val.toFixed(dp), unit, +(val - base.mean).toFixed(2), deltaUnit, goodWhenDown,
+      `vs ${base.n}-reading mean ${base.mean.toFixed(dp)}${unit ? ' ' + unit : ''}`, dp);
   };
 
   document.getElementById('withings-kpi-grid').innerHTML =
@@ -4082,7 +4121,9 @@ function renderWithings() {
     wgKpi('Fat Mass', 'fatKg', 'kg', ' kg', true, 2) +
     wgKpi('Body Fat %', 'fatPct', '%', '%', true, 2) +
     wgKpi('Total Water', 'waterKg', 'kg', ' kg', null, 2) +
-    wgKpi('Visceral Fat Index', 'vfi', '', '', true, 1);
+    wgKpi('Visceral Fat Index', 'vfi', '', '', true, 1) +
+    wgKpi('Pulse Wave Velocity', 'pwv', 'm/s', ' m/s', true, 2) +
+    wgKpi('Vascular Age', 'vascAge', 'y', ' y', true, 1);
 
   // ---- Segmental body outline ------------------------------------------------------
   // Latest reading that actually carries segments; the scale omits them on some readings.
@@ -4235,6 +4276,10 @@ function renderBlockCompare() {
     { label: 'Fat mass',   rows: algoRun,  ts: wgTs, key: 'fatKg',    unit: ' kg', dp: 2, goodWhenDown: true,  kind: 'scale' },
     { label: 'Body fat %', rows: algoRun,  ts: wgTs, key: 'fatPct',   unit: '%',   dp: 2, goodWhenDown: true,  kind: 'scale' },
     { label: 'Muscle',     rows: algoRun,  ts: wgTs, key: 'muscleKg', unit: ' kg', dp: 2, goodWhenDown: false, kind: 'scale' },
+    // Kept inside the algorithm run like the composition metrics: whether the scale's
+    // model update touches its PWV pipeline is not documented, so the conservative read
+    // is that it might. Rows without a PWV reading simply do not count.
+    { label: 'Pulse wave velocity', rows: algoRun, ts: wgTs, key: 'pwv', unit: ' m/s', dp: 2, goodWhenDown: true, kind: 'scale' },
   ];
   if (tape.length) {
     ROWS.push(
