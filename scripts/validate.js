@@ -108,6 +108,21 @@ scans.forEach(s => {
     if (isNum(w.kg) && isNum(w.fatKg) && isNum(w.ffmKg) && Math.abs(w.fatKg + w.ffmKg - w.kg) > 0.1)
       errors.push(`weighin ${w.dt}: fatKg ${w.fatKg} + ffmKg ${w.ffmKg} = ${(w.fatKg + w.ffmKg).toFixed(2)}, but kg is ${w.kg}`);
 
+    // Pulse wave velocity and vascular age (added 21/09/2026). The scale reports them as a
+    // pair or not at all, so both keys must exist on every row (null when not reported) and
+    // one cannot be present without the other. Ranges are plausibility guards on a
+    // hand-editable file, not physiology.
+    ['pwv', 'vascAge'].forEach(k => {
+      if (!(k in w)) errors.push(`weighin ${w.dt}: ${k} key missing (use null when the scale did not report it)`);
+      else if (w[k] != null && !isNum(w[k])) errors.push(`weighin ${w.dt}: ${k} must be numeric or null`);
+    });
+    if ((w.pwv == null) !== (w.vascAge == null))
+      errors.push(`weighin ${w.dt}: pwv and vascAge are reported together - one is null and the other is not`);
+    if (isNum(w.pwv) && (w.pwv < 4 || w.pwv > 20))
+      errors.push(`weighin ${w.dt}: pwv ${w.pwv} m/s is outside the plausible 4-20 range`);
+    if (isNum(w.vascAge) && (w.vascAge < 18 || w.vascAge > 100))
+      errors.push(`weighin ${w.dt}: vascAge ${w.vascAge} is outside the plausible 18-100 range`);
+
     if (w.seg == null) return;
     for (const [metric, totalKey] of Object.entries(SEG_TOTALS)) {
       const seg = w.seg[metric];
