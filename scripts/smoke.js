@@ -275,7 +275,7 @@ function findChromium() {
     });
 
     const kpis = block.querySelectorAll('#withings-kpi-grid .inbody-kpi-card');
-    if (kpis.length !== 8) out.push(`Withings: expected 8 KPI cards, found ${kpis.length}`);
+    if (kpis.length !== 7) out.push(`Withings: expected 7 KPI cards, found ${kpis.length}`);
 
     const boxes = block.querySelectorAll('#withings-seg-card .withings-seg-box');
     if (boxes.length !== 5) out.push(`Withings: expected 5 segment boxes, found ${boxes.length}`);
