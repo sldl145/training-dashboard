@@ -164,9 +164,10 @@ first shipped above the InBody block in a shared Body Composition tab). A time-r
 charts and shares the `RANGE` controller with the Training tab (10/09/2026). Minimum:
 
 - **Header KPIs** (latest complete weigh-in): weight, fat %, fat kg, muscle kg, water kg,
-  visceral fat index, pulse wave velocity, vascular age, with delta vs the mean of the 7
-  readings before it (fewer, and the card says how many, when a metric was not reported
-  on all of them).
+  visceral fat index, pulse wave velocity, with delta vs the mean of the 7 readings before
+  it (fewer, and the card says how many, when a metric was not reported on all of them).
+  Vascular age is the sub-line of the PWV card, not a card of its own (Pawel's call,
+  21/09/2026).
 - **Trend charts**, x = date, raw points + rolling mean line over the last 7 readings
   (readings, not calendar days - gaps are gaps):
   1. weight
@@ -176,7 +177,8 @@ charts and shares the `RANGE` controller with the Training tab (10/09/2026). Min
   5. water: total, ECW, ICW (ECW/ICW ratio is the hydration-noise tell)
   6. visceral fat index, metabolic age
   7. pulse wave velocity, single series (since 21/09/2026). Vascular age is not a second
-     series: it is a KPI card and appears in the point tooltip. Rows without PWV are gaps.
+     series: it is the PWV card's sub-line and appears in the point tooltip. Rows without
+     PWV are gaps.
 
   Fat % and fat kg were one dual-axis chart in the original draft. Split on Pawel's call
   (05/09/2026) after implementation showed the two are near-collinear - fat kg is

@@ -4115,6 +4115,22 @@ function renderWithings() {
       `vs ${base.n}-reading mean ${base.mean.toFixed(dp)}${unit ? ' ' + unit : ''}`, dp);
   };
 
+  // PWV and vascular age share one card (Pawel's call, 21/09/2026: two cards for a pair
+  // he cares little about pushed the grid onto a second row). PWV is the headline with
+  // its delta; vascular age, the same reading restated, is the sub-line.
+  const wgVascKpi = () => {
+    const val = wgLast.pwv, base = wgBaseline('pwv');
+    if (val == null) return kpiCard('Pulse Wave Velocity', '-', '', 0, '', null, 'Not reported on the latest reading');
+    const vb = wgBaseline('vascAge');
+    const age = wgLast.vascAge == null ? '' :
+      `Vascular age ${wgLast.vascAge.toFixed(1)} y` +
+      (vb ? ` (${wgLast.vascAge - vb.mean >= 0 ? '+' : ''}${(wgLast.vascAge - vb.mean).toFixed(1)} vs ${vb.mean.toFixed(1)})` : '');
+    if (base == null) return kpiCard('Pulse Wave Velocity', val.toFixed(2), 'm/s', 0, ' m/s', null,
+      `No earlier reading yet - no baseline. ${age}`);
+    return kpiCard('Pulse Wave Velocity', val.toFixed(2), 'm/s', +(val - base.mean).toFixed(2), ' m/s', true,
+      `vs ${base.n}-reading mean ${base.mean.toFixed(2)} m/s. ${age}`, 2);
+  };
+
   document.getElementById('withings-kpi-grid').innerHTML =
     wgKpi('Weight', 'kg', 'kg', ' kg', null, 2) +
     wgKpi('Muscle Mass', 'muscleKg', 'kg', ' kg', false, 2) +
@@ -4122,8 +4138,7 @@ function renderWithings() {
     wgKpi('Body Fat %', 'fatPct', '%', '%', true, 2) +
     wgKpi('Total Water', 'waterKg', 'kg', ' kg', null, 2) +
     wgKpi('Visceral Fat Index', 'vfi', '', '', true, 1) +
-    wgKpi('Pulse Wave Velocity', 'pwv', 'm/s', ' m/s', true, 2) +
-    wgKpi('Vascular Age', 'vascAge', 'y', ' y', true, 1);
+    wgVascKpi();
 
   // ---- Segmental body outline ------------------------------------------------------
   // Latest reading that actually carries segments; the scale omits them on some readings.
