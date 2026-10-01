@@ -1166,7 +1166,11 @@ const RANGE = (() => {
     t.charts.forEach(c => {
       c.options.scales.x.min = w.from; c.options.scales.x.max = w.to;
       fitY(c, w.from, w.to);
-      c.update('none');
+      // Full update, same reason as in attach(): 'none' leaves points at the pixels of
+      // the previous window. Found 01/10/2026, the first weigh-in that made the Withings
+      // 4W window narrower than All - switching presets then drew points up to 21 px
+      // off their own dates.
+      c.update();
     });
     renderBar(t);
     writeHash();
