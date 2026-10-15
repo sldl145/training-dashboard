@@ -2237,7 +2237,7 @@ const graveyard = {
 
 // ========== HELPERS ==========
 // TODAY is the ONLY date constant to update each session. Everything else derives from it.
-const TODAY = "2026-10-14";
+const TODAY = "2026-10-15";
 
 // Derived automatically - do not edit these.
 function shiftDate(iso, days) {
@@ -3277,6 +3277,7 @@ const tape = [
   { date: "2026-09-24", waist: 97.0, hip: 101.0, note: null },
   { date: "2026-10-02", waist: 94.0, hip: 100.0, note: null },
   { date: "2026-10-08", waist: 92.0, hip: 101.0, note: null },
+  { date: "2026-10-15", waist: 94.5, hip: 101.0, note: null },
 ];
 
 // ========== WITHINGS WEIGH-INS (daily, home Body Scan) ==========
@@ -3532,6 +3533,15 @@ const weighins = [
       ffm:    {"trunk":36.61,"lLeg":12.23,"rLeg":12.27,"lArm":4.38,"rArm":4.26},
       fat:    {"trunk":9.19,"lLeg":2.13,"rLeg":2.04,"lArm":0.58,"rArm":0.57},
       muscle: {"trunk":35.08,"lLeg":11.38,"rLeg":11.38,"lArm":4.31,"rArm":4.21}
+    }, note: null },
+  { dt: "2026-10-15T04:32:55", algo: 218300672,
+    kg: 84.53, fatPct: 15.72, fatKg: 13.29, ffmKg: 71.23, muscleKg: 67.79,
+    boneKg: 3.44, waterKg: 48.74, ecwKg: 17.62, icwKg: 31.12,
+    vfi: 2.9, bmr: 2063, metAge: 39, hr: 117, nhs: 47.9, pwv: 7.3, vascAge: 44.7,
+    seg: {
+      ffm:    {"trunk":37.37,"lLeg":12.44,"rLeg":12.46,"lArm":4.53,"rArm":4.44},
+      fat:    {"trunk":8.17,"lLeg":2.07,"rLeg":1.96,"lArm":0.54,"rArm":0.55},
+      muscle: {"trunk":35.81,"lLeg":11.61,"rLeg":11.57,"lArm":4.44,"rArm":4.35}
     }, note: null },
 ];
 
