@@ -55,6 +55,12 @@ as the data does.
 - **Algorithm runs.** Everything impedance-derived is restricted to the current
   `algo` run - a scale-side model update is a step in the instrument, not in Pawel.
   Weight comes off a load cell and is exempt, so it uses the whole series.
+- **`**NOT trend-valid**` rows are left out** (added 19/10/2026, Pawel's call). The marker
+  means "plotted but excluded from trend interpretation", and this card is the trend
+  interpretation. They are dropped from the block means and from the noise estimate, after
+  the algorithm run is found (an `algo` change is the instrument whatever the note says).
+  The charts still plot them, and the footnote says how many were left out of the four-week
+  window. Until 19/10/2026 the card ignored the marker and counted them as normal readings.
 - **Minimum readings per block**: 4 for the scale (daily cadence), 3 for tape (weekly).
   Below that the row reports how thin the blocks are rather than producing a number.
 - **When the series is too young**, the row shows the **date the first comparison becomes
