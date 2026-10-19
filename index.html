@@ -4471,6 +4471,11 @@ const T95 = [[1, 12.71], [2, 4.30], [3, 3.18], [4, 2.78], [5, 2.57], [6, 2.45], 
              [30, 2.04], [60, 2.00]];
 const tCrit = df => { for (const [d, v] of T95) if (df <= d) return v; return 1.96; };
 
+// A row whose note carries the **NOT trend-valid** marker (travel, illness, off-protocol) is
+// still plotted, but this card IS the trend interpretation, so it is left out here - from the
+// block means and from the noise estimate alike.
+const trendValid = r => !/\*\*NOT trend-valid\*\*/.test(r.note || '');
+
 // One metric. `rows` must ALREADY be restricted to a comparable stretch - for anything
 // impedance-derived that means a single scale-algorithm run, since an algo change is a
 // step in the instrument, not in Pawel.
@@ -4532,21 +4537,30 @@ function renderBlockCompare() {
   const algoRun = weighins.slice(algoRunStart);
   const algoChanged = algoRunStart > 0;
 
+  // The algorithm run is found on ALL rows (an algo change is the instrument, whatever the
+  // note says); trend-invalid rows are dropped only afterwards.
+  const wgValid = weighins.filter(trendValid);
+  const algoValid = algoRun.filter(trendValid);
+  const tapeValid = tape.filter(trendValid);
+  const windowStart = endTs - 2 * BLOCK_DAYS * 864e5;
+  const nExcluded = weighins.filter(w => wgTs(w) > windowStart && !trendValid(w)).length
+                  + tape.filter(t => tpTs(t) > windowStart && !trendValid(t)).length;
+
   const ROWS = [
-    { label: 'Weight',     rows: weighins, ts: wgTs, key: 'kg',       unit: ' kg', dp: 2, goodWhenDown: null,  kind: 'scale' },
-    { label: 'Fat mass',   rows: algoRun,  ts: wgTs, key: 'fatKg',    unit: ' kg', dp: 2, goodWhenDown: true,  kind: 'scale' },
-    { label: 'Body fat %', rows: algoRun,  ts: wgTs, key: 'fatPct',   unit: '%',   dp: 2, goodWhenDown: true,  kind: 'scale' },
-    { label: 'Muscle',     rows: algoRun,  ts: wgTs, key: 'muscleKg', unit: ' kg', dp: 2, goodWhenDown: false, kind: 'scale' },
+    { label: 'Weight',     rows: wgValid,   ts: wgTs, key: 'kg',       unit: ' kg', dp: 2, goodWhenDown: null,  kind: 'scale' },
+    { label: 'Fat mass',   rows: algoValid, ts: wgTs, key: 'fatKg',    unit: ' kg', dp: 2, goodWhenDown: true,  kind: 'scale' },
+    { label: 'Body fat %', rows: algoValid, ts: wgTs, key: 'fatPct',   unit: '%',   dp: 2, goodWhenDown: true,  kind: 'scale' },
+    { label: 'Muscle',     rows: algoValid, ts: wgTs, key: 'muscleKg', unit: ' kg', dp: 2, goodWhenDown: false, kind: 'scale' },
     // Kept inside the algorithm run like the composition metrics: whether the scale's
     // model update touches its PWV pipeline is not documented, so the conservative read
     // is that it might. Rows without a PWV reading simply do not count.
-    { label: 'Pulse wave velocity', rows: algoRun, ts: wgTs, key: 'pwv', unit: ' m/s', dp: 2, goodWhenDown: true, kind: 'scale' },
+    { label: 'Pulse wave velocity', rows: algoValid, ts: wgTs, key: 'pwv', unit: ' m/s', dp: 2, goodWhenDown: true, kind: 'scale' },
   ];
   if (tape.length) {
     ROWS.push(
-      { label: 'Waist',    rows: tape, ts: tpTs, key: 'waist', unit: ' cm', dp: 1, goodWhenDown: true, kind: 'tape' },
-      { label: 'Hip',      rows: tape, ts: tpTs, key: 'hip',   unit: ' cm', dp: 1, goodWhenDown: null, kind: 'tape' },
-      { label: 'WHR',      rows: tape, ts: tpTs, unit: '', dp: 3, goodWhenDown: true, kind: 'tape',
+      { label: 'Waist',    rows: tapeValid, ts: tpTs, key: 'waist', unit: ' cm', dp: 1, goodWhenDown: true, kind: 'tape' },
+      { label: 'Hip',      rows: tapeValid, ts: tpTs, key: 'hip',   unit: ' cm', dp: 1, goodWhenDown: null, kind: 'tape' },
+      { label: 'WHR',      rows: tapeValid, ts: tpTs, unit: '', dp: 3, goodWhenDown: true, kind: 'tape',
         key: t => (t.waist != null && t.hip ? t.waist / t.hip : null) });
   }
 
@@ -4602,6 +4616,9 @@ function renderBlockCompare() {
       "real change" here means real <em>relative to scatter</em>, not independently verified.
       ${algoChanged ? 'Everything except weight is restricted to the current scale-algorithm run; ' +
         'weight comes off a load cell and is unaffected by an algorithm change. ' : ''}
+      ${nExcluded ? `${nExcluded} reading${nExcluded === 1 ? '' : 's'} in these four weeks ` +
+        `marked NOT trend-valid (travel, illness, off-protocol) ` +
+        `${nExcluded === 1 ? 'is left out; the charts still show it' : 'are left out; the charts still show them'}. ` : ''}
       ${tape.length ? '' : 'Tape rows will appear here once the girth series has data.'}
     </div>`;
 }
