@@ -132,8 +132,10 @@ One object per complete weigh-in, chronologically sorted. `dt` is ISO local
 - `pwv` and `vascAge` are `null` when the scale did not report them; both keys are always
   present, and one is never null without the other (validator enforces both).
 - `undocumented_*` fields are **not** copied into `index.html` (public repo; unknown data).
-- `note` is free text, same conventions as session notes (`**NOT trend-valid**` marker for
-  travel/illness/known-dehydrated readings, correction annotations in `[...]`).
+- `note` is free text, normally `null`. Correction annotations in `[...]` only. **Never** a
+  `**NOT trend-valid**` marker and never a flag on a single-day jump: weigh-ins are always
+  valid (Pawel, 14/10 and 19/10/2026). Daily fluctuation is why the tab reads trends and the
+  block comparison, not single readings.
 - Segments may be absent on some rows (03/09/2026 has none). `seg: null` then; renderers
   must tolerate it.
 
