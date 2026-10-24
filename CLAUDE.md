@@ -221,6 +221,11 @@ instruments and stay separate series. `muscle_mass` is not SMM. Do not merge, ca
 compare them as if they were one. Since 10/09/2026 they are separate tabs as well (Pawel's
 call); the InBody tab keeps the DOM id `body-comp`.
 
+**Weigh-ins are always valid** (Pawel, 14/10 and 19/10/2026). Never mark a `weighins[]` row
+`**NOT trend-valid**`, and never flag a single-day jump - not for travel, illness, a late meal
+or a big drop overnight. Daily fluctuation is the reason the tab reads trends and the block
+comparison rather than single readings; the noise is already priced in there.
+
 `algo` changes between rows are scale-side model updates; the charts mark them. Do not
 write a note interpreting a step that coincides with one.
 
@@ -240,6 +245,8 @@ validator is the only guard. Never invent, interpolate or round a missed measure
 
 Pawel says or pastes the numbers → dedup on `date` → append to `tape[]` → validate + smoke →
 push with the session's other data. Data track. No Notion write.
+
+Cadence: weekly, on Thursday (Pawel, 14/10/2026: "it is a Thursday job").
 
 Protocol (reproduced in the page's empty state, and worth restating if he asks): same
 morning slot as the weigh-in, fasted, before drinking; standing relaxed at the end of a

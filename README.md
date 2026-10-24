@@ -19,7 +19,7 @@ flowchart TD
     RUN["🏃 Run<br/>(Apple Watch)"] -->|screenshot pasted| SESSION
     SCAN["📊 InBody scan<br/>(photo pasted, monthly at SATS)"] --> SESSION
     WEIGH["⚖️ Withings Body Scan<br/>(daily weigh-in at home)"] -->|pulled from the Worker| SESSION
-    TAPE["📏 Tape measurement<br/>(waist/hip, twice weekly at home)"] -->|said in session, hand-entered| SESSION
+    TAPE["📏 Tape measurement<br/>(waist/hip, weekly on Thursday, at home)"] -->|said in session, hand-entered| SESSION
 
     subgraph SESSION["One Claude Code session — 'update dashboard'"]
         D1["Debrief conversation<br/>(docs/DEBRIEF.md)"] --> D2["Write Notion journal<br/>Session/Scan page or Run entry<br/>(dedup on date)"]
@@ -71,7 +71,7 @@ flowchart TD
   that holds the OAuth tokens. Numbers are never typed in from the phone app. The monthly
   SATS **InBody** scan stays a separate instrument on its own series — the two are never
   merged, calibrated against each other, or plotted on one axis.
-- **Tape measurements** (waist/hip, twice weekly) are the one hand-typed series — there is no
+- **Tape measurements** (waist/hip, weekly on Thursday) are the one hand-typed series — there is no
   API for a tape measure. They exist because every other composition number comes from
   bioelectrical impedance, which fails with hydration; a tape fails differently, so the two
   agreeing carries information. Tape WHR is measured, the InBody's WHR is a model output —

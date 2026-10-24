@@ -24,7 +24,7 @@ An inconsistently taken tape measurement is worse than none - it adds noise whil
 like signal. The protocol is fixed and is reproduced in the page's own empty state so it
 cannot be lost:
 
-- **When:** the same morning slot as the weigh-in. Fasted, before drinking. Twice a week.
+- **When:** the same morning slot as the weigh-in. Fasted, before drinking. Once a week, on Thursday.
 - **How:** standing relaxed, at the end of a normal exhale - not held, not sucked in.
   Tape snug but not compressing the skin, level all the way round.
 - **Waist:** at the navel.

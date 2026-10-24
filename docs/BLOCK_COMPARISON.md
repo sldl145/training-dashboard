@@ -61,6 +61,8 @@ as the data does.
   the algorithm run is found (an `algo` change is the instrument whatever the note says).
   The charts still plot them, and the footnote says how many were left out of the four-week
   window. Until 19/10/2026 the card ignored the marker and counted them as normal readings.
+  In practice this applies to tape only: weigh-ins are always valid and never carry the
+  marker (Pawel, 14/10 and 19/10/2026; see `WITHINGS_SPEC.md`).
 - **Minimum readings per block**: 4 for the scale (daily cadence), 3 for tape (weekly).
   Below that the row reports how thin the blocks are rather than producing a number.
 - **When the series is too young**, the row shows the **date the first comparison becomes
