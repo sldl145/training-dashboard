@@ -260,8 +260,9 @@ are different instruments. Never merge, calibrate or plot them on one axis - sam
 ## Block comparison (how the Withings tab is meant to be read)
 
 Spec: `docs/BLOCK_COMPARISON.md`. The card at the top of the Withings tab compares the
-trailing 14-day block of readings against the 14 before it, and calls a change real only
-when it clears a noise threshold computed from the series' own scatter.
+trailing 14-day block of readings against the 14 before it (tape: 28-day blocks, since a
+weekly series puts only 2 readings in a fortnight), and calls a change real only when it
+clears a noise threshold computed from the series' own scatter.
 
 It exists because per-reading noise on this scale is about the size of a fortnight's real
 change (0.29 kg on weight, 0.42 on fat mass, 0.58 on muscle - measured 16/09/2026), so a

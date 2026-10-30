@@ -104,4 +104,5 @@ a small follow-up.
   page loads no date adapter and a `time` axis without one throws and leaves a dead canvas.
   (Caught by `scripts/smoke.js` while building this, 16/09/2026.)
 - The tape metrics also appear in the **block comparison** card at the top of the tab once
-  `tape[]` has data - see `docs/BLOCK_COMPARISON.md`.
+  `tape[]` has data, on 28-day blocks rather than the scale's 14 (a weekly series cannot fill
+  a fortnight to the minimum of 3 readings) - see `docs/BLOCK_COMPARISON.md`.

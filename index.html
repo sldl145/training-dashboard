@@ -685,6 +685,7 @@
   .block-compare-table th:last-child, .block-compare-table td:last-child { text-align: left; padding-right: 0; }
   .block-compare-table td { text-align: right; padding: 9px 10px; border-bottom: 1px solid var(--border); }
   .block-compare-table tr:last-child td { border-bottom: none; }
+  .block-compare-table .block-subhead th { padding-top: 18px; }
   .block-compare-table .metric { font-weight: 600; white-space: nowrap; }
   .block-compare-table .num { font-variant-numeric: tabular-nums; }
   .block-compare-table .delta { font-variant-numeric: tabular-nums; font-weight: 700; }
@@ -4517,7 +4518,10 @@ renderWithings();
 // therefore be precise and still biased - which is why the tape series below exists as an
 // instrument that fails in a different way.
 
-const BLOCK_DAYS = 14;
+// Block length per instrument. The scale reads daily, so 14 days holds ~10 readings. Tape is
+// weekly, so a 14-day block holds 2 and could never reach its minimum of 3 - it gets 28-day
+// blocks (~4 readings) instead (Pawel, 30/10/2026).
+const BLOCK_DAYS = { scale: 14, tape: 28 };
 const BLOCK_MIN_N = { scale: 4, tape: 3 };   // fewest readings a block needs to be reported
 
 // Per-reading noise, successive-difference (von Neumann) estimator: for a series carrying a
@@ -4548,9 +4552,9 @@ const trendValid = r => !/\*\*NOT trend-valid\*\*/.test(r.note || '');
 // One metric. `rows` must ALREADY be restricted to a comparable stretch - for anything
 // impedance-derived that means a single scale-algorithm run, since an algo change is a
 // step in the instrument, not in Pawel.
-function blockCompare(rows, tsOf, key, endTs, minN) {
-  const cutA = endTs - BLOCK_DAYS * 864e5;          // start of the latest block
-  const cutB = endTs - 2 * BLOCK_DAYS * 864e5;      // start of the block before it
+function blockCompare(rows, tsOf, key, endTs, minN, days) {
+  const cutA = endTs - days * 864e5;                // start of the latest block
+  const cutB = endTs - 2 * days * 864e5;            // start of the block before it
   const pick = (lo, hi) => rows
     .filter(r => { const t = tsOf(r); return t > lo && t <= hi; })
     .map(r => (typeof key === 'function' ? key(r) : r[key]))
@@ -4564,7 +4568,7 @@ function blockCompare(rows, tsOf, key, endTs, minN) {
     // When the series simply does not reach back two blocks yet, the useful answer is a
     // DATE, not "collect more" - so work out when the first comparison becomes possible.
     const times = rows.map(tsOf).filter(t => !Number.isNaN(t));
-    const readyTs = times.length ? Math.min(...times) + 2 * BLOCK_DAYS * 864e5 : null;
+    const readyTs = times.length ? Math.min(...times) + 2 * days * 864e5 : null;
     return {
       short: true, nCur: cur.length, nPrev: prev.length, need: minN,
       readyTs: readyTs != null && readyTs > endTs ? readyTs : null,
@@ -4593,8 +4597,12 @@ function renderBlockCompare() {
 
   const fmtDay = ts => { const d = new Date(ts);
     return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0'); };
-  const curFrom = fmtDay(endTs - BLOCK_DAYS * 864e5 + 864e5), curTo = fmtDay(endTs);
-  const prevFrom = fmtDay(endTs - 2 * BLOCK_DAYS * 864e5 + 864e5), prevTo = fmtDay(endTs - BLOCK_DAYS * 864e5);
+  const span = kind => {
+    const d = BLOCK_DAYS[kind];
+    return { prev: `${fmtDay(endTs - 2 * d * 864e5 + 864e5)}-${fmtDay(endTs - d * 864e5)}`,
+             cur:  `${fmtDay(endTs - d * 864e5 + 864e5)}-${fmtDay(endTs)}` };
+  };
+  const scaleSpan = span('scale'), tapeSpan = span('tape');
 
   // Impedance-derived metrics are only comparable inside one scale-algorithm run. Weight
   // comes off a load cell and is unaffected, so it gets the whole series.
@@ -4611,9 +4619,8 @@ function renderBlockCompare() {
   const wgValid = weighins.filter(trendValid);
   const algoValid = algoRun.filter(trendValid);
   const tapeValid = tape.filter(trendValid);
-  const windowStart = endTs - 2 * BLOCK_DAYS * 864e5;
-  const nExcluded = weighins.filter(w => wgTs(w) > windowStart && !trendValid(w)).length
-                  + tape.filter(t => tpTs(t) > windowStart && !trendValid(t)).length;
+  const nExcluded = weighins.filter(w => wgTs(w) > endTs - 2 * BLOCK_DAYS.scale * 864e5 && !trendValid(w)).length
+                  + tape.filter(t => tpTs(t) > endTs - 2 * BLOCK_DAYS.tape * 864e5 && !trendValid(t)).length;
 
   const ROWS = [
     { label: 'Weight',     rows: wgValid,   ts: wgTs, key: 'kg',       unit: ' kg', dp: 2, goodWhenDown: null,  kind: 'scale' },
@@ -4633,13 +4640,17 @@ function renderBlockCompare() {
         key: t => (t.waist != null && t.hip ? t.waist / t.hip : null) });
   }
 
-  const body = ROWS.map(m => {
-    const r = blockCompare(m.rows, m.ts, m.key, endTs, BLOCK_MIN_N[m.kind]);
+  const body = ROWS.map((m, i) => {
+    // Tape runs on longer blocks, so its rows get their own date header.
+    const head = m.kind === 'tape' && (i === 0 || ROWS[i - 1].kind !== 'tape')
+      ? `<tr class="block-subhead"><th>Tape - ${BLOCK_DAYS.tape}-day blocks (weekly readings)</th>
+           <th>${tapeSpan.prev}</th><th>${tapeSpan.cur}</th><th></th><th></th></tr>` : '';
+    const r = blockCompare(m.rows, m.ts, m.key, endTs, BLOCK_MIN_N[m.kind], BLOCK_DAYS[m.kind]);
     if (r.short) {
       const when = r.readyTs
         ? `first comparison ${fmtDay(r.readyTs)}`
         : `needs ${r.need} per block`;
-      return `<tr>
+      return `${head}<tr>
         <td class="metric">${m.label}</td>
         <td class="num" colspan="3" style="text-align:right;color:var(--muted)">
           ${r.nPrev} reading${r.nPrev === 1 ? '' : 's'} in the earlier block,
@@ -4652,7 +4663,7 @@ function renderBlockCompare() {
     if (m.goodWhenDown !== null && r.real) cls = (m.goodWhenDown === (r.delta < 0)) ? 'down' : 'up';
     else if (r.real) cls = 'flat';
     const sign = r.delta >= 0 ? '+' : '';
-    return `<tr>
+    return `${head}<tr>
       <td class="metric">${m.label}</td>
       <td class="num">${r.meanPrev.toFixed(m.dp)}<span style="color:var(--muted)">${m.unit}</span>
         <span style="color:var(--muted);font-size:11px"> (n=${r.nPrev})</span></td>
@@ -4664,15 +4675,16 @@ function renderBlockCompare() {
   }).join('');
 
   card.innerHTML = `
-    <h3>Block Comparison - last ${BLOCK_DAYS} days vs the ${BLOCK_DAYS} before</h3>
+    <h3>Block Comparison - last ${BLOCK_DAYS.scale} days vs the ${BLOCK_DAYS.scale} before</h3>
     <div class="trend-info">
-      ${prevFrom}-${prevTo} against ${curFrom}-${curTo}. A change is only called real when it
+      ${scaleSpan.prev} against ${scaleSpan.cur}${tape.length ? `; tape, measured weekly, compares
+      ${BLOCK_DAYS.tape}-day blocks instead` : ''}. A change is only called real when it
       clears the noise threshold for that metric at ~95% confidence. Read this before the
       daily points - one reading's scatter is about a fortnight's worth of real change.
     </div>
     <table class="block-compare-table">
       <thead><tr>
-        <th>Metric</th><th>${prevFrom}-${prevTo}</th><th>${curFrom}-${curTo}</th>
+        <th>Metric</th><th>${scaleSpan.prev}</th><th>${scaleSpan.cur}</th>
         <th>Change</th><th>Verdict</th>
       </tr></thead>
       <tbody>${body}</tbody>
@@ -4685,7 +4697,7 @@ function renderBlockCompare() {
       "real change" here means real <em>relative to scatter</em>, not independently verified.
       ${algoChanged ? 'Everything except weight is restricted to the current scale-algorithm run; ' +
         'weight comes off a load cell and is unaffected by an algorithm change. ' : ''}
-      ${nExcluded ? `${nExcluded} reading${nExcluded === 1 ? '' : 's'} in these four weeks ` +
+      ${nExcluded ? `${nExcluded} reading${nExcluded === 1 ? '' : 's'} in these windows ` +
         `marked NOT trend-valid (travel, illness, off-protocol) ` +
         `${nExcluded === 1 ? 'is left out; the charts still show it' : 'are left out; the charts still show them'}. ` : ''}
       ${tape.length ? '' : 'Tape rows will appear here once the girth series has data.'}
