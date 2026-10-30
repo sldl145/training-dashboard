@@ -28,7 +28,19 @@ change real between two scans it needed to exceed ~2.8 kg.
 
 ## What it computes
 
-For each metric, over rows in the trailing `BLOCK_DAYS` (14) and the 14 before that:
+For each metric, over rows in the trailing block and the block of the same length before it.
+Block length is per instrument, `BLOCK_DAYS = { scale: 14, tape: 28 }`:
+
+- **Scale: 14 days.** A daily series puts ~10 readings in each block.
+- **Tape: 28 days** (Pawel, 30/10/2026). Tape is weekly, so a 14-day block holds 2 readings
+  and could never reach the minimum of 3 - from 16/09 to 30/10/2026 the tape rows only ever
+  said "needs 3 per block". 28 days holds ~4. The cost is lag: a tape change takes up to
+  four weeks to show in full, which is acceptable for an instrument whose job is to
+  cross-check the scale's direction, not to time it. The tape rows sit under their own
+  sub-header in the card with their own date range, because the column headers are the
+  scale's dates.
+
+Then:
 
 1. **Block means**, with the reading count shown for each - `n` is the whole point, so it
    is never hidden.
@@ -59,14 +71,14 @@ as the data does.
   means "plotted but excluded from trend interpretation", and this card is the trend
   interpretation. They are dropped from the block means and from the noise estimate, after
   the algorithm run is found (an `algo` change is the instrument whatever the note says).
-  The charts still plot them, and the footnote says how many were left out of the four-week
-  window. Until 19/10/2026 the card ignored the marker and counted them as normal readings.
+  The charts still plot them, and the footnote says how many were left out of the comparison
+  windows. Until 19/10/2026 the card ignored the marker and counted them as normal readings.
   In practice this applies to tape only: weigh-ins are always valid and never carry the
   marker (Pawel, 14/10 and 19/10/2026; see `WITHINGS_SPEC.md`).
 - **Minimum readings per block**: 4 for the scale (daily cadence), 3 for tape (weekly).
   Below that the row reports how thin the blocks are rather than producing a number.
 - **When the series is too young**, the row shows the **date the first comparison becomes
-  possible** (first reading + 28 days) instead of a generic "not enough data".
+  possible** (first reading + two blocks: 28 days for the scale, 56 for tape) instead of a generic "not enough data".
 - **Colour follows good/bad, not up/down**: less fat is green, less muscle is red. A metric
   with no good direction (weight, hip) stays neutral.
 

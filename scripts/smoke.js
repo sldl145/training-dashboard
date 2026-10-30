@@ -314,11 +314,14 @@ function findChromium() {
     // ---- Block comparison card (docs/BLOCK_COMPARISON.md) ----
     // It is the card Pawel is meant to read first, so an empty or verdict-less table is a
     // failure, not a cosmetic issue. Five rows for the scale metrics (weight, fat kg, fat %,
-    // muscle, PWV), plus waist/hip/WHR once the tape series has data.
+    // muscle, PWV), plus waist/hip/WHR once the tape series has data. The tape rows sit under
+    // their own date sub-header (28-day blocks), which is not a metric row and is not counted.
     const bc = document.getElementById('withings-block-compare');
     if (!bc) out.push('Withings: #withings-block-compare is missing');
     else {
-      const rows = [...bc.querySelectorAll('tbody tr')];
+      const rows = [...bc.querySelectorAll('tbody tr:not(.block-subhead)')];
+      if (hasTape && !bc.querySelector('tbody tr.block-subhead'))
+        out.push('Withings: block comparison has tape rows but no tape date sub-header');
       if (hasTape !== null) {
         const expected = hasTape ? 8 : 5;
         if (rows.length !== expected)

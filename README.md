@@ -78,7 +78,7 @@ flowchart TD
   separate series, never merged.
 - **The Withings tab is read in fortnights, not days.** Per-reading noise is about the size of
   a fortnight's real change, so the block-comparison card at the top of that tab — trailing
-  14 days against the 14 before, with a noise threshold computed from the series' own scatter
+  14 days against the 14 before (tape: 28-day blocks, as it is weekly), with a noise threshold computed from the series' own scatter
   — is the number to answer from. See [`docs/BLOCK_COMPARISON.md`](docs/BLOCK_COMPARISON.md).
 - **This repo** is the rendered dashboard and the system of record for how updates work.
 - **Two tracks.** Data (session rows, runs, scans, weigh-ins, `TODAY`, monthly goals cards) goes
