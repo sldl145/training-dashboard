@@ -686,6 +686,8 @@
   .block-compare-table td { text-align: right; padding: 9px 10px; border-bottom: 1px solid var(--border); }
   .block-compare-table tr:last-child td { border-bottom: none; }
   .block-compare-table .block-subhead th { padding-top: 18px; }
+  .tape-band-key { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 8px; font-size: 10px; color: var(--muted); }
+  .tape-band-key i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
   .block-compare-table .metric { font-weight: 600; white-space: nowrap; }
   .block-compare-table .num { font-variant-numeric: tabular-nums; }
   .block-compare-table .delta { font-variant-numeric: tabular-nums; font-weight: 700; }
@@ -4776,6 +4778,52 @@ function renderTape() {
   const dayLabel = v => { const d = new Date(v);
     return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0'); };
 
+  // Reference bands: the WHO cut-offs for men (expert consultation on waist circumference and
+  // waist-hip ratio, Geneva 2008, report 2011). Shaded behind the line so the direction of
+  // travel reads against them. Population risk thresholds, not targets fitted to Pawel - and
+  // a reference, not a calculation: nothing on the page is derived from them.
+  // Inline plugin (not globally registered), so it only touches the tape charts.
+  const NORM = {
+    low: 'rgba(22,163,74,0.10)', mid: 'rgba(234,179,8,0.13)', high: 'rgba(220,38,38,0.10)',
+  };
+  const WAIST_BANDS = [
+    { to: 94, color: NORM.low, label: 'low risk < 94' },
+    { from: 94, to: 102, color: NORM.mid, label: 'increased 94-102' },
+    { from: 102, color: NORM.high, label: 'substantially increased \u2265 102' },
+  ];
+  const WHR_BANDS = [
+    { to: 0.90, color: NORM.low, label: 'low risk < 0.90' },
+    { from: 0.90, color: NORM.mid, label: 'increased \u2265 0.90' },
+  ];
+  const tapeBandsPlugin = {
+    id: 'tapeBands',
+    beforeDatasetsDraw(chart, _args, o) {
+      const bands = (o && o.bands) || [];
+      const { ctx, chartArea: a, scales: { y } } = chart;
+      if (!bands.length || !a || !y) return;
+      ctx.save();
+      bands.forEach(b => {
+        const top = Math.max(a.top, b.to == null ? a.top : y.getPixelForValue(b.to));
+        const bot = Math.min(a.bottom, b.from == null ? a.bottom : y.getPixelForValue(b.from));
+        if (bot <= top) return;
+        ctx.fillStyle = b.color;
+        ctx.fillRect(a.left, top, a.right - a.left, bot - top);
+      });
+      ctx.restore();
+    },
+  };
+  // Band labels go in a key under the chart, not on the canvas: the hip line runs through
+  // the middle band end to end, so any in-chart label collides with it.
+  const bandKey = (canvas, bands) => canvas.insertAdjacentHTML('afterend',
+    `<div class="tape-band-key">${bands.map(b =>
+      `<span><i style="background:${b.color.replace(/[\d.]+\)$/, '0.45)')}"></i>${b.label}</span>`).join('')}</div>`);
+
+  // Keep each cut-off line in view even when the data sits just one side of it.
+  const span = (vals, lines, pad) => ({
+    suggestedMin: Math.min(...vals, ...lines) - pad,
+    suggestedMax: Math.max(...vals, ...lines) + pad,
+  });
+
   const opts = (unit, dp) => ({
     responsive: true, maintainAspectRatio: true, animation: false,
     interaction: { mode: 'nearest', intersect: false },
@@ -4802,7 +4850,13 @@ function renderTape() {
     `Latest waist ${last.waist == null ? '-' : last.waist.toFixed(1)} cm` +
     `${last.hip == null ? '' : `, hip ${last.hip.toFixed(1)} cm`}. ` +
     `${hipPts.length ? '' : 'No hip measurement recorded yet. '}` +
-    `Measured, not inferred - this series does not depend on impedance.`;
+    `Measured, not inferred - this series does not depend on impedance. ` +
+    `Shading is the WHO waist cut-offs for men (it applies to waist, not hip).`;
+  bandKey(girth, WAIST_BANDS);
+  const girthOpts = opts(' cm', 1);
+  girthOpts.plugins.tapeBands = { bands: WAIST_BANDS };
+  Object.assign(girthOpts.scales.y,
+    span([...pts('waist'), ...hipPts].map(p => p.y), [94, 102], 1.5));
   new Chart(girth, {
     type: 'line',
     data: { datasets: [
@@ -4811,21 +4865,28 @@ function renderTape() {
       ...(hipPts.length ? [{ label: 'Hip', data: hipPts, borderColor: '#ea580c',
         backgroundColor: '#ea580c', borderWidth: 2, pointRadius: 3, tension: 0.25 }] : []),
     ] },
-    options: opts(' cm', 1),
+    options: girthOpts,
+    plugins: [tapeBandsPlugin],
   });
 
   const whrPts = pts(whr);
   document.getElementById('tapeWhrInfo').textContent = whrPts.length
     ? `Latest ${lastWhr.toFixed(3)}. Waist divided by hip, both tape-measured. The InBody's WHR ` +
-      `on its own tab is estimated from impedance - a different instrument, not this series.`
+      `on its own tab is estimated from impedance - a different instrument, not this series. ` +
+      `Shading is the WHO cut-off for men: below 0.90 is low risk.`
     : 'WHR needs a hip measurement alongside the waist. None recorded yet.';
+  bandKey(document.getElementById('tapeWhrChart'), WHR_BANDS);
+  const whrOpts = opts('', 3);
+  whrOpts.plugins.tapeBands = { bands: WHR_BANDS };
+  Object.assign(whrOpts.scales.y, span(whrPts.map(p => p.y), [0.90], 0.015));
   new Chart(document.getElementById('tapeWhrChart'), {
     type: 'line',
     data: { datasets: [
       { label: 'Waist-to-hip ratio', data: whrPts, borderColor: '#7c3aed',
         backgroundColor: '#7c3aed', borderWidth: 2, pointRadius: 3, tension: 0.25 },
     ] },
-    options: opts('', 3),
+    options: whrOpts,
+    plugins: [tapeBandsPlugin],
   });
 }
 
