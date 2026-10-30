@@ -103,6 +103,14 @@ a small follow-up.
   its own. Both use a **linear** x scale over timestamps, not Chart.js's `time` scale - the
   page loads no date adapter and a `time` axis without one throws and leaves a dead canvas.
   (Caught by `scripts/smoke.js` while building this, 16/09/2026.)
+- **Reference shading** (Pawel, 30/10/2026). Both tape charts shade the WHO cut-offs for
+  men behind the line (WHO expert consultation on waist circumference and waist-hip ratio,
+  Geneva 2008, report 2011): waist < 94 cm low risk, 94-102 increased, >= 102 substantially
+  increased; WHR < 0.90 low risk, >= 0.90 increased. On the girth chart the shading applies
+  to waist, not hip - the info line says so. Labels sit in a key under each chart, because
+  the hip line runs through the middle band and collides with any in-chart label. These are
+  population thresholds, displayed only: nothing on the page is computed from them. The
+  y-axis is widened so the cut-off lines stay in view.
 - The tape metrics also appear in the **block comparison** card at the top of the tab once
   `tape[]` has data, on 28-day blocks rather than the scale's 14 (a weekly series cannot fill
   a fortnight to the minimum of 3 readings) - see `docs/BLOCK_COMPARISON.md`.
